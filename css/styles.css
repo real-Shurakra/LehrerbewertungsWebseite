@@ -1,0 +1,173 @@
+/* Lehrerbeurteilung Styles */
+
+body
+{
+	font-family: Sans-Serif;
+}
+
+.button:hover
+{
+	cursor: pointer;
+	-moz-user-select: none; /* Firefox */
+}
+
+.header
+{
+	background-color:#191f51;
+	color:white;
+	padding:10px;
+}
+
+.title
+{
+	background-color:#191f51;
+	color:white;
+	padding:2px;	
+}
+
+.message
+{
+	color:green;
+	text-align:center;
+	width:500px;
+}
+
+#main_container
+{
+	width: 100%;
+	height: 100%;
+}
+
+#container_pictorius_logo_header
+{
+	position: fixed;
+}
+
+#container_vertical_menu
+{
+	position: fixed;
+	
+}
+
+#container_pictorius_foto
+{
+	position: fixed;
+	z-index: -1;
+	min-width: 100%;
+}
+
+#container_pictorius_foto img
+{
+    min-width: 100%;
+}
+
+#horizontal_menu_button_teachers
+{
+	position:absolute;
+	display: inline-block;
+	vertical-align: middle;
+	font-weight: bold;
+}
+
+#horizontal_menu_button_students
+{
+	position:absolute;
+	display: inline-block;
+	vertical-align: middle;
+	font-weight: bold;
+
+}
+
+#container_horizontal_menu
+{
+	position: relative;
+	color: white;
+}
+
+.area_border
+{
+	margin:50px
+}
+
+.area
+{
+	background-color:white;
+}
+
+#login_area_teacher
+{
+	margin: 5px;
+}
+
+.input_teacher
+{
+	width: 200px;
+}
+
+#login_area_student
+{
+	margin: 5px;
+}
+
+.input_student
+{
+	width: 20px;
+}
+
+.verticalMenuButton
+{
+	color: white;
+	height: 8%;
+	text-align: left;
+	margin: auto;
+}
+
+#container_pages
+{
+	position: fixed;
+}
+
+#Uebersicht_page
+{
+	visibility: visible;
+	overflow-y:auto
+}
+
+#Fragebogen_erstellen_page
+{
+	visibility: hidden;
+	overflow-y:auto
+}
+
+#Fragen_verwalten_page
+{
+	visibility: hidden;
+	overflow-y:auto;
+}
+
+#Klassen_verwalten_page
+{
+	visibility: hidden;
+	overflow-y:auto;
+}
+
+#input_question_text
+{
+	width:600px;
+}
+
+#container_horizontal_menu table
+{
+	table-layout: fixed;
+	font-weight: bold;
+	border: none;
+	width: 100%;
+	height:100%;
+}
+
+.menuTable
+{
+	width: 80%;
+}
+*/
+

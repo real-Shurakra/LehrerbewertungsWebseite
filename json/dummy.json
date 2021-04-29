@@ -1,0 +1,39 @@
+{
+	"classes":
+	[
+		"ITB1-18",
+		"ITB1-19",
+		"ITB1-20"
+	],
+	"categories":
+	[
+		"Unterricht",
+		"Arbeitsklima",
+		"Lehrer",
+		"Leistungsbewertung",
+		"Raum für Verbesserungsvorschläge und ähnliches"
+	],
+	"questions":
+	[
+		{"text":"Der Unterricht ist gut vorbereitet und sorgfaltig geplant.", "category":"Unterricht", "inUse": false},
+		{"text":"Die Interessen der Schüler werden bei der Unterrichtsplanung berücksichtigt.", "category":"Unterricht", "inUse": false},
+		{"text":"Die Arbeitsanweisungen sind klar verständlich.", "category":"Unterricht", "inUse": false},
+		{"text":"Die Arbeitsmaterialien sind übersichtlich und ordentlich aufbereitet.", "category":"Unterricht", "inUse": false},
+		{"text":"Gruppen- und Einzelarbeiten der Schüler werden abwechslungsreich eingesetzt", "category":"Unterricht", "inUse": false},
+		{"text":"Im Unterricht werden Bezüge zu aktuellen Themen hergestellt.", "category":"Unterricht", "inUse": false},
+		{"text":"Die Unterrichtsinhalte sind praxisbezogen.", "category":"Unterricht", "inUse": false},
+		{"text":"Praxisbezug wird durch Kontakte zu Betrieben und anderen außerschulichen Einrichtungen gewährleistet.", "category":"Unterricht", "inUse": false},
+		{"text":"Die Zusammenarbeit bzw. Absprache zwischen Schule und Betrieben ist angemessen.", "category":"Unterricht", "inUse": false},
+		{"text":"Der Unterricht enthalt ausreichend Übungsphasen", "category":"Unterricht", "inUse": false},
+		{"text":"Unterrichtsergebnisse werden schriftlich festgehalten.", "category":"Unterricht", "inUse": false},
+		{"text":"Tafelbilder und Folien sind gut lesbar.", "category":"Unterricht", "inUse": false},
+		{"text":"Das Arbeitsklima ermuntert die Schüler zur aktiven Unterrichtsbeteiligung.", "category":"Arbeitsklima", "inUse": false},
+		{"text":"Es herrscht ein Arbeitsklima, in dem auch Fehler und abweichende Meinungen zugelassen werden.", "category":"Arbeitsklima", "inUse": false},
+		{"text":"Man traut sich, Fragen zu stellen.", "category":"Arbeitsklima", "inUse": false},
+		{"text":"Man fühlt sich ernst genommen.", "category":"Arbeitsklima", "inUse": false},
+		{"text":"Die Schüler erscheinen pünktlich zum Unterricht.", "category":"Arbeitsklima", "inUse": false},
+		{"text":"Die Schüler entschuldigen ihre Fehlzelten rechtzeitig und ange­messen.", "category":"Arbeitsklima", "inUse": false},
+		{"text":"Die Schüler beteiligen sich angemessen im Unterricht", "category":"Arbeitsklima", "inUse": false}
+	]
+	
+}
