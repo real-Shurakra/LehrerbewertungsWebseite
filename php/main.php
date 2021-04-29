@@ -4,11 +4,11 @@ include 'database_connect.php'; session_start();
 class main {
     
     function aktivierungJS() {
-        if      ($_REQUEST['mode'] == 'loginUser')          {echo json_encode(nutzerverwaltung::loginUser       ($_REQUEST['mail'],         $_REQUEST['passwort']                                                                       ));}
-        elseif  ($_REQUEST['mode'] == 'askAlleFragen')      {echo json_encode(FragenVerwaltung::askAlleFragen   ($_SESSION['usermail']                                                                                                  ));}
-        elseif  ($_REQUEST['mode'] == 'addFrage')           {echo json_encode(FragenVerwaltung::addFrage        ($_REQUEST['frage'],        $_SESSION['usermail'],      $_REQUEST['kategorie']                                          ));}
-        elseif  ($_REQUEST['mode'] == 'aecd587fdc09')       {echo json_encode(self::hilfe                       (                                                                                                                       ));}
-        elseif  ($_REQUEST['mode'] == 'getAlleKetegorien')  {echo json_encode(getAlleKetegorien                 (                                                                                                                       ));}
+        if      ($_REQUEST['mode'] == 'loginUser')          {echo json_encode(nutzerverwaltung::loginUser           ($_REQUEST['mail'],         $_REQUEST['passwort']                                                                           ));}
+        elseif  ($_REQUEST['mode'] == 'askAlleFragen')      {echo json_encode(FragenVerwaltung::askAlleFragen       ($_SESSION['usermail']                                                                                                      ));}
+        elseif  ($_REQUEST['mode'] == 'addFrage')           {echo json_encode(FragenVerwaltung::addFrage            ($_REQUEST['frage'],        $_SESSION['usermail'],      $_REQUEST['kategorie']                                              ));}
+        elseif  ($_REQUEST['mode'] == 'getAlleKategorien')  {echo json_encode(FragenVerwaltung::getAlleKategorien   (                                                                                                                           ));}
+        elseif  ($_REQUEST['mode'] == 'makeFragebogen')     {echo json_encode(FragenVerwaltung::makeFragebogen      ($_REQUEST['name'],         $_REQUEST['anzahl'],        $_REQUEST['klasse'],        $_REQUEST['fach'],  $_REQUEST['fragen'] ));}
         
         
         
@@ -18,28 +18,11 @@ class main {
         
         
         
-        
-        
+        elseif  ($_REQUEST['mode'] == 'aecd587fdc09')       {echo json_encode(self::hilfe                           (                                                                                                                           ));}
         else{echo json_encode(array('returncode'=>1, 'Returnvalue'=>'<strong>Programmfehler Fehlercode: ##PHPMAIN_aktivierungJS_wv</strong><br>mode-Wert fehlerhaft. $_REQUEST[\'mode\'] = ' . strval($_REQUEST['mode'])));}
     }
     //elseif ($_REQUEST['mode'] == '')  {echo json_encode();}
-    /**
-     * @param string $sqlString
-     * @return NULL[]
-     */
-    function sendSQL($sqlString) {
-        global $link;
-        $counter = 0;
-        $data = array();
-        $result = mysqli_query($link, $sqlString);
-        if ($result == false){return $data;}
-        if ($result == true) {return true;}
-        while ($result) {
-            $data[$counter] = mysqli_fetch_array($result);
-            $counter++;
-        }
-        return $data;
-    }
+    
     
     /**
      * @brief Ersetzt Umlaute durch HTML Unicode
@@ -268,7 +251,7 @@ class FragenVerwaltung {
         };
     }
     
-    public static function getAlleKetegorien
+    public static function getAlleKategorien
     (
     )
     {
@@ -297,75 +280,95 @@ class FragenVerwaltung {
         };
     }
 
-//     public static function makeFragebogen() 
-//     {
-//         $sqlstring_MakeFragebogen = "(SELECT id FROM lehrer WHERE mail = '" . $_SESSION['usermail'] ."')
-// INSERT INTO fragebogen 
-// (
-//     zeitstempel, 
-//     id, 
-//     name, 
-//     schueleranzahl, 
-//     klassenname,
-//     fachid 
-//     lehrerid)
-// VALUES
-// (
-//     CURRENT_TIMESTAMP,
-//     DEFAULT,
-//     '" . $_REQUEST['name'] ."', 
-//     '" . $_REQUEST['anzahl'] ."',
-//     '" . $_REQUEST['klasse'] ."',
-//     (SELECT id FROM fach WHERE name = '" . $_REQUEST['fach'] ."'),
-//     (SELECT id FROM lehrer WHERE mail = '" . $_SESSION['usermail'] ."')
-// )
-// RETURNING fragebogen.id;";
-//         $fragebogenID = main::sendSQL($sqlstring_MakeFragebogen)[0][0]['id'];
+    public static function makeFragebogen
+    (
+        $name,
+        $anzahl,
+        $klasse,
+        $fach,
+        $fragen
+    ) 
+    {
+        $sqlstring_MakeFragebogen = "
+INSERT INTO fragebogen 
+(
+    zeitstempel, 
+    id, 
+    name, 
+    schueleranzahl, 
+    klassename,
+    fachid, 
+    lehrerid)
+VALUES
+(
+    CURRENT_TIMESTAMP,
+    DEFAULT,
+    '" . $_REQUEST['name'] ."', 
+    '" . $_REQUEST['anzahl'] ."',
+    '" . $_REQUEST['klasse'] ."',
+    (SELECT id FROM fach WHERE name = '" . $_REQUEST['fach'] ."'),
+    (SELECT id FROM lehrer WHERE mail = '" . $_SESSION['usermail'] ."')
+)";
+        global $link;
+        $sqlstring_MakeFragebogen_Result = mysqli_query($link, $sqlstring_MakeFragebogen);
+        if (!$sqlstring_MakeFragebogen_Result) {
+            return array
+            (
+                'returncode'=>-1,
+                'returnvalue'=>'Konnte Fragebogen nicht erstellen.'
+            );
+        }
+        $sqlstring_MakeFragebogen_Result_Data = mysqli_fetch_array($sqlstring_MakeFragebogen_Result);
+        var_dump($sqlstring_MakeFragebogen_Result_Data);
+        
 //         $sqlstring_InsertFragebogen = "INSERT INTO nm_frage_fragebogen (bogenid, fragenid) VALUES";
 //         for ($i = 0; $i < $_REQUEST['fragen']; $i++) {
 //             $sqlstring_InsertFragebogen .= "(" . $fragebogenID . ", (SELECT id FROM fragen WHERE frage = " . $_REQUEST['fragen'][$i] . " AND lehrerid = (SELECT id FROM lehrer WHERE mail = '" . $_SESSION['usermail'] ."'))";
 //         }
 //         $sqlstring_InsertFragebogen .= ";";
 //         main::sendSQL($sqlstring_InsertFragebogen);
-        
-//     }
+    }
     
-//     public static function genCodes($anz, $id) {
-//         for ($i = 0; $i < $anz; $i++) {
-//             while (true) {
-//                 $code = self::genNumber() . '-' . self::genNumber() . '-' . self::genNumber() . '-' . self::genNumber();
-//                 if (count(main::sendSQL("SELECT * FROM codes WHERE codehash = '" . $code . "'")) == 0){
-//                     main::sendSQL("INSERT INTO codes (codehash, fragebogenid) VALUES ('" . $code . "', " . $id . ");");
-//                     echo $code;
-//                     continue;
-//                 }
-//             }
-//         }
-//     }
+    public static function genCodes($anz, $id) {
+        for ($i = 0; $i < $anz; $i++) {
+            while (true) {
+                $code = self::genNumber() . '-' . self::genNumber() . '-' . self::genNumber() . '-' . self::genNumber();
+                if (count(main::sendSQL("SELECT * FROM codes WHERE codehash = '" . $code . "'")) == 0){
+                    main::sendSQL("INSERT INTO codes (codehash, fragebogenid) VALUES ('" . $code . "', " . $id . ");");
+                    echo $code;
+                    continue;
+                }
+            }
+        }
+    }
     
-//     function genNumber() {
-//         $numb = random_int(0, 99);
-//         if ($numb <= 9){
-//             $numb = '0' . $numb;
-//         }
-//         return $numb;
-//     }
+    function genNumber() {
+        $numb = random_int(0, 99);
+        if ($numb <= 9){
+            $numb = '0' . $numb;
+        }
+        return $numb;
+    }
 }
 
 if (isset($_REQUEST['mode'])){main::aktivierungJS();}
 //////////////////////////////////////////  DEBUG  /////////////////////////////////////////////
-// session_unset();
+//session_unset();
 
-// $_SESSION['usermail']       = 'temp.dump@hotmail.com';
+//$_SESSION['usermail']       = 'temp.dump@hotmail.com';
 
-// $_REQUEST['mode']           = 'askAlleFragen';
+//$_REQUEST['mode']           = 'makeFragebogen';
+
+//$_REQUEST['frage']          = 'Tafelbilder und Folien sind gut lesbar.';
+//$_REQUEST['mail']           = 'temp.dump@hotmail.com';
+//$_REQUEST['passwort']       = 'Admin';
+//$_REQUEST['kategorie']      = 'Unterricht';
+//$_REQUEST['name']           = 'BogenX';
+//$_REQUEST['anzahl']         = '10';
+//$_REQUEST['klasse']         = 'ITB1-19';
+//$_REQUEST['fach']           = 'ITS';
+//$_REQUEST['fragen']         = array('Tafelbilder und Folien sind gut lesbar.', 'Die Unterrichtsinhalte sind praxisbezogen.');
 
 
-// $_REQUEST['frage']          = 'Tafelbilder und Folien sind gut lesbar.';
-// $_REQUEST['mail']           = 'temp.dump@hotmail.com';
-// $_REQUEST['passwort']       = 'Admin';
-// $_REQUEST['kategorie']      = 'Unterricht';
-
-
-// $fun = new main();
-// $fun->aktivierungJS();
+//$fun = new main();
+//$fun->aktivierungJS();
