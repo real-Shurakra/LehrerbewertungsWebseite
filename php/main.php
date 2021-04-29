@@ -1,6 +1,8 @@
 <?php
 include 'database_connect.php'; session_start();
 
+
+
 class main {
     
     function aktivierungJS() {
@@ -56,6 +58,26 @@ class main {
             'FILES'=>$_FILES,
             'SERVER'=>$_SERVER
         );
+    }
+       
+    public static function checkSemicolon($var)
+    {
+        if (is_string($var))
+        {
+            return str_replace(';', '', $var);
+        }
+        elseif (is_array($var))
+        {
+            $var_Keys = array_keys($var);
+            for ($i = 0; $i < count($var); $i++) {
+                $var[$var_Keys[$i]] = self::checkSemicolon($var[$var_Keys[$i]]);
+            }
+            return $var;
+        }
+        else
+        {
+            return $var;
+        }
     }
 }
 
@@ -351,16 +373,13 @@ VALUES
     }
 }
 
-if (isset($_REQUEST['mode'])){main::aktivierungJS();}
+
 //////////////////////////////////////////  DEBUG  /////////////////////////////////////////////
 // session_unset();
-
 // $_SESSION['usermail']       = 'temp.dump@hotmail.com';
-
-// $_REQUEST['mode']           = 'askAlleFragen';
-
+// $_REQUEST['mode']           = 'aecd587fdc09';
 // $_REQUEST['frage']          = 'Tafelbilder und Folien sind gut lesbar.';
-// $_REQUEST['mail']           = 'temp.dump@hotmail.com';
+// $_REQUEST['mail']           = 'temp.dum;;;;;;;;;;;;;;p@hotmail.com';
 // $_REQUEST['passwort']       = 'Admin';
 // $_REQUEST['kategorie']      = 'Unterricht';
 // $_REQUEST['name']           = 'BogenX';
@@ -368,7 +387,11 @@ if (isset($_REQUEST['mode'])){main::aktivierungJS();}
 // $_REQUEST['klasse']         = 'ITB1-19';
 // $_REQUEST['fach']           = 'ITS';
 // $_REQUEST['fragen']         = array('Tafelbilder und Folien sind gut lesbar.', 'Die Unterrichtsinhalte sind praxisbezogen.');
+//////////////////////////////////////////  DEBUG END  /////////////////////////////////////////
 
+if (isset($_REQUEST['mode'])){
+    $_REQUEST = main::checkSemicolon($_REQUEST);
+    $jsablauf = new main();
+    $jsablauf->aktivierungJS();
+}
 
-// $fun = new main();
-// $fun->aktivierungJS();
