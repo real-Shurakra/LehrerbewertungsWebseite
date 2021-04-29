@@ -223,7 +223,7 @@ class FragenVerwaltung {
                 $sqlquary_AlleFragen_Result_Data[$i][0] = main::toDE($sqlquary_AlleFragen_Result_Data[$i][0]);
                 $sqlquary_AlleFragen_Result_Data[$i][1] = main::toDE($sqlquary_AlleFragen_Result_Data[$i][1]);
             }
-            $kategorien = self::getAlleKetegorien();
+            $kategorien = self::getAlleKategorien();
             if ($kategorien['returncode'] == 0){
                 return array(
                     'returncode'=>0,
@@ -353,22 +353,22 @@ VALUES
 
 if (isset($_REQUEST['mode'])){main::aktivierungJS();}
 //////////////////////////////////////////  DEBUG  /////////////////////////////////////////////
-//session_unset();
+// session_unset();
 
-//$_SESSION['usermail']       = 'temp.dump@hotmail.com';
+// $_SESSION['usermail']       = 'temp.dump@hotmail.com';
 
-//$_REQUEST['mode']           = 'makeFragebogen';
+// $_REQUEST['mode']           = 'askAlleFragen';
 
-//$_REQUEST['frage']          = 'Tafelbilder und Folien sind gut lesbar.';
-//$_REQUEST['mail']           = 'temp.dump@hotmail.com';
-//$_REQUEST['passwort']       = 'Admin';
-//$_REQUEST['kategorie']      = 'Unterricht';
-//$_REQUEST['name']           = 'BogenX';
-//$_REQUEST['anzahl']         = '10';
-//$_REQUEST['klasse']         = 'ITB1-19';
-//$_REQUEST['fach']           = 'ITS';
-//$_REQUEST['fragen']         = array('Tafelbilder und Folien sind gut lesbar.', 'Die Unterrichtsinhalte sind praxisbezogen.');
+// $_REQUEST['frage']          = 'Tafelbilder und Folien sind gut lesbar.';
+// $_REQUEST['mail']           = 'temp.dump@hotmail.com';
+// $_REQUEST['passwort']       = 'Admin';
+// $_REQUEST['kategorie']      = 'Unterricht';
+// $_REQUEST['name']           = 'BogenX';
+// $_REQUEST['anzahl']         = '10';
+// $_REQUEST['klasse']         = 'ITB1-19';
+// $_REQUEST['fach']           = 'ITS';
+// $_REQUEST['fragen']         = array('Tafelbilder und Folien sind gut lesbar.', 'Die Unterrichtsinhalte sind praxisbezogen.');
 
 
-//$fun = new main();
-//$fun->aktivierungJS();
+// $fun = new main();
+// $fun->aktivierungJS();
