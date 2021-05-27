@@ -1,14 +1,13 @@
 -- phpMyAdmin SQL Dump
--- version 4.8.5
+-- version 5.0.2
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Erstellungszeit: 29. Apr 2021 um 15:29
--- Server-Version: 10.1.38-MariaDB
--- PHP-Version: 5.6.40
+-- Erstellungszeit: 27. Mai 2021 um 18:27
+-- Server-Version: 10.4.14-MariaDB
+-- PHP-Version: 7.4.10
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-SET AUTOCOMMIT = 0;
 START TRANSACTION;
 SET time_zone = "+00:00";
 
@@ -46,6 +45,22 @@ CREATE TABLE `codes` (
   `fragebogenid` bigint(20) UNSIGNED NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+--
+-- Daten für Tabelle `codes`
+--
+
+INSERT INTO `codes` (`codehash`, `fragebogenid`) VALUES
+('99-88-77-66', 60),
+('94-23-66-34', 79),
+('61-45-30-52', 80),
+('63-73-28-35', 80),
+('68-51-74-14', 80),
+('71-81-13-06', 80),
+('75-63-90-56', 80),
+('09-48-12-18', 81),
+('25-44-42-03', 82),
+('98-74-40-44', 83);
+
 -- --------------------------------------------------------
 
 --
@@ -57,6 +72,13 @@ CREATE TABLE `fach` (
   `name` varchar(32) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+--
+-- Daten für Tabelle `fach`
+--
+
+INSERT INTO `fach` (`id`, `name`) VALUES
+(1, 'ITS');
+
 -- --------------------------------------------------------
 
 --
@@ -65,13 +87,45 @@ CREATE TABLE `fach` (
 
 CREATE TABLE `fragebogen` (
   `id` bigint(20) UNSIGNED NOT NULL,
-  `zeitstempel` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `zeitstempel` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `name` varchar(255) NOT NULL,
   `lehrerid` bigint(20) UNSIGNED NOT NULL,
   `fachid` bigint(20) UNSIGNED NOT NULL,
   `klassename` varchar(32) NOT NULL,
   `schueleranzahl` smallint(6) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Daten für Tabelle `fragebogen`
+--
+
+INSERT INTO `fragebogen` (`id`, `zeitstempel`, `name`, `lehrerid`, `fachid`, `klassename`, `schueleranzahl`) VALUES
+(58, '2021-05-27 15:11:02', 'BogenX', 1, 1, 'ITB1-19', 1),
+(59, '2021-05-27 15:11:36', 'BogenX', 1, 1, 'ITB1-19', 1),
+(60, '2021-05-27 15:11:37', 'BogenX', 1, 1, 'ITB1-19', 1),
+(61, '2021-05-27 15:11:37', 'BogenX', 1, 1, 'ITB1-19', 1),
+(62, '2021-05-27 15:11:38', 'BogenX', 1, 1, 'ITB1-19', 1),
+(63, '2021-05-27 15:11:54', 'BogenX', 1, 1, 'ITB1-19', 1),
+(64, '2021-05-27 15:13:21', 'BogenX', 1, 1, 'ITB1-19', 1),
+(65, '2021-05-27 15:14:51', 'BogenX', 1, 1, 'ITB1-19', 1),
+(66, '2021-05-27 15:15:28', 'BogenX', 1, 1, 'ITB1-19', 1),
+(67, '2021-05-27 15:15:54', 'BogenX', 1, 1, 'ITB1-19', 1),
+(68, '2021-05-27 15:17:34', 'BogenX', 1, 1, 'ITB1-19', 1),
+(69, '2021-05-27 15:17:47', 'BogenX', 1, 1, 'ITB1-19', 1),
+(70, '2021-05-27 15:17:49', 'BogenX', 1, 1, 'ITB1-19', 1),
+(71, '2021-05-27 15:18:37', 'BogenX', 1, 1, 'ITB1-19', 1),
+(72, '2021-05-27 15:18:42', 'BogenX', 1, 1, 'ITB1-19', 1),
+(73, '2021-05-27 15:20:15', 'BogenX', 1, 1, 'ITB1-19', 1),
+(74, '2021-05-27 15:20:30', 'BogenX', 1, 1, 'ITB1-19', 1),
+(75, '2021-05-27 15:24:23', 'BogenX', 1, 1, 'ITB1-19', 1),
+(76, '2021-05-27 15:25:38', 'BogenX', 1, 1, 'ITB1-19', 1),
+(77, '2021-05-27 15:28:02', 'BogenX', 1, 1, 'ITB1-19', 1),
+(78, '2021-05-27 15:28:54', 'BogenX', 1, 1, 'ITB1-19', 1),
+(79, '2021-05-27 15:29:25', 'BogenX', 1, 1, 'ITB1-19', 1),
+(80, '2021-05-27 15:29:50', 'BogenX', 1, 1, 'ITB1-19', 5),
+(81, '2021-05-27 15:47:25', 'BogenX', 1, 1, 'ITB1-19', 1),
+(82, '2021-05-27 15:47:53', 'BogenX', 1, 1, 'ITB1-19', 1),
+(83, '2021-05-27 15:48:00', 'BogenX', 1, 1, 'ITB1-19', 1);
 
 -- --------------------------------------------------------
 
@@ -150,6 +204,22 @@ INSERT INTO `fragen` (`id`, `frage`, `lehrerid`, `kategorie`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Stellvertreter-Struktur des Views `getfragebogen`
+-- (Siehe unten für die tatsächliche Ansicht)
+--
+CREATE TABLE `getfragebogen` (
+`id` bigint(20) unsigned
+,`zeitstempel` timestamp
+,`name` varchar(255)
+,`fach` varchar(32)
+,`klassename` varchar(32)
+,`schueleranzahl` smallint(6)
+,`lehrerid` bigint(20) unsigned
+);
+
+-- --------------------------------------------------------
+
+--
 -- Tabellenstruktur für Tabelle `klasse`
 --
 
@@ -157,6 +227,13 @@ CREATE TABLE `klasse` (
   `name` varchar(32) NOT NULL,
   `schueleranzahl` smallint(6) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Daten für Tabelle `klasse`
+--
+
+INSERT INTO `klasse` (`name`, `schueleranzahl`) VALUES
+('ITB1-19', 30);
 
 -- --------------------------------------------------------
 
@@ -191,6 +268,64 @@ CREATE TABLE `nm_frage_fragebogen` (
   `bogenid` bigint(20) UNSIGNED NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+--
+-- Daten für Tabelle `nm_frage_fragebogen`
+--
+
+INSERT INTO `nm_frage_fragebogen` (`frageid`, `bogenid`) VALUES
+(7, 58),
+(7, 59),
+(7, 60),
+(7, 61),
+(7, 62),
+(7, 63),
+(7, 64),
+(7, 65),
+(7, 66),
+(7, 67),
+(7, 68),
+(7, 69),
+(7, 70),
+(7, 71),
+(7, 72),
+(7, 73),
+(7, 74),
+(7, 75),
+(7, 76),
+(7, 77),
+(7, 78),
+(7, 79),
+(7, 80),
+(7, 81),
+(7, 82),
+(7, 83),
+(35, 58),
+(35, 59),
+(35, 60),
+(35, 61),
+(35, 62),
+(35, 63),
+(35, 64),
+(35, 65),
+(35, 66),
+(35, 67),
+(35, 68),
+(35, 69),
+(35, 70),
+(35, 71),
+(35, 72),
+(35, 73),
+(35, 74),
+(35, 75),
+(35, 76),
+(35, 77),
+(35, 78),
+(35, 79),
+(35, 80),
+(35, 81),
+(35, 82),
+(35, 83);
+
 -- --------------------------------------------------------
 
 --
@@ -214,6 +349,15 @@ CREATE TABLE `verbesserungen` (
   `bogenid` bigint(20) UNSIGNED NOT NULL,
   `vorschlag` text NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Struktur des Views `getfragebogen`
+--
+DROP TABLE IF EXISTS `getfragebogen`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getfragebogen`  AS  select `fragebogen`.`id` AS `id`,`fragebogen`.`zeitstempel` AS `zeitstempel`,`fragebogen`.`name` AS `name`,`fach`.`name` AS `fach`,`fragebogen`.`klassename` AS `klassename`,`fragebogen`.`schueleranzahl` AS `schueleranzahl`,`fragebogen`.`lehrerid` AS `lehrerid` from (`fragebogen` left join `fach` on(`fragebogen`.`fachid` = `fach`.`id`)) ;
 
 --
 -- Indizes der exportierten Tabellen
@@ -310,13 +454,13 @@ ALTER TABLE `bewertungen`
 -- AUTO_INCREMENT für Tabelle `fach`
 --
 ALTER TABLE `fach`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT für Tabelle `fragebogen`
 --
 ALTER TABLE `fragebogen`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=84;
 
 --
 -- AUTO_INCREMENT für Tabelle `fragen`

@@ -11,8 +11,8 @@ class main {
         elseif  ($_REQUEST['mode'] == 'addFrage')           {echo json_encode(FragenVerwaltung::addFrage            ($_REQUEST['frage'],        $_SESSION['usermail'],      $_REQUEST['kategorie']                                              ));}
         elseif  ($_REQUEST['mode'] == 'getAlleKategorien')  {echo json_encode(FragenVerwaltung::getAlleKategorien   (                                                                                                                           ));}
         elseif  ($_REQUEST['mode'] == 'makeFragebogen')     {echo json_encode(FragenVerwaltung::makeFragebogen      ($_REQUEST['name'],         $_REQUEST['anzahl'],        $_REQUEST['klasse'],        $_REQUEST['fach'],  $_REQUEST['fragen'] ));}
-        
-        
+        elseif  ($_REQUEST['mode'] == 'getFragebogens')     {echo json_encode(FragenVerwaltung::getFragebogens      (                                                                                                                           ));}
+        elseif  ($_REQUEST['mode'] == 'getCodes')           {echo json_encode(FragenVerwaltung::getCodes            ($_REQUEST['fbId']                                                                                                          ));}
         
         
         
@@ -320,56 +320,144 @@ INSERT INTO fragebogen
     schueleranzahl, 
     klassename,
     fachid, 
-    lehrerid)
+    lehrerid
+)
 VALUES
 (
     CURRENT_TIMESTAMP,
     DEFAULT,
-    '" . $_REQUEST['name'] ."', 
-    '" . $_REQUEST['anzahl'] ."',
-    '" . $_REQUEST['klasse'] ."',
-    (SELECT id FROM fach WHERE name = '" . $_REQUEST['fach'] ."'),
+    '" . $name ."', 
+    '" . $anzahl ."',
+    '" . $klasse ."',
+    (SELECT id FROM fach WHERE name = '" . $fach ."'),
     (SELECT id FROM lehrer WHERE mail = '" . $_SESSION['usermail'] ."')
-)";
+);";
         global $link;
         $sqlstring_MakeFragebogen_Result = mysqli_query($link, $sqlstring_MakeFragebogen);
         if (!$sqlstring_MakeFragebogen_Result) {
-            return array
+            $antwort = array
             (
                 'returncode'=>-1,
-                'returnvalue'=>'Konnte Fragebogen nicht erstellen.'
+                'returnvalue'=>'<strong>Fehler</strong><br>Konnte Fragebogen nicht erstellen.'
             );
         }
-        $sqlstring_MakeFragebogen_Result_Data = mysqli_fetch_array($sqlstring_MakeFragebogen_Result);
-        var_dump($sqlstring_MakeFragebogen_Result_Data);
-        
-//         $sqlstring_InsertFragebogen = "INSERT INTO nm_frage_fragebogen (bogenid, fragenid) VALUES";
-//         for ($i = 0; $i < $_REQUEST['fragen']; $i++) {
-//             $sqlstring_InsertFragebogen .= "(" . $fragebogenID . ", (SELECT id FROM fragen WHERE frage = " . $_REQUEST['fragen'][$i] . " AND lehrerid = (SELECT id FROM lehrer WHERE mail = '" . $_SESSION['usermail'] ."'))";
-//         }
-//         $sqlstring_InsertFragebogen .= ";";
-//         main::sendSQL($sqlstring_InsertFragebogen);
+        else{
+            $sqlquery_GetLastFbId = "SELECT MAX(id) FROM fragebogen WHERE `lehrerid` = (SELECT id FROM lehrer WHERE mail = 'temp.dump@hotmail.com');";
+            $sqlquery_GetLastFbId_Result = mysqli_query($link, $sqlquery_GetLastFbId);
+            $sqlquery_GetLastFbId_Result_Data = mysqli_fetch_array($sqlquery_GetLastFbId_Result);
+            $fbId = $sqlquery_GetLastFbId_Result_Data['MAX(id)'];
+            $row_sqlquery_InsertFbFragen = "INSERT INTO nm_frage_fragebogen (bogenid, frageid) VALUES";
+            for ($i = 0; $i < count($fragen); $i++) {
+                $row_sqlquery_InsertFbFragen .= "
+(" . $fbId . ", 
+(   
+    SELECT id FROM fragen WHERE 
+        (
+            frage = '" . $fragen[$i] ."' 
+         	AND 
+            lehrerid = 
+            ( 
+                SELECT id 
+                FROM lehrer 
+                WHERE mail = '" . $_SESSION['usermail'] ."' 
+            ) 
+        )
+        OR
+        (
+            frage = '" . $fragen[$i] ."' 
+            AND 
+            lehrerid IS NULL)
+    )
+),";
+            }
+            $sqlquery_InsertFbFragen = rtrim($row_sqlquery_InsertFbFragen, ",");
+            $sqlquery_InsertFbFragen .= ";";
+            mysqli_query($link, $sqlquery_InsertFbFragen);
+            if (self::genCodes($anzahl, $fbId) == 1){
+                $antwort = array(
+                    'retruncode' => 1,
+                    'returnvalue' => '<strong>WARNUNG!</strong><br>Die maximale Anzahl an Codes ist bereits erreicht.'
+                );
+            }
+            $antwort = array(
+                'retruncode' => 0,
+                'returnvalue' => '<strong>Erfolg.</strong><br>Fragebogen angelegt.'
+            );
+        }
+        return $antwort; 
     }
     
-    public static function genCodes($anz, $id) {
+    function genCodes
+    (
+        $anz, 
+        $fbid
+    ) 
+    {
+        global $link;
         for ($i = 0; $i < $anz; $i++) {
+            $memcode = array();
+            $counter = 0;
             while (true) {
+                $memcode = array();
                 $code = self::genNumber() . '-' . self::genNumber() . '-' . self::genNumber() . '-' . self::genNumber();
-                if (count(main::sendSQL("SELECT * FROM codes WHERE codehash = '" . $code . "'")) == 0){
-                    main::sendSQL("INSERT INTO codes (codehash, fragebogenid) VALUES ('" . $code . "', " . $id . ");");
-                    echo $code;
+                if (in_array($code, $memcode)){
+                    array_push($memcode, $code);
+                    continue;
+                }
+                array_push($memcode, $code);
+//                 $code = '99-88-77-66';
+                $test = mysqli_query($link, "SELECT * FROM codes WHERE codehash = '" . $code . "'");
+                if ($test->num_rows == 0){
+                    mysqli_query($link, "INSERT INTO codes (codehash, fragebogenid) VALUES ('" . $code . "', " . $fbid . ");");
+                    break;
+                }
+                else{
+                    if ($counter == 100000000){
+                        return 1;
+                        break;
+                    }
+                    $counter++;
                     continue;
                 }
             }
         }
     }
     
-    function genNumber() {
+    function genNumber
+    () 
+    {
         $numb = random_int(0, 99);
         if ($numb <= 9){
             $numb = '0' . $numb;
         }
         return $numb;
+    }
+    
+    public static function getFragebogens
+    ()
+    {
+        global $link;
+        $sqlquery_GetFragebogens = "SELECT `id`,`zeitstempel`,`name`,`fach`,`klassename`,`schueleranzahl` FROM `getfragebogen` WHERE lehrerid = (SELECT lehrer.id FROM lehrer WHERE lehrer.mail = '" . $_SESSION['usermail'] ."')";
+        $sqlquery_GetFragebogens_Result = mysqli_query($link, $sqlquery_GetFragebogens);
+        for ($i = 0; $i < $sqlquery_GetFragebogens_Result->num_rows; $i++) {
+            $sqlquery_GetFragebogens_Result_Data[$i] = mysqli_fetch_array($sqlquery_GetFragebogens_Result);
+        }
+        return $sqlquery_GetFragebogens_Result_Data;
+        
+    }
+
+    public static function getCodes
+    (
+        $fbId
+    ) 
+    {
+        global $link;
+        $sqlquery_GetCodes = "SELECT codehash FROM codes WHERE fragebogenid = '" . $fbId . "'";
+        $sqlquery_GetCodes_Result = mysqli_query($link, $sqlquery_GetCodes);
+        for ($i = 0; $i < $sqlquery_GetCodes_Result->num_rows; $i++) {
+            $sqlquery_GetCodes_Result_Data[$i] = mysqli_fetch_array($sqlquery_GetCodes_Result);
+        }
+        return $sqlquery_GetCodes_Result_Data;
     }
 }
 
@@ -377,16 +465,17 @@ VALUES
 //////////////////////////////////////////  DEBUG  /////////////////////////////////////////////
 // session_unset();
 // $_SESSION['usermail']       = 'temp.dump@hotmail.com';
-// $_REQUEST['mode']           = 'aecd587fdc09';
+// $_REQUEST['mode']           = 'getCodes';
 // $_REQUEST['frage']          = 'Tafelbilder und Folien sind gut lesbar.';
-// $_REQUEST['mail']           = 'temp.dum;;;;;;;;;;;;;;p@hotmail.com';
+// $_REQUEST['mail']           = 'temp.dump@hotmail.com';
 // $_REQUEST['passwort']       = 'Admin';
 // $_REQUEST['kategorie']      = 'Unterricht';
 // $_REQUEST['name']           = 'BogenX';
-// $_REQUEST['anzahl']         = '10';
+// $_REQUEST['anzahl']         = '1';
 // $_REQUEST['klasse']         = 'ITB1-19';
 // $_REQUEST['fach']           = 'ITS';
-// $_REQUEST['fragen']         = array('Tafelbilder und Folien sind gut lesbar.', 'Die Unterrichtsinhalte sind praxisbezogen.');
+// $_REQUEST['fbId']           = '80';
+// $_REQUEST['fragen']         = array('Die Beurteilungskriterien sind nachvollziehbar.', 'Die Unterrichtsinhalte sind praxisbezogen.');
 //////////////////////////////////////////  DEBUG END  /////////////////////////////////////////
 
 if (isset($_REQUEST['mode'])){
