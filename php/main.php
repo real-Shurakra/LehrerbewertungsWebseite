@@ -36,13 +36,13 @@ class main {
         $string
     )
     {
-        $string = str_replace('Ü', '&#220;', $string);
-        $string = str_replace('ü', '&#252;', $string);
-        $string = str_replace('Ö', '&#214;', $string);
-        $string = str_replace('ö', '&#246;', $string);
-        $string = str_replace('Ä', '&#196;', $string);
-        $string = str_replace('ä', '&#228;', $string);
-        $string = str_replace('ß', '&#223;', $string);
+        $string = str_replace('ï¿½', '&#220;', $string);
+        $string = str_replace('ï¿½', '&#252;', $string);
+        $string = str_replace('ï¿½', '&#214;', $string);
+        $string = str_replace('ï¿½', '&#246;', $string);
+        $string = str_replace('ï¿½', '&#196;', $string);
+        $string = str_replace('ï¿½', '&#228;', $string);
+        $string = str_replace('ï¿½', '&#223;', $string);
         return $string;
     }
     
@@ -81,14 +81,13 @@ class main {
     }
 }
 
-class validation 
-{
+class validation {
     /**
      * @brief Encode des Passworts
      * @details 
      * @param string $passwort =  String mit zu verschluessendem Inhalt
      * @return string $antwort = Sha512 verschluesselter String
-     * @note In der Datei 'save.php' stehen die Variablen die bei der Verschlüsselnug benötigt werden.
+     * @note In der Datei 'save.php' stehen die Variablen die bei der Verschlï¿½sselnug benï¿½tigt werden.
      */
     function pass_encode
     (
@@ -101,36 +100,6 @@ class validation
 }
 
 class nutzerverwaltung {
-    
-//     public static function registerUser() // Funktion kann nur mit einem JS aufruf aufgerufen werden. 
-//     {
-//         try {
-//             // abfrage ob sich diese Mailadresse bereits in der Datenbank befindet
-//             $result = main::sendSQL("SELECT id FROM lehrer WHERE mail = '" . $_REQUEST['mail'] . "';");
-//             if (count($result) == 0) {
-//                 $sqlString_InsertNewUser = "
-//                     INSERT INTO lehrer (
-//                         id, 
-//                         mail, 
-//                         vorname, 
-//                         nachname, 
-//                         passwort, 
-//                         istroot)
-//                     VALUES (
-//                         DEFAULT,
-//                         '" . $_REQUEST['mail'] . "',
-//                         '" . $_REQUEST['vornname'] . "',
-//                         '" . $_REQUEST['nachname'] . "',
-//                         '" . validation::pass_encode($_REQUEST['passwort']) . "',
-//                         FALSE);";
-//                 main::sendSQL($sqlString_InsertNewUser);
-//                 return array('returncode'=>0, 'returnvalue'=>true);
-//             }
-//             elseif (count($result) == 1) {return array('returncode'=>-1, 'returnvalue'=>false);}
-//             else {return array('returncode'=>1, 'returnvalue'=>'<strong>Datenbankfehler Fehlercode: ##PHPMAIN_registerUser_cue</strong>W&#228;rend der Verarbeitung ist ein Fehler aufgetreten.<br>count($result) = ' . count($result));}
-//         } 
-//         catch (Exception $e) {return array('returncode'=>1, 'returnvalue'=>'<strong>Unbekannter Fehler Fehlercode: ##PHPMAIN_registerUser_ue</strong>W&#228;rend der Verarbeitung ist ein Fehler aufgetreten.<br><br>' . $e);}
-//     }
     
     public static function loginUser
     (
@@ -171,37 +140,11 @@ class nutzerverwaltung {
             return array ('returncode'=>4, 'Returnvalue'=>'<strong>Unbekannter Fehler Fehlercode: ##PHPMAIN_loginUser_ue</strong><br>Bei der ausf&#252;rung der Funktion ist folgender Fehler aufgetreten:<br><br>' . $e);
         }
     }
-
-//     public static function changePassword() // Funktion kann nur mit einem JS aufruf aufgerufen werden. 
-//     {
-//         try {
-//             $result = main::sendSQL("SELECT id FROM lehrer WHERE mail = '" . $_SESSION['usermail'] . "' AND passwort = '" . validation::pass_encode($_REQUEST['oldpasswort']) . "';");
-//             if (count($result) == 1){
-//                 $sqlString_ChangePassword = "UPDATE lehrer SET passwort = '" . validation::pass_encode($_REQUEST['newpasswort']) . "' WHERE mail = '" . $_SESSION['usermail'] . "';";
-//                 main::sendSQL($sqlString_ChangePassword);
-//                 return array('returncode'=>0, 'returnvalue'=>true);
-//             }
-//             elseif (count($result) == 0) {
-//                 return array('returncode'=>-1, 'returnvalue'=>false);
-//             }
-//             else {
-//                 return array('returncode'=>1, 'returnvalue'=>'<strong>Datenbankfehler Fehlercode: ##PHPMAIN_changePassword_cue</strong>W&#228;rend der Verarbeitung ist ein Fehler aufgetreten.<br>count($result) = ' . count($result));
-//             }
-//         } catch (Exception $e) {
-//             return array ('returncode'=>2, 'Returnvalue'=>'<strong>Unbekannter Fehler Fehlercode: ##PHPMAIN_loginUser_ue</strong><br>Bei der ausf&#252;rung der Funktion ist folgender Fehler aufgetreten:<br><br>' . $e);
-//         }
-//     }
 }
 
 class FragenVerwaltung {
     
-    public static function addFrage
-    (
-        $frage,
-        $mail,
-        $kategorie
-    )
-    {
+    public static function addFrage ($frage, $mail, $kategorie) {
         global $link;
         $sqlquary_SucheFrage = "SELECT * FROM fragen WHERE frage = '" . $frage . "' AND (lehrerid IS NULL OR lehrerid = (SELECT id FROM lehrer WHERE mail = '" . $mail . "'));";
         $sqlquary_SucheFrage_Result = mysqli_query($link, $sqlquary_SucheFrage);
@@ -227,11 +170,7 @@ class FragenVerwaltung {
         }
     }
     
-    public static function askAlleFragen
-    (
-        $mail
-    ) 
-    {
+    public static function askAlleFragen ($mail) {
         try 
         {
             global $link;
@@ -273,10 +212,7 @@ class FragenVerwaltung {
         };
     }
     
-    public static function getAlleKategorien
-    (
-    )
-    {
+    public static function getAlleKategorien () {
         try 
         {
             global $link;
@@ -302,36 +238,28 @@ class FragenVerwaltung {
         };
     }
 
-    public static function makeFragebogen
-    (
-        $name,
-        $anzahl,
-        $klasse,
-        $fach,
-        $fragen
-    ) 
-    {
+    public static function makeFragebogen ($name, $anzahl, $klasse, $fach, $fragen)  {
         $sqlstring_MakeFragebogen = "
-INSERT INTO fragebogen 
-(
-    zeitstempel, 
-    id, 
-    name, 
-    schueleranzahl, 
-    klassename,
-    fachid, 
-    lehrerid
-)
-VALUES
-(
-    CURRENT_TIMESTAMP,
-    DEFAULT,
-    '" . $name ."', 
-    '" . $anzahl ."',
-    '" . $klasse ."',
-    (SELECT id FROM fach WHERE name = '" . $fach ."'),
-    (SELECT id FROM lehrer WHERE mail = '" . $_SESSION['usermail'] ."')
-);";
+            INSERT INTO fragebogen 
+            (
+                zeitstempel, 
+                id, 
+                name, 
+                schueleranzahl, 
+                klassename,
+                fachid, 
+                lehrerid
+            )
+            VALUES
+            (
+                CURRENT_TIMESTAMP,
+                DEFAULT,
+                '" . $name ."', 
+                '" . $anzahl ."',
+                '" . $klasse ."',
+                (SELECT id FROM fach WHERE name = '" . $fach ."'),
+                (SELECT id FROM lehrer WHERE mail = '" . $_SESSION['usermail'] ."')
+            );";
         global $link;
         $sqlstring_MakeFragebogen_Result = mysqli_query($link, $sqlstring_MakeFragebogen);
         if (!$sqlstring_MakeFragebogen_Result) {
@@ -349,26 +277,26 @@ VALUES
             $row_sqlquery_InsertFbFragen = "INSERT INTO nm_frage_fragebogen (bogenid, frageid) VALUES";
             for ($i = 0; $i < count($fragen); $i++) {
                 $row_sqlquery_InsertFbFragen .= "
-(" . $fbId . ", 
-(   
-    SELECT id FROM fragen WHERE 
-        (
-            frage = '" . $fragen[$i] ."' 
-         	AND 
-            lehrerid = 
-            ( 
-                SELECT id 
-                FROM lehrer 
-                WHERE mail = '" . $_SESSION['usermail'] ."' 
-            ) 
-        )
-        OR
-        (
-            frage = '" . $fragen[$i] ."' 
-            AND 
-            lehrerid IS NULL)
-    )
-),";
+                    (" . $fbId . ", 
+                    (   
+                        SELECT id FROM fragen WHERE 
+                            (
+                                frage = '" . $fragen[$i] ."' 
+                                AND 
+                                lehrerid = 
+                                ( 
+                                    SELECT id 
+                                    FROM lehrer 
+                                    WHERE mail = '" . $_SESSION['usermail'] ."' 
+                                ) 
+                            )
+                            OR
+                            (
+                                frage = '" . $fragen[$i] ."' 
+                                AND 
+                                lehrerid IS NULL)
+                        )
+                    ),";
             }
             $sqlquery_InsertFbFragen = rtrim($row_sqlquery_InsertFbFragen, ",");
             $sqlquery_InsertFbFragen .= ";";
@@ -387,12 +315,7 @@ VALUES
         return $antwort; 
     }
     
-    function genCodes
-    (
-        $anz, 
-        $fbid
-    ) 
-    {
+    function genCodes($anz, $fbid) {
         global $link;
         for ($i = 0; $i < $anz; $i++) {
             $memcode = array();
@@ -405,7 +328,6 @@ VALUES
                     continue;
                 }
                 array_push($memcode, $code);
-//                 $code = '99-88-77-66';
                 $test = mysqli_query($link, "SELECT * FROM codes WHERE codehash = '" . $code . "'");
                 if ($test->num_rows == 0){
                     mysqli_query($link, "INSERT INTO codes (codehash, fragebogenid) VALUES ('" . $code . "', " . $fbid . ");");
@@ -423,9 +345,7 @@ VALUES
         }
     }
     
-    function genNumber
-    () 
-    {
+    function genNumber () {
         $numb = random_int(0, 99);
         if ($numb <= 9){
             $numb = '0' . $numb;
@@ -433,24 +353,37 @@ VALUES
         return $numb;
     }
     
-    public static function getFragebogens
-    ()
-    {
+    public static function getFragebogens () {
         global $link;
         $sqlquery_GetFragebogens = "SELECT `id`,`zeitstempel`,`name`,`fach`,`klassename`,`schueleranzahl` FROM `getfragebogen` WHERE lehrerid = (SELECT lehrer.id FROM lehrer WHERE lehrer.mail = '" . $_SESSION['usermail'] ."')";
         $sqlquery_GetFragebogens_Result = mysqli_query($link, $sqlquery_GetFragebogens);
         for ($i = 0; $i < $sqlquery_GetFragebogens_Result->num_rows; $i++) {
             $sqlquery_GetFragebogens_Result_Data[$i] = mysqli_fetch_array($sqlquery_GetFragebogens_Result);
         }
+        $sqlquery_GetFBAnswers = "SELECT bogenid, bewertung FROM bewertungen";
+        $sqlquery_GetFBAnswers_Result = mysqli_query($link, $sqlquery_GetFBAnswers);
+        if ($sqlquery_GetFBAnswers_Result['num_rows'] == 0){
+            $antwort = $sqlquery_GetFragebogens_Result_Data;
+            for ($i=0; $i < count($antwort; $i++) { 
+                
+                $antwort[$i]->append(array('punkzahl'=>0))
+                $antwort[$i]->append(array('punkzahl'=>0))
+            }
+            return ;
+        };
+        for ($i=0; $i < count($sqlquery_GetFBAnswers_Result); $i++) { 
+            $sqlquery_GetFBAnswers_Result_Data[$i] = mysqli_fetch_array($sqlquery_GetFBAnswers_Result);
+        }
+        var_dump(key($sqlquery_GetFragebogens_Result_Data[0]['id']));
+
+        //for count($sqlquery_GetFragebogens_Result_Data){
+        //    
+        //}
         return $sqlquery_GetFragebogens_Result_Data;
         
     }
 
-    public static function getCodes
-    (
-        $fbId
-    ) 
-    {
+    public static function getCodes ($fbId) {
         global $link;
         $sqlquery_GetCodes = "SELECT codehash FROM codes WHERE fragebogenid = '" . $fbId . "'";
         $sqlquery_GetCodes_Result = mysqli_query($link, $sqlquery_GetCodes);
@@ -463,19 +396,19 @@ VALUES
 
 
 //////////////////////////////////////////  DEBUG  /////////////////////////////////////////////
-// session_unset();
-// $_SESSION['usermail']       = 'temp.dump@hotmail.com';
-// $_REQUEST['mode']           = 'getCodes';
-// $_REQUEST['frage']          = 'Tafelbilder und Folien sind gut lesbar.';
-// $_REQUEST['mail']           = 'temp.dump@hotmail.com';
-// $_REQUEST['passwort']       = 'Admin';
-// $_REQUEST['kategorie']      = 'Unterricht';
-// $_REQUEST['name']           = 'BogenX';
-// $_REQUEST['anzahl']         = '1';
-// $_REQUEST['klasse']         = 'ITB1-19';
-// $_REQUEST['fach']           = 'ITS';
-// $_REQUEST['fbId']           = '80';
-// $_REQUEST['fragen']         = array('Die Beurteilungskriterien sind nachvollziehbar.', 'Die Unterrichtsinhalte sind praxisbezogen.');
+session_unset();
+$_SESSION['usermail']       = 'temp.dump@hotmail.com';
+$_REQUEST['mode']           = 'getFragebogens';
+$_REQUEST['frage']          = 'Tafelbilder und Folien sind gut lesbar.';
+$_REQUEST['mail']           = 'temp.dump@hotmail.com';
+$_REQUEST['passwort']       = 'Admin';
+$_REQUEST['kategorie']      = 'Unterricht';
+$_REQUEST['name']           = 'BogenX';
+$_REQUEST['anzahl']         = '1';
+$_REQUEST['klasse']         = 'ITB1-19';
+$_REQUEST['fach']           = 'ITS';
+$_REQUEST['fbId']           = '80';
+$_REQUEST['fragen']         = array('Die Beurteilungskriterien sind nachvollziehbar.', 'Die Unterrichtsinhalte sind praxisbezogen.');
 //////////////////////////////////////////  DEBUG END  /////////////////////////////////////////
 
 if (isset($_REQUEST['mode'])){

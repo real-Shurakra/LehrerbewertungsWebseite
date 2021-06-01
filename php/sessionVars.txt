@@ -1,5 +1,0 @@
-// bool gibt an ob der nutzer root ist
-$_SESSION['userisroot']
-
-// string die mail des nutzers
-$_SESSION['usermail']
