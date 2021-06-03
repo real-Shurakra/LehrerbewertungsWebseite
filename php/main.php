@@ -354,33 +354,67 @@ class FragenVerwaltung {
     }
     
     public static function getFragebogens () {
+        // hole DB Link
         global $link;
-        $sqlquery_GetFragebogens = "SELECT `id`,`zeitstempel`,`name`,`fach`,`klassename`,`schueleranzahl` FROM `getfragebogen` WHERE lehrerid = (SELECT lehrer.id FROM lehrer WHERE lehrer.mail = '" . $_SESSION['usermail'] ."')";
+        // Abrufen aller Frageboegen eines Lehrers
+        $sqlquery_GetFragebogens = "SELECT * FROM getfragebogen WHERE mail = '" . $_SESSION['usermail'] . "'";
         $sqlquery_GetFragebogens_Result = mysqli_query($link, $sqlquery_GetFragebogens);
-        for ($i = 0; $i < $sqlquery_GetFragebogens_Result->num_rows; $i++) {
-            $sqlquery_GetFragebogens_Result_Data[$i] = mysqli_fetch_array($sqlquery_GetFragebogens_Result);
+        if ($sqlquery_GetFragebogens_Result->num_rows == 0) {
+            // Return wenn keine Frageboegen vorhanden sind
+            return array(
+                returncode => -1,
+                returnvalue => main::toDE('<strong>Keine Bögen</srtong><br>Sie haben bisther keine Fragebögen angelegt.')
+            );
         }
-        $sqlquery_GetFBAnswers = "SELECT bogenid, bewertung FROM bewertungen";
-        $sqlquery_GetFBAnswers_Result = mysqli_query($link, $sqlquery_GetFBAnswers);
-        if ($sqlquery_GetFBAnswers_Result['num_rows'] == 0){
-            $antwort = $sqlquery_GetFragebogens_Result_Data;
-            for ($i=0; $i < count($antwort; $i++) { 
-                
-                $antwort[$i]->append(array('punkzahl'=>0))
-                $antwort[$i]->append(array('punkzahl'=>0))
-            }
-            return ;
-        };
-        for ($i=0; $i < count($sqlquery_GetFBAnswers_Result); $i++) { 
-            $sqlquery_GetFBAnswers_Result_Data[$i] = mysqli_fetch_array($sqlquery_GetFBAnswers_Result);
-        }
-        var_dump(key($sqlquery_GetFragebogens_Result_Data[0]['id']));
 
-        //for count($sqlquery_GetFragebogens_Result_Data){
-        //    
-        //}
-        return $sqlquery_GetFragebogens_Result_Data;
-        
+        // Wenn Frageboegen vorhanden sind werden diese in ein Array geschrieben
+        for ($i = 0; $i < $sqlquery_GetFragebogens_Result->num_rows; $i++) {
+            $sqlquery_GetFragebogens_Result_Data[$i] = mysqli_fetch_array($sqlquery_GetFragebogens_Result); // Antwort teil 1: $sqlquery_GetFragebogens_Result_Data
+        }
+
+        // Abrufen der Summer aller Antworten der Frageboegen
+        $sqlquery_GetBewertungen = "SELECT * FROM getbewertungen WHERE mail = '" . $_SESSION['usermail'] . "'";
+        $sqlquery_GetBewertungen_Result = mysqli_query($link, $sqlquery_GetBewertungen);
+        for ($i = 0; $i < $sqlquery_GetBewertungen_Result->num_rows; $i++) {
+            $sqlquery_GetBewertungen_Result_Data[$i] = mysqli_fetch_array($sqlquery_GetBewertungen_Result); // Antwort teil 2: $sqlquery_GetBewertungen_Result_Data
+        }
+
+        // Abrufen der Anzahl an Fragen der Frageboegen
+        $sqlquery_GetFragenAnzahl = "SELECT * FROM getfragenanzahl WHERE mail = '" . $_SESSION['usermail'] . "'";
+        $sqlquery_GetFragenAnzahl_Result = mysqli_query($link, $sqlquery_GetFragenAnzahl);
+        for ($i = 0; $i < $sqlquery_GetFragenAnzahl_Result->num_rows; $i++) {
+            $sqlquery_GetFragenAnzahl_Result_Data[$i] = mysqli_fetch_array($sqlquery_GetFragenAnzahl_Result); // Antwort teil 3: $sqlquery_GetFragenAnzahl_Result_Data
+        }
+
+        // Zusammenfuegen aller Antwortteile
+        if (
+            count($sqlquery_GetFragebogens_Result_Data) == count($sqlquery_GetBewertungen_Result_Data) AND
+            count($sqlquery_GetBewertungen_Result_Data) == count($sqlquery_GetFragenAnzahl_Result_Data) AND
+            count($sqlquery_GetFragebogens_Result_Data) == count($sqlquery_GetFragenAnzahl_Result_Data)
+        ) {
+            $answer = array();
+            for ($i=0; $i < count($sqlquery_GetFragebogens_Result_Data); $i++) { 
+                $answer[$i] = array();
+                $answer[$i]['id']               = $sqlquery_GetFragebogens_Result_Data[$i]['id'];
+                $answer[$i]['name']             = $sqlquery_GetFragebogens_Result_Data[$i]['name'];
+                $answer[$i]['zeitstempel']      = $sqlquery_GetFragebogens_Result_Data[$i]['zeitstempel'];
+                $answer[$i]['fach']             = $sqlquery_GetFragebogens_Result_Data[$i]['fach'];
+                $answer[$i]['klassenname']      = $sqlquery_GetFragebogens_Result_Data[$i]['klassename'];
+                $answer[$i]['schueleranzahl']   = $sqlquery_GetFragebogens_Result_Data[$i]['schueleranzahl'];
+                for ($i2=0; $i2 < count($sqlquery_GetBewertungen_Result_Data); $i2++) { 
+                    if ($sqlquery_GetBewertungen_Result_Data[$i2]['id'] == $answer[$i]['id']) {
+                        $answer[$i]['bewertungsumme'] = $sqlquery_GetBewertungen_Result_Data[$i2]['sum(bewertungen.bewertung)'];
+                    }
+                }
+                for ($i2=0; $i2 < count($sqlquery_GetFragenAnzahl_Result_Data); $i2++) { 
+                    if ($sqlquery_GetFragenAnzahl_Result_Data[$i2]['id'] == $answer[$i]['id']) {
+                        $answer[$i]['anzfragen'] = $sqlquery_GetFragenAnzahl_Result_Data[$i2]['count(nm_frage_fragebogen.frageid)'];
+                    }
+                }
+            }
+        }
+
+        var_dump($answer);
     }
 
     public static function getCodes ($fbId) {
