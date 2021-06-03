@@ -413,8 +413,7 @@ class FragenVerwaltung {
                 }
             }
         }
-
-        var_dump($answer);
+        return $answer;
     }
 
     public static function getCodes ($fbId) {
@@ -430,6 +429,7 @@ class FragenVerwaltung {
 
 
 //////////////////////////////////////////  DEBUG  /////////////////////////////////////////////
+/*
 session_unset();
 $_SESSION['usermail']       = 'temp.dump@hotmail.com';
 $_REQUEST['mode']           = 'getFragebogens';
@@ -443,6 +443,7 @@ $_REQUEST['klasse']         = 'ITB1-19';
 $_REQUEST['fach']           = 'ITS';
 $_REQUEST['fbId']           = '80';
 $_REQUEST['fragen']         = array('Die Beurteilungskriterien sind nachvollziehbar.', 'Die Unterrichtsinhalte sind praxisbezogen.');
+*/
 //////////////////////////////////////////  DEBUG END  /////////////////////////////////////////
 
 if (isset($_REQUEST['mode'])){
