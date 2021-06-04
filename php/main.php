@@ -459,10 +459,8 @@ class FragenVerwaltung {
             $temp_sqlquary_insertRate .= "(DEFAULT," . $rate['frageid'] . "," . $rate['bogenid'] . "," . $rate['bewertung'] . "),";
         }
         $sqlquary_insertRate .= rtrim($temp_sqlquary_insertRate, ',');
-        var_dump($sqlquary_insertRate);
         if (mysqli_query($link, $sqlquary_insertRate)) {
             $sqlquery_DelCodehash = "DELETE FROM codes WHERE codehash = '" . $codehash . "'";
-            var_dump($sqlquery_DelCodehash);
             mysqli_query($link, $sqlquery_DelCodehash);
             
             return array(
@@ -481,7 +479,6 @@ class FragenVerwaltung {
     public static function insertkritik($fbId, $kritik) {
         global $link;
         $sqlquery_insertKritik = "INSERT INTO `verbesserungen`(`id`, `bogenid`, `vorschlag`) VALUES (DEFAULT," . $fbId . ",'" . $kritik . "')";
-        var_dump($sqlquery_insertKritik);
         if (mysqli_query($link, $sqlquery_insertKritik)){
             return array(
                 'returncode'=>0,
@@ -522,6 +519,7 @@ class FragenVerwaltung {
 
 
 //////////////////////////////////////////  DEBUG  /////////////////////////////////////////////
+/*
 session_unset();
 $_SESSION['usermail']       = 'temp.dump@hotmail.com';
 $_REQUEST['mode']           = 'getkritik';
@@ -538,6 +536,7 @@ $_REQUEST['fragen']         = array('Die Beurteilungskriterien sind nachvollzieh
 $_REQUEST['rate']           = array(array('frageid'=>'7','bogenid'=>'70','bewertung'=>-1),array('frageid'=>'35','bogenid'=>'70','bewertung'=>2));
 $_REQUEST['codehash']       = '09-48-12-18';
 $_REQUEST['kritik']         = 'Alles Gefixt! Garkein Problem!';
+*/
 //////////////////////////////////////////  DEBUG END  /////////////////////////////////////////
 
 if (isset($_REQUEST['mode'])){
