@@ -13,17 +13,17 @@ class main {
         elseif  ($_REQUEST['mode'] == 'makeFragebogen')     {echo json_encode(FragenVerwaltung::makeFragebogen      ($_REQUEST['name'],         $_REQUEST['anzahl'],        $_REQUEST['klasse'],        $_REQUEST['fach'],  $_REQUEST['fragen'] ));}
         elseif  ($_REQUEST['mode'] == 'getFragebogens')     {echo json_encode(FragenVerwaltung::getFragebogens      (                                                                                                                           ));}
         elseif  ($_REQUEST['mode'] == 'getCodes')           {echo json_encode(FragenVerwaltung::getCodes            ($_REQUEST['fbId']                                                                                                          ));}
-        
-        
-        
-        
+        elseif  ($_REQUEST['mode'] == 'getFbFragen')        {echo json_encode(FragenVerwaltung::getFbFragen         ($_REQUEST['fbId']                                                                                                          ));}
+        elseif  ($_REQUEST['mode'] == 'insertRate')         {echo json_encode(FragenVerwaltung::insertRate          ($_REQUEST['rate'],         $_REQUEST['codehash']                                                                           ));}
+        elseif  ($_REQUEST['mode'] == 'insertkritik')       {echo json_encode(FragenVerwaltung::insertkritik        ($_REQUEST['fbId'],         $_REQUEST['kritik']                                                                             ));}
+        elseif  ($_REQUEST['mode'] == 'getkritik')          {echo json_encode(FragenVerwaltung::getkritik           ($_REQUEST['fbId']                                                                                                          ));}
         
         
         
         elseif  ($_REQUEST['mode'] == 'aecd587fdc09')       {echo json_encode(self::hilfe                           (                                                                                                                           ));}
         else{echo json_encode(array('returncode'=>1, 'Returnvalue'=>'<strong>Programmfehler Fehlercode: ##PHPMAIN_aktivierungJS_wv</strong><br>mode-Wert fehlerhaft. $_REQUEST[\'mode\'] = ' . strval($_REQUEST['mode'])));}
     }
-    //elseif ($_REQUEST['mode'] == '')  {echo json_encode();}
+    //elseif  ($_REQUEST['mode'] == '')  {echo json_encode();}
     
     
     /**
@@ -31,11 +31,7 @@ class main {
      * @param string $string
      * @return string
      */
-    public static function toDE
-    (
-        $string
-    )
-    {
+    public static function toDE($string) {
         $string = str_replace('�', '&#220;', $string);
         $string = str_replace('�', '&#252;', $string);
         $string = str_replace('�', '&#214;', $string);
@@ -60,8 +56,7 @@ class main {
         );
     }
        
-    public static function checkSemicolon($var)
-    {
+    public static function checkSemicolon($var) {
         if (is_string($var))
         {
             return str_replace(';', '', $var);
@@ -144,7 +139,7 @@ class nutzerverwaltung {
 
 class FragenVerwaltung {
     
-    public static function addFrage ($frage, $mail, $kategorie) {
+    public static function addFrage($frage, $mail, $kategorie) {
         global $link;
         $sqlquary_SucheFrage = "SELECT * FROM fragen WHERE frage = '" . $frage . "' AND (lehrerid IS NULL OR lehrerid = (SELECT id FROM lehrer WHERE mail = '" . $mail . "'));";
         $sqlquary_SucheFrage_Result = mysqli_query($link, $sqlquary_SucheFrage);
@@ -170,7 +165,7 @@ class FragenVerwaltung {
         }
     }
     
-    public static function askAlleFragen ($mail) {
+    public static function askAlleFragen($mail) {
         try 
         {
             global $link;
@@ -212,7 +207,7 @@ class FragenVerwaltung {
         };
     }
     
-    public static function getAlleKategorien () {
+    public static function getAlleKategorien() {
         try 
         {
             global $link;
@@ -238,7 +233,7 @@ class FragenVerwaltung {
         };
     }
 
-    public static function makeFragebogen ($name, $anzahl, $klasse, $fach, $fragen)  {
+    public static function makeFragebogen($name, $anzahl, $klasse, $fach, $fragen)  {
         $sqlstring_MakeFragebogen = "
             INSERT INTO fragebogen 
             (
@@ -345,7 +340,7 @@ class FragenVerwaltung {
         }
     }
     
-    function genNumber () {
+    function genNumber() {
         $numb = random_int(0, 99);
         if ($numb <= 9){
             $numb = '0' . $numb;
@@ -353,7 +348,7 @@ class FragenVerwaltung {
         return $numb;
     }
     
-    public static function getFragebogens () {
+    public static function getFragebogens() {
         // hole DB Link
         global $link;
         // Abrufen aller Frageboegen eines Lehrers
@@ -416,7 +411,7 @@ class FragenVerwaltung {
         return $answer;
     }
 
-    public static function getCodes ($fbId) {
+    public static function getCodes($fbId) {
         global $link;
         $sqlquery_GetCodes = "SELECT codehash FROM codes WHERE fragebogenid = '" . $fbId . "'";
         $sqlquery_GetCodes_Result = mysqli_query($link, $sqlquery_GetCodes);
@@ -425,14 +420,111 @@ class FragenVerwaltung {
         }
         return $sqlquery_GetCodes_Result_Data;
     }
+
+    public static function getFbFragen($fbId) {
+        try{
+            global $link;
+            $sqlquery_GetFbFragen = "SELECT frage, id FROM getfbfragen WHERE bogenid = '" . $fbId . "'";
+            $sqlquery_GetFbFragen_Result = mysqli_query($link, $sqlquery_GetFbFragen);
+            if ($sqlquery_GetFbFragen_Result->num_rows == 0) {
+                return array(
+                    'returncode'=>-1,
+                    'returnvalue'=>main::toDE('<strong>Keine Fragen gefunden.</strong><br>Es befinden sich keine Fragen in diesem Fragebogen.')
+                );
+            }
+            $antwort = array();
+            for ($i = 0; $i < $sqlquery_GetFbFragen_Result->num_rows; $i++) {
+                $sqlquery_GetFbFragen_Result_Data[$i] = mysqli_fetch_array($sqlquery_GetFbFragen_Result);
+                array_push($antwort, array('frageid'=>$sqlquery_GetFbFragen_Result_Data[$i]['id'], 'fragestring'=>$sqlquery_GetFbFragen_Result_Data[$i]['frage']));
+            }
+            return array(
+                'returncode'=>0,
+                'returnvalue'=>$antwort
+            );
+        }
+        catch(Exception $e){
+            return array(
+                'returncode'=>1,
+                'returnvalue'=>main::toDE('<strong>Prigrammfehler</strong><br>Bitte melden Sie sich bei einem Andministrator und nennen Sie folgende Informationen:<br><br>'. $e)
+            );
+        }
+    }
+
+    public static function insertRate($rates, $codehash) {
+        global $link;
+        
+        $sqlquary_insertRate = 'INSERT INTO bewertungen(id, frageid, bogenid, bewertung) VALUES ';
+        $temp_sqlquary_insertRate = '';
+        foreach ($rates as $rate) {
+            $temp_sqlquary_insertRate .= "(DEFAULT," . $rate['frageid'] . "," . $rate['bogenid'] . "," . $rate['bewertung'] . "),";
+        }
+        $sqlquary_insertRate .= rtrim($temp_sqlquary_insertRate, ',');
+        var_dump($sqlquary_insertRate);
+        if (mysqli_query($link, $sqlquary_insertRate)) {
+            $sqlquery_DelCodehash = "DELETE FROM codes WHERE codehash = '" . $codehash . "'";
+            var_dump($sqlquery_DelCodehash);
+            mysqli_query($link, $sqlquery_DelCodehash);
+            
+            return array(
+                'returncode'=>0,
+                'returnvalue'=>main::toDE('<strong>Gesendet</strong><br>Vielen Dank, dass Sie den Fragebogen ausgefüllt haben.<br>Einen schönen Tag.')
+            );
+        }
+        else{
+            return array(
+                'returncode'=>1,
+                'returnvalue'=>main::toDE('<strong>Programmfehler</strong><br>Es ist ein Programmfehler aufgetreten.<br>Bitte wenden Sie sich an Ihren Lehrer')
+            );
+        }
+    }
+
+    public static function insertkritik($fbId, $kritik) {
+        global $link;
+        $sqlquery_insertKritik = "INSERT INTO `verbesserungen`(`id`, `bogenid`, `vorschlag`) VALUES (DEFAULT," . $fbId . ",'" . $kritik . "')";
+        var_dump($sqlquery_insertKritik);
+        if (mysqli_query($link, $sqlquery_insertKritik)){
+            return array(
+                'returncode'=>0,
+                'returnvalue'=>main::toDE('<strong>Gesendet</strong><br>Vielen Dank, dass Sie den Fragebogen ausgefüllt haben.<br>Einen schönen Tag.')
+            );
+        }
+        else{
+            return array(
+                'returncode'=>1,
+                'returnvalue'=>main::toDE('<strong>Programmfehler</strong><br>Es ist ein Programmfehler aufgetreten.<br>Bitte wenden Sie sich an Ihren Lehrer')
+            );
+        }
+    }
+
+    public static function getkritik($fbId){
+        global $link;
+        $sqlquery_GetKritik = "SELECT vorschlag FROM verbesserungen WHERE bogenid = " . $fbId . "";
+        $sqlquery_GetKritik_Result = mysqli_query($link, $sqlquery_GetKritik);
+        if ($sqlquery_GetKritik_Result->num_rows == 0) {
+            return array(
+                'returncode'=>-1,
+                'returnvalue'=>main::toDE('<strong>Keine Vorschläge</strong><br>Dieser Fragebogen hat keine Verbesserungsvorschläge gespeichert.')
+            );
+        }
+        $sqlquery_GetKritik_Result_Data = array();
+        $answer = array();
+        for ($i=0; $i < $sqlquery_GetKritik_Result->num_rows; $i++) { 
+            $sqlquery_GetKritik_Result_Data[$i] = mysqli_fetch_array($sqlquery_GetKritik_Result);
+            array_push($answer, $sqlquery_GetKritik_Result_Data[$i]['vorschlag']);
+        }
+        return array(
+            'returncode'=>0,
+            'returnvalue'=>$answer
+        );
+    }
 }
 
 
+
 //////////////////////////////////////////  DEBUG  /////////////////////////////////////////////
-/*
 session_unset();
 $_SESSION['usermail']       = 'temp.dump@hotmail.com';
-$_REQUEST['mode']           = 'getFragebogens';
+$_REQUEST['mode']           = 'getkritik';
 $_REQUEST['frage']          = 'Tafelbilder und Folien sind gut lesbar.';
 $_REQUEST['mail']           = 'temp.dump@hotmail.com';
 $_REQUEST['passwort']       = 'Admin';
@@ -441,9 +533,11 @@ $_REQUEST['name']           = 'BogenX';
 $_REQUEST['anzahl']         = '1';
 $_REQUEST['klasse']         = 'ITB1-19';
 $_REQUEST['fach']           = 'ITS';
-$_REQUEST['fbId']           = '80';
+$_REQUEST['fbId']           = '70';
 $_REQUEST['fragen']         = array('Die Beurteilungskriterien sind nachvollziehbar.', 'Die Unterrichtsinhalte sind praxisbezogen.');
-*/
+$_REQUEST['rate']           = array(array('frageid'=>'7','bogenid'=>'70','bewertung'=>-1),array('frageid'=>'35','bogenid'=>'70','bewertung'=>2));
+$_REQUEST['codehash']       = '09-48-12-18';
+$_REQUEST['kritik']         = 'Alles Gefixt! Garkein Problem!';
 //////////////////////////////////////////  DEBUG END  /////////////////////////////////////////
 
 if (isset($_REQUEST['mode'])){
