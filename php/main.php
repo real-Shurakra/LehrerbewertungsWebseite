@@ -310,7 +310,7 @@ class FragenVerwaltung {
         return $antwort; 
     }
     
-    function genCodes($anz, $fbid) {
+    function genCodes($anz, $fbId) {
         global $link;
         for ($i = 0; $i < $anz; $i++) {
             $memcode = array();
@@ -325,7 +325,7 @@ class FragenVerwaltung {
                 array_push($memcode, $code);
                 $test = mysqli_query($link, "SELECT * FROM codes WHERE codehash = '" . $code . "'");
                 if ($test->num_rows == 0){
-                    mysqli_query($link, "INSERT INTO codes (codehash, fragebogenid) VALUES ('" . $code . "', " . $fbid . ");");
+                    mysqli_query($link, "INSERT INTO codes (codehash, fragebogenid) VALUES ('" . $code . "', " . $fbId . ");");
                     break;
                 }
                 else{
@@ -460,12 +460,10 @@ class FragenVerwaltung {
         }
         $sqlquary_insertRate .= rtrim($temp_sqlquary_insertRate, ',');
         if (mysqli_query($link, $sqlquary_insertRate)) {
-            $sqlquery_DelCodehash = "DELETE FROM codes WHERE codehash = '" . $codehash . "'";
-            mysqli_query($link, $sqlquery_DelCodehash);
             
             return array(
                 'returncode'=>0,
-                'returnvalue'=>main::toDE('<strong>Gesendet</strong><br>Vielen Dank, dass Sie den Fragebogen ausgefüllt haben.<br>Einen schönen Tag.')
+                'returnvalue'=>main::toDE('<strong>Gesendet</strong><br>Ihre Antworten wurden gespeichert.')
             );
         }
         else{
@@ -493,7 +491,7 @@ class FragenVerwaltung {
         }
     }
 
-    public static function getkritik($fbId){
+    public static function getkritik($fbId) {
         global $link;
         $sqlquery_GetKritik = "SELECT vorschlag FROM verbesserungen WHERE bogenid = " . $fbId . "";
         $sqlquery_GetKritik_Result = mysqli_query($link, $sqlquery_GetKritik);
@@ -513,6 +511,45 @@ class FragenVerwaltung {
             'returncode'=>0,
             'returnvalue'=>$answer
         );
+    }
+
+    public static function getAlleSchulklassen(Type $var = null) {
+        $sqlquery_getAlleSchulklassen = "SELECT name FROM klasse";
+        $sqlquery_getAlleSchulklassen_Result = mysqli_query($link, $sqlquery_getAlleSchulklassen);
+        if ($sqlquery_getAlleSchulklassen_Result->num_rows == 0) {
+            return array(
+                'returncode'=>-1,
+                'returnvalue'=>main::toDE('<strong>Keine Klassen gefunden</strong><br>Es wurden keine Schulklassen in der Datenbank gefunden.')
+            );
+        }
+        for ($i=0; $i < $sqlquery_getAlleSchulklassen_Result->num_rows; $i++) { 
+            $sqlquery_getAlleSchulklassen_Result_Data[$i] = mysqli_fetch_array($sqlquery_getAlleSchulklassen_Result);
+            array_push($answer, $sqlquery_getAlleSchulklassen_Result_Data[$i]['name']);
+        }
+        return array(
+            'returncode'=>0,
+            'returnvalue'=>$answer
+        );
+    }
+
+    public static function deleteCode($codehash) {
+        $sqlquery_DelCodehash = "DELETE FROM codes WHERE codehash = '" . $codehash . "'";
+        if (mysqli_query($link, $sqlquery_DelCodehash)) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    public static function deleteAllCodes($fbId) {
+        $sqlquery_DelCodehash = "DELETE FROM codes WHERE fragebogenid = '" . $fbId . "'";
+        if (mysqli_query($link, $sqlquery_DelCodehash)) {
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 }
 
