@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Erstellungszeit: 27. Mai 2021 um 18:27
+-- Erstellungszeit: 08. Jun 2021 um 17:57
 -- Server-Version: 10.4.14-MariaDB
 -- PHP-Version: 7.4.10
 
@@ -34,6 +34,24 @@ CREATE TABLE `bewertungen` (
   `bewertung` smallint(6) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+--
+-- Daten für Tabelle `bewertungen`
+--
+
+INSERT INTO `bewertungen` (`id`, `frageid`, `bogenid`, `bewertung`) VALUES
+(1, 7, 70, -2),
+(2, 35, 70, 1),
+(9, 7, 70, -1),
+(10, 35, 70, 2),
+(11, 7, 70, -1),
+(12, 35, 70, 2),
+(13, 7, 70, -1),
+(14, 35, 70, 2),
+(15, 7, 70, -1),
+(16, 35, 70, 2),
+(17, 7, 70, -1),
+(18, 35, 70, 2);
+
 -- --------------------------------------------------------
 
 --
@@ -50,16 +68,15 @@ CREATE TABLE `codes` (
 --
 
 INSERT INTO `codes` (`codehash`, `fragebogenid`) VALUES
-('99-88-77-66', 60),
-('94-23-66-34', 79),
-('61-45-30-52', 80),
-('63-73-28-35', 80),
-('68-51-74-14', 80),
-('71-81-13-06', 80),
-('75-63-90-56', 80),
-('09-48-12-18', 81),
-('25-44-42-03', 82),
-('98-74-40-44', 83);
+('25-44-42-03', 70),
+('61-45-30-52', 70),
+('63-73-28-35', 70),
+('68-51-74-14', 70),
+('71-81-13-06', 70),
+('75-63-90-56', 70),
+('94-23-66-34', 70),
+('98-74-40-44', 70),
+('99-88-77-66', 70);
 
 -- --------------------------------------------------------
 
@@ -100,27 +117,8 @@ CREATE TABLE `fragebogen` (
 --
 
 INSERT INTO `fragebogen` (`id`, `zeitstempel`, `name`, `lehrerid`, `fachid`, `klassename`, `schueleranzahl`) VALUES
-(58, '2021-05-27 15:11:02', 'BogenX', 1, 1, 'ITB1-19', 1),
-(59, '2021-05-27 15:11:36', 'BogenX', 1, 1, 'ITB1-19', 1),
 (60, '2021-05-27 15:11:37', 'BogenX', 1, 1, 'ITB1-19', 1),
-(61, '2021-05-27 15:11:37', 'BogenX', 1, 1, 'ITB1-19', 1),
-(62, '2021-05-27 15:11:38', 'BogenX', 1, 1, 'ITB1-19', 1),
-(63, '2021-05-27 15:11:54', 'BogenX', 1, 1, 'ITB1-19', 1),
-(64, '2021-05-27 15:13:21', 'BogenX', 1, 1, 'ITB1-19', 1),
-(65, '2021-05-27 15:14:51', 'BogenX', 1, 1, 'ITB1-19', 1),
-(66, '2021-05-27 15:15:28', 'BogenX', 1, 1, 'ITB1-19', 1),
-(67, '2021-05-27 15:15:54', 'BogenX', 1, 1, 'ITB1-19', 1),
-(68, '2021-05-27 15:17:34', 'BogenX', 1, 1, 'ITB1-19', 1),
-(69, '2021-05-27 15:17:47', 'BogenX', 1, 1, 'ITB1-19', 1),
 (70, '2021-05-27 15:17:49', 'BogenX', 1, 1, 'ITB1-19', 1),
-(71, '2021-05-27 15:18:37', 'BogenX', 1, 1, 'ITB1-19', 1),
-(72, '2021-05-27 15:18:42', 'BogenX', 1, 1, 'ITB1-19', 1),
-(73, '2021-05-27 15:20:15', 'BogenX', 1, 1, 'ITB1-19', 1),
-(74, '2021-05-27 15:20:30', 'BogenX', 1, 1, 'ITB1-19', 1),
-(75, '2021-05-27 15:24:23', 'BogenX', 1, 1, 'ITB1-19', 1),
-(76, '2021-05-27 15:25:38', 'BogenX', 1, 1, 'ITB1-19', 1),
-(77, '2021-05-27 15:28:02', 'BogenX', 1, 1, 'ITB1-19', 1),
-(78, '2021-05-27 15:28:54', 'BogenX', 1, 1, 'ITB1-19', 1),
 (79, '2021-05-27 15:29:25', 'BogenX', 1, 1, 'ITB1-19', 1),
 (80, '2021-05-27 15:29:50', 'BogenX', 1, 1, 'ITB1-19', 5),
 (81, '2021-05-27 15:47:25', 'BogenX', 1, 1, 'ITB1-19', 1),
@@ -204,6 +202,30 @@ INSERT INTO `fragen` (`id`, `frage`, `lehrerid`, `kategorie`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Stellvertreter-Struktur des Views `getbewertungen`
+-- (Siehe unten für die tatsächliche Ansicht)
+--
+CREATE TABLE `getbewertungen` (
+`sum(bewertungen.bewertung)` decimal(27,0)
+,`id` bigint(20) unsigned
+,`mail` varchar(255)
+);
+
+-- --------------------------------------------------------
+
+--
+-- Stellvertreter-Struktur des Views `getfbfragen`
+-- (Siehe unten für die tatsächliche Ansicht)
+--
+CREATE TABLE `getfbfragen` (
+`frage` varchar(255)
+,`id` bigint(20) unsigned
+,`bogenid` bigint(20) unsigned
+);
+
+-- --------------------------------------------------------
+
+--
 -- Stellvertreter-Struktur des Views `getfragebogen`
 -- (Siehe unten für die tatsächliche Ansicht)
 --
@@ -214,7 +236,19 @@ CREATE TABLE `getfragebogen` (
 ,`fach` varchar(32)
 ,`klassename` varchar(32)
 ,`schueleranzahl` smallint(6)
-,`lehrerid` bigint(20) unsigned
+,`mail` varchar(255)
+);
+
+-- --------------------------------------------------------
+
+--
+-- Stellvertreter-Struktur des Views `getfragenanzahl`
+-- (Siehe unten für die tatsächliche Ansicht)
+--
+CREATE TABLE `getfragenanzahl` (
+`count(nm_frage_fragebogen.frageid)` bigint(21)
+,`id` bigint(20) unsigned
+,`mail` varchar(255)
 );
 
 -- --------------------------------------------------------
@@ -273,58 +307,8 @@ CREATE TABLE `nm_frage_fragebogen` (
 --
 
 INSERT INTO `nm_frage_fragebogen` (`frageid`, `bogenid`) VALUES
-(7, 58),
-(7, 59),
-(7, 60),
-(7, 61),
-(7, 62),
-(7, 63),
-(7, 64),
-(7, 65),
-(7, 66),
-(7, 67),
-(7, 68),
-(7, 69),
 (7, 70),
-(7, 71),
-(7, 72),
-(7, 73),
-(7, 74),
-(7, 75),
-(7, 76),
-(7, 77),
-(7, 78),
-(7, 79),
-(7, 80),
-(7, 81),
-(7, 82),
-(7, 83),
-(35, 58),
-(35, 59),
-(35, 60),
-(35, 61),
-(35, 62),
-(35, 63),
-(35, 64),
-(35, 65),
-(35, 66),
-(35, 67),
-(35, 68),
-(35, 69),
-(35, 70),
-(35, 71),
-(35, 72),
-(35, 73),
-(35, 74),
-(35, 75),
-(35, 76),
-(35, 77),
-(35, 78),
-(35, 79),
-(35, 80),
-(35, 81),
-(35, 82),
-(35, 83);
+(35, 70);
 
 -- --------------------------------------------------------
 
@@ -353,11 +337,38 @@ CREATE TABLE `verbesserungen` (
 -- --------------------------------------------------------
 
 --
+-- Struktur des Views `getbewertungen`
+--
+DROP TABLE IF EXISTS `getbewertungen`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getbewertungen`  AS  select sum(`bewertungen`.`bewertung`) AS `sum(bewertungen.bewertung)`,`fragebogen`.`id` AS `id`,`lehrer`.`mail` AS `mail` from ((`lehrer` left join `fragebogen` on(`lehrer`.`id` = `fragebogen`.`lehrerid`)) left join `bewertungen` on(`fragebogen`.`id` = `bewertungen`.`bogenid`)) group by `fragebogen`.`id` ;
+
+-- --------------------------------------------------------
+
+--
+-- Struktur des Views `getfbfragen`
+--
+DROP TABLE IF EXISTS `getfbfragen`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getfbfragen`  AS  select `fragen`.`frage` AS `frage`,`fragen`.`id` AS `id`,`nm_frage_fragebogen`.`bogenid` AS `bogenid` from (`nm_frage_fragebogen` left join `fragen` on(`nm_frage_fragebogen`.`frageid` = `fragen`.`id`)) ;
+
+-- --------------------------------------------------------
+
+--
 -- Struktur des Views `getfragebogen`
 --
 DROP TABLE IF EXISTS `getfragebogen`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getfragebogen`  AS  select `fragebogen`.`id` AS `id`,`fragebogen`.`zeitstempel` AS `zeitstempel`,`fragebogen`.`name` AS `name`,`fach`.`name` AS `fach`,`fragebogen`.`klassename` AS `klassename`,`fragebogen`.`schueleranzahl` AS `schueleranzahl`,`fragebogen`.`lehrerid` AS `lehrerid` from (`fragebogen` left join `fach` on(`fragebogen`.`fachid` = `fach`.`id`)) ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getfragebogen`  AS  select `fragebogen`.`id` AS `id`,`fragebogen`.`zeitstempel` AS `zeitstempel`,`fragebogen`.`name` AS `name`,`fach`.`name` AS `fach`,`fragebogen`.`klassename` AS `klassename`,`fragebogen`.`schueleranzahl` AS `schueleranzahl`,`lehrer`.`mail` AS `mail` from ((`lehrer` left join `fragebogen` on(`lehrer`.`id` = `fragebogen`.`lehrerid`)) left join `fach` on(`fragebogen`.`fachid` = `fach`.`id`)) ;
+
+-- --------------------------------------------------------
+
+--
+-- Struktur des Views `getfragenanzahl`
+--
+DROP TABLE IF EXISTS `getfragenanzahl`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getfragenanzahl`  AS  select count(`nm_frage_fragebogen`.`frageid`) AS `count(nm_frage_fragebogen.frageid)`,`fragebogen`.`id` AS `id`,`lehrer`.`mail` AS `mail` from ((`lehrer` left join `fragebogen` on(`lehrer`.`id` = `fragebogen`.`lehrerid`)) left join `nm_frage_fragebogen` on(`fragebogen`.`id` = `nm_frage_fragebogen`.`bogenid`)) group by `fragebogen`.`id` ;
 
 --
 -- Indizes der exportierten Tabellen
@@ -448,7 +459,7 @@ ALTER TABLE `verbesserungen`
 -- AUTO_INCREMENT für Tabelle `bewertungen`
 --
 ALTER TABLE `bewertungen`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT für Tabelle `fach`
@@ -478,7 +489,7 @@ ALTER TABLE `lehrer`
 -- AUTO_INCREMENT für Tabelle `verbesserungen`
 --
 ALTER TABLE `verbesserungen`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- Constraints der exportierten Tabellen
