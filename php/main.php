@@ -57,6 +57,7 @@ class main {
     }
        
     public static function checkSemicolon($var) {
+        
         if (is_string($var))
         {
             return str_replace(';', '', $var);
@@ -559,7 +560,7 @@ class FragenVerwaltung {
 /*
 session_unset();
 $_SESSION['usermail']       = 'temp.dump@hotmail.com';
-$_REQUEST['mode']           = 'getkritik';
+$_REQUEST['mode']           = 'askAlleFragen';
 $_REQUEST['frage']          = 'Tafelbilder und Folien sind gut lesbar.';
 $_REQUEST['mail']           = 'temp.dump@hotmail.com';
 $_REQUEST['passwort']       = 'Admin';
