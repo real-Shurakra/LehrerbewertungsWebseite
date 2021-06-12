@@ -583,7 +583,7 @@ $_REQUEST['kritik']         = 'Alles Gefixt! Garkein Problem!';
 */
 //////////////////////////////////////////  DEBUG END  /////////////////////////////////////////
 
-echo('Ihr seid doch alle bescheuert!')
+echo('Ihr seid doch alle bescheuert!');
 
 if (isset($_REQUEST['mode'])){
     $_REQUEST = main::checkSemicolon($_REQUEST);
