@@ -186,16 +186,17 @@ class FragenVerwaltung {
             }
             
             $kategorien = self::getAlleKategorien();
-            var_dump($kategorien);
-            echo('<br><br>');
             if ($kategorien['returncode'] == 0){
-                return array(
+                $antwort array(
                     'returncode'=>0,
                     'returnvalue'=>array(
                         $kategorien['returnvalue'],
                         $sqlquary_AlleFragen_Result_Data
                     )
                 );
+                var_dump($antwort);
+                echo('<br><br>');
+                return  $antwort;
             }
             else {
                 return array
