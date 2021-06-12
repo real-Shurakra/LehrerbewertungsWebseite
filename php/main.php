@@ -7,7 +7,14 @@ class main {
     
     function aktivierungJS() {
         if      ($_REQUEST['mode'] == 'loginUser')          {echo json_encode(nutzerverwaltung::loginUser           ($_REQUEST['mail'],         $_REQUEST['passwort']                                                                           ));}
-        elseif  ($_REQUEST['mode'] == 'askAlleFragen')      {echo json_encode(FragenVerwaltung::askAlleFragen       ($_SESSION['usermail']                                                                                                      ));}
+        elseif  ($_REQUEST['mode'] == 'askAlleFragen')      {
+            
+            
+            $xgt = FragenVerwaltung::askAlleFragen($_SESSION['usermail']);
+            var_dump($xgt);
+            echo('<br><br>');
+            echo json_encode($xgt);
+        }
         elseif  ($_REQUEST['mode'] == 'addFrage')           {echo json_encode(FragenVerwaltung::addFrage            ($_REQUEST['frage'],        $_SESSION['usermail'],      $_REQUEST['kategorie']                                              ));}
         elseif  ($_REQUEST['mode'] == 'getAlleKategorien')  {echo json_encode(FragenVerwaltung::getAlleKategorien   (                                                                                                                           ));}
         elseif  ($_REQUEST['mode'] == 'makeFragebogen')     {echo json_encode(FragenVerwaltung::makeFragebogen      ($_REQUEST['name'],         $_REQUEST['anzahl'],        $_REQUEST['klasse'],        $_REQUEST['fach'],  $_REQUEST['fragen'] ));}
@@ -177,12 +184,13 @@ class FragenVerwaltung {
             $sqlquary_AlleFragen_Result = mysqli_query($link, $sqlquary_AlleFragen);
             //var_dump($sqlquary_AlleFragen_Result);
             //echo('<br><br>');
+            $answer = array();
             for ($i = 0; $i < $sqlquary_AlleFragen_Result->num_rows; $i++) {
-                $sqlquary_AlleFragen_Result_Data[$i] = mysqli_fetch_array($sqlquary_AlleFragen_Result);
-                $sqlquary_AlleFragen_Result_Data[$i]['frage'] = main::toDE($sqlquary_AlleFragen_Result_Data[$i]['frage']);
-                $sqlquary_AlleFragen_Result_Data[$i]['kategorie'] = main::toDE($sqlquary_AlleFragen_Result_Data[$i]['kategorie']);
-                $sqlquary_AlleFragen_Result_Data[$i][0] = main::toDE($sqlquary_AlleFragen_Result_Data[$i][0]);
-                $sqlquary_AlleFragen_Result_Data[$i][1] = main::toDE($sqlquary_AlleFragen_Result_Data[$i][1]);
+                $sqlquary_AlleFragen_Result_Data[$i]                = mysqli_fetch_array($sqlquary_AlleFragen_Result);
+                $answer[$i]['frage']       = main::toDE($sqlquary_AlleFragen_Result_Data[$i]['frage']);
+                $answer[$i]['kategorie']   = main::toDE($sqlquary_AlleFragen_Result_Data[$i]['kategorie']);
+                $answer[$i][0]             = main::toDE($sqlquary_AlleFragen_Result_Data[$i][0]);
+                $answer[$i][1]             = main::toDE($sqlquary_AlleFragen_Result_Data[$i][1]);
             }
             
             $kategorien = self::getAlleKategorien();
@@ -191,19 +199,17 @@ class FragenVerwaltung {
                     'returncode'=>0,
                     'returnvalue'=>array(
                         $kategorien['returnvalue'],
-                        $sqlquary_AlleFragen_Result_Data
+                        $answer
                     )
                 );
-                var_dump($antwort);
-                echo('<br><br>');
                 return  $antwort;
             }
             else {
                 return array
-            (
-                'returncode'=>$kategorien['returncode'],
-                'returnvalue'=>$kategorien['returnvalue']
-            );
+                (
+                    'returncode'=>$kategorien['returncode'],
+                    'returnvalue'=>$kategorien['returnvalue']
+                );
             }
         } 
         catch (Exception $e) 
