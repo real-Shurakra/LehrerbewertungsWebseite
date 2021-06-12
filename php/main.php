@@ -202,7 +202,8 @@ class FragenVerwaltung {
                         $answer
                     )
                 );
-                echo json_encode($antwort);
+                $kat = json_encode($antwort);
+                var_dump('Kat = ' . $kat);
             }
             else {
                 return array
