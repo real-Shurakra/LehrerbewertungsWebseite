@@ -172,11 +172,11 @@ class FragenVerwaltung {
             global $link;
             $sqlquary_AlleFragen_Result_Data = array();
             $sqlquary_AlleFragen = "SELECT frage, kategorie FROM fragen WHERE lehrerid = (SELECT id FROM lehrer WHERE mail = '" . $mail ."') OR lehrerid IS NULL;";
-            var_dump($sqlquary_AlleFragen);
-            echo('<br><br>');
+            //var_dump($sqlquary_AlleFragen);
+            //echo('<br><br>');
             $sqlquary_AlleFragen_Result = mysqli_query($link, $sqlquary_AlleFragen);
-            var_dump($sqlquary_AlleFragen_Result);
-            echo('<br><br>');
+            //var_dump($sqlquary_AlleFragen_Result);
+            //echo('<br><br>');
             for ($i = 0; $i < $sqlquary_AlleFragen_Result->num_rows; $i++) {
                 $sqlquary_AlleFragen_Result_Data[$i] = mysqli_fetch_array($sqlquary_AlleFragen_Result);
                 $sqlquary_AlleFragen_Result_Data[$i]['frage'] = main::toDE($sqlquary_AlleFragen_Result_Data[$i]['frage']);
@@ -184,8 +184,8 @@ class FragenVerwaltung {
                 $sqlquary_AlleFragen_Result_Data[$i][0] = main::toDE($sqlquary_AlleFragen_Result_Data[$i][0]);
                 $sqlquary_AlleFragen_Result_Data[$i][1] = main::toDE($sqlquary_AlleFragen_Result_Data[$i][1]);
             }
-            var_dump($sqlquary_AlleFragen_Result_Data);
-            echo('<br><br>');
+            //var_dump($sqlquary_AlleFragen_Result_Data);
+            //echo('<br><br>');
             $kategorien = self::getAlleKategorien();
             if ($kategorien['returncode'] == 0){
                 return array(
@@ -583,7 +583,7 @@ $_REQUEST['kritik']         = 'Alles Gefixt! Garkein Problem!';
 */
 //////////////////////////////////////////  DEBUG END  /////////////////////////////////////////
 
-echo('Ihr seid doch alle bescheuert!');
+//echo('Ihr seid doch alle bescheuert!');
 
 if (isset($_REQUEST['mode'])){
     $_REQUEST = main::checkSemicolon($_REQUEST);
