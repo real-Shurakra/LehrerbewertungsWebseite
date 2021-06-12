@@ -11,9 +11,9 @@ class main {
             
             
             $xgt = FragenVerwaltung::askAlleFragen($_SESSION['usermail']);
-            var_dump($xgt);
-            echo('<br><br>');
-            echo json_encode($xgt);
+            //var_dump($xgt);
+            //echo('<br><br>');
+            //echo json_encode($xgt);
         }
         elseif  ($_REQUEST['mode'] == 'addFrage')           {echo json_encode(FragenVerwaltung::addFrage            ($_REQUEST['frage'],        $_SESSION['usermail'],      $_REQUEST['kategorie']                                              ));}
         elseif  ($_REQUEST['mode'] == 'getAlleKategorien')  {echo json_encode(FragenVerwaltung::getAlleKategorien   (                                                                                                                           ));}
@@ -202,7 +202,7 @@ class FragenVerwaltung {
                         $answer
                     )
                 );
-                return  $antwort;
+                echo json_encode($antwort);
             }
             else {
                 return array
