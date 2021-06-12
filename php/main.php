@@ -187,7 +187,7 @@ class FragenVerwaltung {
             
             $kategorien = self::getAlleKategorien();
             if ($kategorien['returncode'] == 0){
-                $antwort array(
+                $antwort = array(
                     'returncode'=>0,
                     'returnvalue'=>array(
                         $kategorien['returnvalue'],
