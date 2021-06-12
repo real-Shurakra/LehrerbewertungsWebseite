@@ -184,9 +184,10 @@ class FragenVerwaltung {
                 $sqlquary_AlleFragen_Result_Data[$i][0] = main::toDE($sqlquary_AlleFragen_Result_Data[$i][0]);
                 $sqlquary_AlleFragen_Result_Data[$i][1] = main::toDE($sqlquary_AlleFragen_Result_Data[$i][1]);
             }
-            var_dump($sqlquary_AlleFragen_Result_Data);
-            echo('<br><br>');
+            
             $kategorien = self::getAlleKategorien();
+            var_dump($kategorien);
+            echo('<br><br>');
             if ($kategorien['returncode'] == 0){
                 return array(
                     'returncode'=>0,
