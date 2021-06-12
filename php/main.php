@@ -32,13 +32,13 @@ class main {
      * @return string
      */
     public static function toDE($string) {
-        $string = str_replace('�', '&#220;', $string);
-        $string = str_replace('�', '&#252;', $string);
-        $string = str_replace('�', '&#214;', $string);
-        $string = str_replace('�', '&#246;', $string);
-        $string = str_replace('�', '&#196;', $string);
-        $string = str_replace('�', '&#228;', $string);
-        $string = str_replace('�', '&#223;', $string);
+        $string = str_replace('Ü', '&#220;', $string);
+        $string = str_replace('ü', '&#252;', $string);
+        $string = str_replace('Ö', '&#214;', $string);
+        $string = str_replace('ö', '&#246;', $string);
+        $string = str_replace('Ä', '&#196;', $string);
+        $string = str_replace('ä', '&#228;', $string);
+        $string = str_replace('ß', '&#223;', $string);
         return $string;
     }
     
