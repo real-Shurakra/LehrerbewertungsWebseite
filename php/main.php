@@ -7,14 +7,7 @@ class main {
     
     function aktivierungJS() {
         if      ($_REQUEST['mode'] == 'loginUser')          {echo json_encode(nutzerverwaltung::loginUser           ($_REQUEST['mail'],         $_REQUEST['passwort']                                                                           ));}
-        elseif  ($_REQUEST['mode'] == 'askAlleFragen')      {
-            
-            
-            $xgt = FragenVerwaltung::askAlleFragen($_SESSION['usermail']);
-            //var_dump($xgt);
-            //echo('<br><br>');
-            //echo json_encode($xgt);
-        }
+        elseif  ($_REQUEST['mode'] == 'askAlleFragen')      {echo json_encode(FragenVerwaltung::askAlleFragen       ($_SESSION['usermail']                                                                                                      ));}
         elseif  ($_REQUEST['mode'] == 'addFrage')           {echo json_encode(FragenVerwaltung::addFrage            ($_REQUEST['frage'],        $_SESSION['usermail'],      $_REQUEST['kategorie']                                              ));}
         elseif  ($_REQUEST['mode'] == 'getAlleKategorien')  {echo json_encode(FragenVerwaltung::getAlleKategorien   (                                                                                                                           ));}
         elseif  ($_REQUEST['mode'] == 'makeFragebogen')     {echo json_encode(FragenVerwaltung::makeFragebogen      ($_REQUEST['name'],         $_REQUEST['anzahl'],        $_REQUEST['klasse'],        $_REQUEST['fach'],  $_REQUEST['fragen'] ));}
@@ -202,9 +195,7 @@ class FragenVerwaltung {
                         $answer
                     )
                 );
-                $kat = json_encode($antwort);
-                json_last_error;
-                var_dump($kat);
+                return $antwort;
             }
             else {
                 return array
@@ -374,8 +365,8 @@ class FragenVerwaltung {
         if ($sqlquery_GetFragebogens_Result->num_rows == 0) {
             // Return wenn keine Frageboegen vorhanden sind
             return array(
-                returncode => -1,
-                returnvalue => main::toDE('<strong>Keine Bögen</srtong><br>Sie haben bisther keine Fragebögen angelegt.')
+                'returncode' => -1,
+                'returnvalue' => main::toDE('<strong>Keine Bögen</srtong><br>Sie haben bisther keine Fragebögen angelegt.')
             );
         }
 
@@ -530,7 +521,8 @@ class FragenVerwaltung {
         );
     }
 
-    public static function getAlleSchulklassen(Type $var = null) {
+    public static function getAlleSchulklassen($var = null) {
+        global $link;
         $sqlquery_getAlleSchulklassen = "SELECT name FROM klasse";
         $sqlquery_getAlleSchulklassen_Result = mysqli_query($link, $sqlquery_getAlleSchulklassen);
         if ($sqlquery_getAlleSchulklassen_Result->num_rows == 0) {
@@ -550,6 +542,7 @@ class FragenVerwaltung {
     }
 
     public static function deleteCode($codehash) {
+        global $link;
         $sqlquery_DelCodehash = "DELETE FROM codes WHERE codehash = '" . $codehash . "'";
         if (mysqli_query($link, $sqlquery_DelCodehash)) {
             return true;
@@ -560,6 +553,7 @@ class FragenVerwaltung {
     }
 
     public static function deleteAllCodes($fbId) {
+        global $link;
         $sqlquery_DelCodehash = "DELETE FROM codes WHERE fragebogenid = '" . $fbId . "'";
         if (mysqli_query($link, $sqlquery_DelCodehash)) {
             return true;
