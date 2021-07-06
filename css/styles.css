@@ -111,7 +111,8 @@ body
 
 .input_student
 {
-	width: 20px;
+	font-family: monospace;
+	width: 18px;
 }
 
 .verticalMenuButton
