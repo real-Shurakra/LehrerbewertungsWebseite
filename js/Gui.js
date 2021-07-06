@@ -1,10 +1,13 @@
 // Klasse Gui
 
+// Gloabl
+
 
 export default class Gui
 {
 	constructor()
-	{		
+	{	
+		this.leftKeyDown = false;
 		this.headerSvgUrl = "./svg/Pictorius_Logo_Header.svg";
 		this.containerPictoriusLogoHeader = document.getElementById("container_pictorius_logo_header");
 		this.containerPictoriusFoto = document.getElementById("container_pictorius_foto");
@@ -174,14 +177,15 @@ export default class Gui
 		for(let i = 0; i < idArray.length; i++)
 		{
 			let element = document.getElementById(idArray[i]);
-			
+			element.leftKeyDown = false;
+
 			if (element != null)
 			{
 				let originalBackgroundColor = element.style.backgroundColor;
 				let originalHeight = element.style.height;
 			
 				element.addEventListener("mouseenter", function(){
-				
+					
 					this.style.backgroundColor = color;
 					this.style.color = menuBarColor;
 					this.style.height = logoBackgroundRectangleHeight + "px";
@@ -191,14 +195,54 @@ export default class Gui
 					paramFunction( domIds[i], paths[i], null, functions, functionKeys );
 				});
 			
-				element.addEventListener("mouseleave", function(){
-								
-					this.style.backgroundColor = originalBackgroundColor;
-					this.style.color = color;
-					this.style.height = originalHeight;
-					this.style.borderStyle = "none";
 
-					if (document.getElementById( domIds[i] ) != null) document.getElementById( domIds[i] ).innerHTML = "";
+				element.addEventListener("mouseleave", ()=>{
+
+					// Event-Listener zum überprüfen der Mausposition. Bei einem Klick ausserhalb des Elementes wird es ausgeblendet
+					document.addEventListener("mousemove", function comparePositions(event){
+						
+						console.log("test");
+
+						// Event-Listener zum Überprüfen ob die rechte Maustaste geklickt wurde
+						document.addEventListener("mousedown", function detectLeftButton(event){
+							event = event || window.event;
+							if ("buttons" in event)
+							{
+								element.leftKeyDown = (event.buttons == 1);
+							}
+							var button = event.which || event.button;
+							element.leftKeyDown = (button == 1);
+						}, false);
+
+						// Funktion zum ermitteln der absoluten Position eines Dom Elementes mit relativer Position
+						function getPos(element)
+						{
+							for (var lx = 0, ly = 0; element != null; lx += element.offsetLeft, ly += element.offsetTop, element = element.offsetParent);
+							return {x: lx,y: ly};
+						}
+
+						var elementPosition = getPos(element);
+
+						if(	(event.pageX < elementPosition.x ||
+							event.pageX > elementPosition.x + parseInt(element.style.width) ||
+							event.pageY < elementPosition.y ||
+							event.pageY > elementPosition.y + parseInt(element.style.height) ) && element.leftKeyDown)
+							{
+								element.style.backgroundColor = originalBackgroundColor;
+								element.style.color = color;
+								element.style.height = originalHeight;
+								element.style.borderStyle = "none";
+				
+								if (document.getElementById( domIds[i] ) != null) document.getElementById( domIds[i] ).innerHTML = "";
+								element.leftKeyDown = false;
+
+								document.removeEventListener("mousemove", comparePositions, false);
+							}
+							else if(element.leftKeyDown)
+							{
+								element.leftKeyDown = false;
+							}
+					}, false);
 				});					
 			}
 
