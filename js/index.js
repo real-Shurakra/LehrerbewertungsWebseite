@@ -23,23 +23,22 @@ document.addEventListener("mousedown", ()=>{
             for(let i = 0; i < elements.length; i++)
             {
                 elements[i].addEventListener("input", ()=>{
-                    var charArray = elements[i].value.split(',');
-                    if(charArray.length > 0)
-                    {
-                        for(let j = 0; j < charArray.length; j++)
+
+                        let inputVal = document.getElementById(elements[i].id).value
+                        var patt = /^[0-9]+$/;
+                        if(patt.test(inputVal))
                         {
-                            if(charArray[j] < '0' || charArray[j] > '9' )
-                            {
-                                charArray[j] = "";
-                                elements[i].value = charArray;
-                                console.log("Es dürfen nur Zahlen eingegeen werden!");
-                            }
+                            document.getElementById(elements[i].id).value = inputVal;
                         }
-                    }
+                        else
+                        {
+                            var txt = inputVal.slice(0, -1);
+                            document.getElementById(elements[i].id).value = txt;
+                        }
                 })
             }
-        }
-    }   
+        }   
+    }
 })
 
 
