@@ -250,7 +250,8 @@ export default class FunctionMannager
 				addQuestionDropdown.innerHTML = "";
 				
 				response = JSON.parse(xhttp.responseText);
-				
+				//console.table(response);
+
 				for ( let i = 0; i < response.returnvalue[0].length; i++ )
 				{
 					let tempId = "create_questionnaire_" + response.returnvalue[0][i].kategorie;
@@ -270,7 +271,7 @@ export default class FunctionMannager
 				{
 					let selectElement = document.createElement( "option" );
 					selectElement.value = response.returnvalue[1][i].frage;
-					selectElement.innerHTML = response.returnvalue[1][i].frage;
+					selectElement.innerHTML = response.returnvalue[1][i].kategorie + " &#11166; " + response.returnvalue[1][i].frage;
 					addQuestionDropdown.appendChild( selectElement );
 				}
 				

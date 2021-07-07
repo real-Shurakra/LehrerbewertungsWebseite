@@ -1,4 +1,12 @@
 /* Lehrerbeurteilung Styles */
+@font-face {
+    font-family: 'droid_sans_monoregular';
+    src: url('http://localhost:8012/LehrerbewertungsWebseite/css/fonts/droidsansmono-webfont.woff2') format('woff2'),
+         url('http://localhost:8012/LehrerbewertungsWebseite/css/fonts/droidsansmono-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+
+}
 
 body
 {
@@ -123,6 +131,12 @@ body
 	margin: auto;
 }
 
+#add_question_dropdown
+{
+	font-family: Consolas, monospace;
+	font-style: bold;
+}
+
 #container_pages
 {
 	position: fixed;
@@ -170,5 +184,5 @@ body
 {
 	width: 80%;
 }
-*/
+
 
