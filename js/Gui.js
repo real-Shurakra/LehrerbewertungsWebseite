@@ -1,7 +1,5 @@
 // Klasse Gui
 
-// Gloabl
-
 
 export default class Gui
 {
@@ -31,6 +29,9 @@ export default class Gui
 		
 		this.functionKeys['login_area_teacher'] = [];
 		this.functionKeys['login_area_teacher'][0] = "login_area_teacher";
+
+		this.functionKeys['login_area_student'] = [];
+		this.functionKeys['login_area_student'][0] = "login_area_student";
 		
 		this.functionKeys['Uebersicht_page'] = [];
 		
@@ -186,63 +187,44 @@ export default class Gui
 			
 				element.addEventListener("mouseenter", function(){
 					
-					this.style.backgroundColor = color;
-					this.style.color = menuBarColor;
-					this.style.height = logoBackgroundRectangleHeight + "px";
-					this.style.borderStyle = "solid";
-					this.style.borderWidth = "1px";
-				
-					paramFunction( domIds[i], paths[i], null, functions, functionKeys );
+						this.style.backgroundColor = color;
+						this.style.color = menuBarColor;
+						this.style.height = logoBackgroundRectangleHeight + "px";
+						this.style.borderStyle = "solid";
+						this.style.borderWidth = "1px";
+
+
+						let child = document.getElementById(this.children[1].id);
+
+						if(child.innerHTML.length < 100)
+						{					
+							paramFunction( domIds[i], paths[i], null, functions, functionKeys );
+						}
+
 				});
 			
 
 				element.addEventListener("mouseleave", ()=>{
 
-					// Event-Listener zum überprüfen der Mausposition. Bei einem Klick ausserhalb des Elementes wird es ausgeblendet
-					document.addEventListener("mousemove", function comparePositions(event){
+					// Prüfung ob in einem Eingabefeld der Login Bereiche etwas eingegeben wurde. Ist dies der Fall wird dieser nicht ausgeblendet
+					var inputArray = element.getElementsByTagName("input");
+
+					var allInput = "";
+        			for(let i = 0; i < inputArray.length; i++)
+        			{
+						allInput += document.getElementById(inputArray[i].id).value;
+        			}
+
+					if(allInput.length == 0)
+					{	
+						element.style.backgroundColor = originalBackgroundColor;
+						element.style.color = color;
+						element.style.height = originalHeight;
+						element.style.borderStyle = "none";
+		
+						if (document.getElementById( domIds[i] ) != null) document.getElementById( domIds[i] ).innerHTML = "";
 						
-						console.log("test");
-
-						// Event-Listener zum Überprüfen ob die rechte Maustaste geklickt wurde
-						document.addEventListener("mousedown", function detectLeftButton(event){
-							event = event || window.event;
-							if ("buttons" in event)
-							{
-								element.leftKeyDown = (event.buttons == 1);
-							}
-							var button = event.which || event.button;
-							element.leftKeyDown = (button == 1);
-						}, false);
-
-						// Funktion zum ermitteln der absoluten Position eines Dom Elementes mit relativer Position
-						function getPos(element)
-						{
-							for (var lx = 0, ly = 0; element != null; lx += element.offsetLeft, ly += element.offsetTop, element = element.offsetParent);
-							return {x: lx,y: ly};
-						}
-
-						var elementPosition = getPos(element);
-
-						if(	(event.pageX < elementPosition.x ||
-							event.pageX > elementPosition.x + parseInt(element.style.width) ||
-							event.pageY < elementPosition.y ||
-							event.pageY > elementPosition.y + parseInt(element.style.height) ) && element.leftKeyDown)
-							{
-								element.style.backgroundColor = originalBackgroundColor;
-								element.style.color = color;
-								element.style.height = originalHeight;
-								element.style.borderStyle = "none";
-				
-								if (document.getElementById( domIds[i] ) != null) document.getElementById( domIds[i] ).innerHTML = "";
-								element.leftKeyDown = false;
-
-								document.removeEventListener("mousemove", comparePositions, false);
-							}
-							else if(element.leftKeyDown)
-							{
-								element.leftKeyDown = false;
-							}
-					}, false);
+					}
 				});					
 			}
 

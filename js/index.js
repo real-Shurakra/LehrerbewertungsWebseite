@@ -13,11 +13,13 @@ gui.functionMannager = functionMannager;
 
 gui.loadSvgAndMenus("index");
 
+
+
+// Begrenzung der Codeeingabe des Schülerbereiches auf Zahlen und zwei Ziffern
 document.addEventListener("mousedown", ()=>{
     if (document.getElementById("input_area_students") != undefined);
     {
         var elements = document.getElementsByClassName("input_student");
-        console.log(elements);
         if (elements.length != 0)
         {
             for(let i = 0; i < elements.length; i++)
@@ -40,6 +42,8 @@ document.addEventListener("mousedown", ()=>{
         }   
     }
 })
+
+
 
 
 
