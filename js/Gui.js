@@ -193,7 +193,6 @@ export default class Gui
 						this.style.borderStyle = "solid";
 						this.style.borderWidth = "1px";
 
-
 						let child = document.getElementById(this.children[1].id);
 
 						if(child.innerHTML.length < 100)

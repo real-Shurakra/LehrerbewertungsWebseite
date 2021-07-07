@@ -26,7 +26,9 @@ document.addEventListener("mousedown", ()=>{
             {
                 elements[i].addEventListener("input", ()=>{
 
-                        let inputVal = document.getElementById(elements[i].id).value
+                        let inputField = document.getElementById(elements[i].id);
+
+                        let inputVal = inputField.value
                         var patt = /^[0-9]+$/;
                         if(patt.test(inputVal))
                         {
@@ -36,6 +38,14 @@ document.addEventListener("mousedown", ()=>{
                         {
                             var txt = inputVal.slice(0, -1);
                             document.getElementById(elements[i].id).value = txt;
+                        }
+
+                        // Automatisches Auswählen des nächsten Eingabefeldes, sobald das aktuelle ausgefüllt ist
+                        if(inputVal.length == 2)
+                        {
+                            let nextNumber = parseInt(inputField.id.substr(2, 1)) + 1;
+                            let nextElement = document.getElementById("nr" + nextNumber);
+                            if (nextElement != undefined) nextElement.focus();
                         }
                 })
             }
