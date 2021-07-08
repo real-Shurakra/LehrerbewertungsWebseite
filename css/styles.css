@@ -99,7 +99,8 @@ body
 
 .area
 {
-	background-color:white;
+	overflow: auto;
+	background-color: white;
 }
 
 #login_area_teacher
@@ -148,10 +149,17 @@ body
 	overflow-y:auto
 }
 
+#create_questionnaire_area
+{
+	overflow: scroll;
+	overflow-x: hidden;
+	height: 570px;
+}
+
 #Fragebogen_erstellen_page
 {
-	visibility: hidden;
-	overflow-y:auto
+	/*visibility: hidden;
+	overflow-y:auto*/
 }
 
 #Fragen_verwalten_page

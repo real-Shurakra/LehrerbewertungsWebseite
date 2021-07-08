@@ -359,7 +359,21 @@ export default class FunctionMannager
 							category = "create_questionnaire_" + response.returnvalue[1][i].kategorie;
 							
 							let categoryRow = document.getElementById( category );
-							if ( document.getElementById( tempValue + "_addedQuestion" ) == null ) categoryRow.appendChild( subTable );
+							if ( document.getElementById( tempValue + "_addedQuestion" ) == null )
+							{
+								categoryRow.appendChild( subTable );
+								
+								// Automatisches Scrollen um hinzugefügte Frage ins Blickfeld zu bringen
+								subTable.scrollIntoView(true);
+								
+								//subTable.style.backgroundColor = "red";
+								
+								// TODO Die ".scrollIntoView" Methode eventuell durch ".scrollTo" Methode austauschen mit genauen Angaben der Pos.
+								// damit das Element sich vertikal mittig im Bildschirm befindet
+								
+								// Automatisches Zurückscrollen nach 0.75 Sekunden
+								setTimeout(()=>{ document.getElementById("create_questionnaire_area").scrollTo(0, 0) }, 750);
+							}
 							break;
 						}
 					}
@@ -516,14 +530,26 @@ export default class FunctionMannager
 				response = JSON.parse( xhttp.responseText );
 				
 				let addQuestionDropdown = document.getElementById("add_question_dropdown");
+				
+				/*
+				// Prevents menu from closing when clicked inside
+				addQuestionDropdown.addEventListener('click', function (event) {
+					console.log("click outside");
+					event.stopPropagation();
+				});
+				*/
+				
 				addQuestionDropdown.innerHTML = "";
 
-				for ( let i = 0; i < response.returnvalue[1].length; i++ )
+				for ( var i = 0; i < response.returnvalue[1].length; i++ )
 				{
-					let selectElement = document.createElement( "option" );
+					var selectElement = document.createElement( "option" );
 					selectElement.value = response.returnvalue[1][i].frage;
+					selectElement.id = response.returnvalue[1][i].frage;
 					selectElement.innerHTML = response.returnvalue[1][i].kategorie + " &#11166; " + response.returnvalue[1][i].frage;
+
 					addQuestionDropdown.appendChild( selectElement );
+
 				}
 			}
 		}
