@@ -40,6 +40,7 @@ export default class Gui
 		this.functionKeys['Fragebogen_erstellen_page'][1] = "Fragebogen_erstellen_page_1";
 		this.functionKeys['Fragebogen_erstellen_page'][2] = "Fragebogen_erstellen_page_event_0";
 		this.functionKeys['Fragebogen_erstellen_page'][3] = "Fragebogen_erstellen_page_event_1";
+		this.functionKeys['Fragebogen_erstellen_page'][4] = "Fragebogen_erstellen_page_event_2";
 		
 		this.functionKeys['Fragen_verwalten_page'] = [];
 		this.functionKeys['Fragen_verwalten_page'][0] = "Fragen_verwalten_page_0";
