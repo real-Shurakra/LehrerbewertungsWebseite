@@ -171,7 +171,7 @@ class FragenVerwaltung {
         {
             global $link;
             $sqlquary_AlleFragen_Result_Data = array();
-            $sqlquary_AlleFragen = "SELECT frage, kategorie FROM fragen WHERE lehrerid = (SELECT id FROM lehrer WHERE mail = '" . $mail ."') OR lehrerid IS NULL ORDER BY kategorie DESC;";
+            $sqlquary_AlleFragen = "SELECT frage, kategorie FROM fragen WHERE lehrerid = (SELECT id FROM lehrer WHERE mail = '" . $mail ."') OR lehrerid IS NULL ORDER BY kategorie ASC;";
             //var_dump($sqlquary_AlleFragen);
             //echo('<br><br>');
             $sqlquary_AlleFragen_Result = mysqli_query($link, $sqlquary_AlleFragen);
