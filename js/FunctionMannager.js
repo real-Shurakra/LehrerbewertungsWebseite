@@ -265,6 +265,13 @@ export default class FunctionMannager
 				
 				this.addQuestionsDropDown();
 				
+				// Einfärben der bereits hinzugefügten Fragen im Dropdown
+				let addQuestionDropdownList = document.getElementById("add_question_dropdown").getElementsByTagName("div");
+				for (let i = 0; i < addQuestionDropdownList.length; i++)
+				{
+					this.changeSelectedOptionBackgroundColor(addQuestionDropdownList[i]);
+				}
+				
 			}
 		}
 		xhttp.open("POST", path, true);
@@ -305,82 +312,7 @@ export default class FunctionMannager
 		let addQuestionButton = document.getElementById( "addQuestion" );
 		addQuestionButton.addEventListener("mousedown", ()=>{
 			
-			let path = "./php/main.php?mode=askAlleFragen";
-			var response;
-			let xhttp = new XMLHttpRequest();
-			
-			xhttp.onreadystatechange = ()=>{
-				if ( xhttp.readyState == 4 && xhttp.status == 200 )
-				{
-					response = JSON.parse( xhttp.responseText );
-					
-					let addQuestionDropdown = document.getElementById("add_question_dropdown");
-					
-					let tempValue = addQuestionDropdown.value;
-			
-					let subTable = document.createElement( "table" );
-					subTable.style.width = "100%";
-					subTable.id = tempValue + "_addedQuestion";
-					let subTableRow = document.createElement( "tr" );
-					
-					let subTableQuestion = document.createElement( "td" );
-					subTableQuestion.style.width = "95%";
-
-					subTableQuestion.innerHTML = tempValue;
-					subTableRow.appendChild( subTableQuestion );
-					
-					let subTableRemoveQuestionButtonTd = document.createElement( "td" );
-					
-					let subTableRemoveQuestionButton = document.createElement( "button" );
-					subTableRemoveQuestionButton.innerHTML = "entfernen"
-					
-					subTableRemoveQuestionButton.addEventListener("mousedown", ()=>{
-						var thisQuestion = document.getElementById( tempValue + "_addedQuestion" );
-						thisQuestion.remove();
-
-						this.addQuestionsDropDown();
-						this.changeSelectedOptionsColors();
-						//Fragebogen_erstellen_page_event_2() //REM Bewirkt nichts?
-
-
-					});
-
-					subTableRemoveQuestionButtonTd.appendChild( subTableRemoveQuestionButton );
-
-					subTableRow.appendChild( subTableRemoveQuestionButtonTd );
-	
-					subTable.appendChild( subTableRow );
-					
-					for ( let i = 0; i < response.returnvalue[1].length; i++ )
-					{	
-						let category = "";
-						if ( tempValue.includes( response.returnvalue[1][i].frage ) )
-						{
-							category = "create_questionnaire_" + response.returnvalue[1][i].kategorie;
-							
-							let categoryRow = document.getElementById( category );
-							if ( document.getElementById( tempValue + "_addedQuestion" ) == null )
-							{
-								categoryRow.appendChild( subTable );
-								
-								// Automatisches Scrollen um hinzugefügte Frage ins Blickfeld zu bringen
-								subTable.scrollIntoView(true);
-								
-								//subTable.style.backgroundColor = "red";
-								
-								// TODO Die ".scrollIntoView" Methode eventuell durch ".scrollTo" Methode austauschen mit genauen Angaben der Pos.
-								// damit das Element sich vertikal mittig im Bildschirm befindet
-								
-								// Automatisches Zurückscrollen nach 0.75 Sekunden
-								setTimeout(()=>{ document.getElementById("create_questionnaire_area").scrollTo(0, 0) }, 750);
-							}
-							break;
-						}
-					}
-				}
-			}
-			xhttp.open("POST", path, true);
-			xhttp.send();
+			// TODO addQuestion hier einfügen
 		});
 	}
 	
@@ -464,7 +396,7 @@ export default class FunctionMannager
 		let addQuestionDropdown = document.getElementById("add_question_dropdown");
 		addQuestionDropdown.addEventListener("mousedown", ()=>{
 
-			this.changeSelectedOptionsColors()
+			//this.changeSelectedOptionsColors()
 		})
 	}
 
@@ -474,33 +406,29 @@ export default class FunctionMannager
 
 	//== Subroutinen ==========================================================================================================================
 
-	changeSelectedOptionsColors()
+	changeSelectedOptionBackgroundColor(option)
 	{
-		var questionnaireDropdownList = document.getElementById("add_question_dropdown").getElementsByTagName("option");
-		var questionnaireCategoriesTableList = [];
+		let questionnaireCategoriesTableList = [];
 		questionnaireCategoriesTableList = document.getElementById("questionnaire_categories_table").getElementsByTagName("table");
-			
-		for(var i = 0; i < questionnaireDropdownList.length; i++)
-		{
-			var temp1 = questionnaireDropdownList[i].value;
+		
+			var temp1 = option.id;
 
 			// Alle HTML Umlaut-Codes durch Umlaute ersetzen
 			temp1 = this.replaceAllUmlauts(temp1);
 
-			for(var j = 0; j < questionnaireCategoriesTableList.length; j++)
+			for(var i = 0; i < questionnaireCategoriesTableList.length; i++)
 			{
-				var temp2 = questionnaireCategoriesTableList[j].children[0].firstChild.innerHTML;
-				let defaultBackgroundColor = questionnaireDropdownList[i].style.backgroundColor;
+				var temp2 = questionnaireCategoriesTableList[i].children[0].firstChild.innerHTML;
+
 				if (temp1.localeCompare(temp2, "DE-de") == 0)
-				{
-					questionnaireDropdownList[i].style.backgroundColor = "#3EB489";
+				{		
+					option.style.backgroundColor = "#3EB489";	
 				}
-				else
+				/*else if(temp1.localeCompare(temp2, "DE-de") != 0)
 				{
-					questionnaireDropdownList[i].style.backgroundColor = defaultBackgroundColor;
-				}
+					option.style.backgroundColor = "";
+				}*/
 			}
-		}
 	}
 
 
@@ -531,19 +459,46 @@ export default class FunctionMannager
 				
 				let addQuestionDropdown = document.getElementById("add_question_dropdown");
 				
-				/*
-				// Prevents menu from closing when clicked inside
-				addQuestionDropdown.addEventListener('click', function (event) {
-					console.log("click outside");
-					event.stopPropagation();
-				});
-				*/
+					addQuestionDropdown.addEventListener("mousedown", (event)=>{
+						if(event.button == 0)
+						{
+							this.addQuestion(event.target);
+						}
+						if(event.button == 2) console.log("LinksClick!!!");
+					})
+				
 				
 				addQuestionDropdown.innerHTML = "";
 
 				for ( var i = 0; i < response.returnvalue[1].length; i++ )
 				{
-					var selectElement = document.createElement( "option" );
+					let selectElement = document.createElement( "div" );
+					selectElement.className = "questionSelectElement";
+					
+					// Event-Listener für selectElement
+					selectElement.addEventListener("contextmenu", (event)=>{
+						event.preventDefault();
+					});
+					selectElement.addEventListener("mouseenter", (event)=>{
+						event.target.style.fontWeight = "900";
+						//event.target.focus();
+						
+					})
+					selectElement.addEventListener("mouseleave", ()=>{
+						selectElement.style.fontWeight = "normal";
+					})
+					selectElement.addEventListener("mouseup", (event)=>{				
+						this.changeSelectedOptionBackgroundColor(event.target);
+						this.changeSelectedOptionBackgroundColor(selectElement);						
+					})
+					
+					/*
+					selectElement.addEventListener("mousemove", ()=>{
+						this.changeSelectedOptionsColors();
+					})
+					*/
+					
+					
 					selectElement.value = response.returnvalue[1][i].frage;
 					selectElement.id = response.returnvalue[1][i].frage;
 					selectElement.innerHTML = response.returnvalue[1][i].kategorie + " &#11166; " + response.returnvalue[1][i].frage;
@@ -551,10 +506,75 @@ export default class FunctionMannager
 					addQuestionDropdown.appendChild( selectElement );
 
 				}
+				
+				// Einfärben der bereits hinzugefügten Fragen im Dropdown
+				let addQuestionDropdownList = document.getElementById("add_question_dropdown").getElementsByTagName("div");
+				for (let i = 0; i < addQuestionDropdownList.length; i++)
+				{
+					this.changeSelectedOptionBackgroundColor(addQuestionDropdownList[i]);
+				}
 			}
 		}
 		xhttp.open("POST", path, true);
 		xhttp.send();
+	}
+	
+	addQuestion(question)
+	{
+			let path = "./php/main.php?mode=askAlleFragen";
+			var response;
+			let xhttp = new XMLHttpRequest();
+			
+			xhttp.onreadystatechange = ()=>{
+				if ( xhttp.readyState == 4 && xhttp.status == 200 )
+				{
+					response = JSON.parse( xhttp.responseText );
+					
+					let tempValue = question.id;
+			
+					let subTable = document.createElement( "table" );
+					subTable.style.width = "100%";
+					subTable.id = tempValue + "_addedQuestion";
+					let subTableRow = document.createElement( "tr" );
+					
+					let subTableQuestion = document.createElement( "td" );
+					subTableQuestion.style.width = "95%";
+
+					subTableQuestion.innerHTML = tempValue;
+					subTableRow.appendChild( subTableQuestion );
+	
+					subTable.appendChild( subTableRow );
+					
+					for ( let i = 0; i < response.returnvalue[1].length; i++ )
+					{	
+						let category = "";
+						if ( tempValue.includes( response.returnvalue[1][i].frage ) )
+						{
+							category = "create_questionnaire_" + response.returnvalue[1][i].kategorie;
+							
+							let categoryRow = document.getElementById( category );
+							if ( document.getElementById( tempValue + "_addedQuestion" ) == null )
+							{
+								categoryRow.appendChild( subTable );
+								
+								// Automatisches Scrollen um hinzugefügte Frage ins Blickfeld zu bringen
+								subTable.scrollIntoView(true);
+								
+								//subTable.style.backgroundColor = "red";
+								
+								// TODO Die ".scrollIntoView" Methode eventuell durch ".scrollTo" Methode austauschen mit genauen Angaben der Pos.
+								// damit das Element sich vertikal mittig im Bildschirm befindet
+								
+								// Automatisches Zurückscrollen nach 0.75 Sekunden
+								// setTimeout(()=>{ document.getElementById("create_questionnaire_area").scrollTo(0, 0) }, 750);
+							}
+							break;
+						}
+					}
+				}
+			}
+			xhttp.open("POST", path, true);
+			xhttp.send();
 	}
 
 }
