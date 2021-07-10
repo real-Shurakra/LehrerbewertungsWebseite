@@ -411,28 +411,12 @@ export default class FunctionMannager
 		let questionnaireCategoriesTableList = [];
 		questionnaireCategoriesTableList = document.getElementById("questionnaire_categories_table").getElementsByTagName("table");
 		
-			var temp1 = option.id;
-
-			// Alle HTML Umlaut-Codes durch Umlaute ersetzen
-			temp1 = this.replaceAllUmlauts(temp1);
-
-			for(var i = 0; i < questionnaireCategoriesTableList.length; i++)
-			{
-				var temp2 = questionnaireCategoriesTableList[i].children[0].firstChild.innerHTML;
-
-				if (temp1.localeCompare(temp2, "DE-de") == 0)
-				{		
-					option.style.backgroundColor = "#3EB489";	
-				}
-				/*else if(temp1.localeCompare(temp2, "DE-de") != 0)
-				{
-					option.style.backgroundColor = "";
-				}*/
-			}
+		if(document.getElementById(option.id + "_addedQuestion") != undefined) option.style.backgroundColor = "#3EB489";	
+		else option.style.backgroundColor = "";
 	}
 
 
-	replaceAllUmlauts(string)
+	replaceAllUmlauts(string) // wird nicht mehr genutzt
 	{
 		var umlauts = {"Ä":"&#196;", "ä":"&#228;", "Ö":"&#214;", "ö":"&#246;", "Ü":"&#220;", "ü":"&#252;", "ß":"&#223;"}
 
@@ -456,18 +440,7 @@ export default class FunctionMannager
 			if ( xhttp.readyState == 4 && xhttp.status == 200 )
 			{
 				response = JSON.parse( xhttp.responseText );
-				
 				let addQuestionDropdown = document.getElementById("add_question_dropdown");
-				
-					addQuestionDropdown.addEventListener("mousedown", (event)=>{
-						if(event.button == 0)
-						{
-							this.addQuestion(event.target);
-						}
-						if(event.button == 2) console.log("LinksClick!!!");
-					})
-				
-				
 				addQuestionDropdown.innerHTML = "";
 
 				for ( var i = 0; i < response.returnvalue[1].length; i++ )
@@ -487,9 +460,25 @@ export default class FunctionMannager
 					selectElement.addEventListener("mouseleave", ()=>{
 						selectElement.style.fontWeight = "normal";
 					})
-					selectElement.addEventListener("mouseup", (event)=>{				
+					selectElement.addEventListener("mousedown", (event)=>{
+	
+						let thisQuestion = document.getElementById( event.target.id + "_addedQuestion" );
+						
+						if(thisQuestion == undefined) this.addQuestion(event.target);
+						else thisQuestion.remove();
+						
+						//this.changeSelectedOptionBackgroundColor(event.target);
+						
+						// Einfärben der bereits hinzugefügten Fragen im Dropdown
+						let addQuestionDropdownList = document.getElementById("add_question_dropdown").getElementsByTagName("div");
+						for (let i = 0; i < addQuestionDropdownList.length; i++)
+						{
+							this.changeSelectedOptionBackgroundColor(addQuestionDropdownList[i]);
+						}
+					})
+					selectElement.addEventListener("mouseup", (event)=>{
+		
 						this.changeSelectedOptionBackgroundColor(event.target);
-						this.changeSelectedOptionBackgroundColor(selectElement);						
 					})
 					
 					/*
@@ -506,6 +495,9 @@ export default class FunctionMannager
 					addQuestionDropdown.appendChild( selectElement );
 
 				}
+				
+
+				
 				
 				// Einfärben der bereits hinzugefügten Fragen im Dropdown
 				let addQuestionDropdownList = document.getElementById("add_question_dropdown").getElementsByTagName("div");
@@ -538,6 +530,7 @@ export default class FunctionMannager
 					let subTableRow = document.createElement( "tr" );
 					
 					let subTableQuestion = document.createElement( "td" );
+					subTableQuestion.className ="addedQuestion";
 					subTableQuestion.style.width = "95%";
 
 					subTableQuestion.innerHTML = tempValue;
