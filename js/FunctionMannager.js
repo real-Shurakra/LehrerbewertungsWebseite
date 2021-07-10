@@ -452,14 +452,27 @@ export default class FunctionMannager
 					selectElement.addEventListener("contextmenu", (event)=>{
 						event.preventDefault();
 					});
+					
 					selectElement.addEventListener("mouseenter", (event)=>{
 						event.target.style.fontWeight = "900";
 						//event.target.focus();
 						
+						let question = document.getElementById(event.target.id + "_addedQuestion");
+						if (question != null)
+						{
+							question.style.backgroundColor = "#ff9999";
+							question.scrollIntoView(true);
+						}
+						
 					})
+					
 					selectElement.addEventListener("mouseleave", ()=>{
 						selectElement.style.fontWeight = "normal";
+						
+						let question = document.getElementById(event.target.id + "_addedQuestion");
+						if (question != null) question.style.backgroundColor = "";
 					})
+					
 					selectElement.addEventListener("mousedown", (event)=>{
 	
 						let thisQuestion = document.getElementById( event.target.id + "_addedQuestion" );
@@ -467,37 +480,36 @@ export default class FunctionMannager
 						if(thisQuestion == undefined) this.addQuestion(event.target);
 						else thisQuestion.remove();
 						
-						//this.changeSelectedOptionBackgroundColor(event.target);
-						
 						// Einfärben der bereits hinzugefügten Fragen im Dropdown
 						let addQuestionDropdownList = document.getElementById("add_question_dropdown").getElementsByTagName("div");
 						for (let i = 0; i < addQuestionDropdownList.length; i++)
 						{
 							this.changeSelectedOptionBackgroundColor(addQuestionDropdownList[i]);
 						}
+						
 					})
+					
 					selectElement.addEventListener("mouseup", (event)=>{
 		
 						this.changeSelectedOptionBackgroundColor(event.target);
+						
+						let question = document.getElementById(event.target.id + "_addedQuestion");
+						if(question != null)
+						{
+							question.style.backgroundColor = "#ff9999";
+							question.scrollIntoView(true);
+						}
 					})
-					
-					/*
-					selectElement.addEventListener("mousemove", ()=>{
-						this.changeSelectedOptionsColors();
-					})
-					*/
-					
-					
+									
 					selectElement.value = response.returnvalue[1][i].frage;
 					selectElement.id = response.returnvalue[1][i].frage;
 					selectElement.innerHTML = response.returnvalue[1][i].kategorie + " &#11166; " + response.returnvalue[1][i].frage;
 
 					addQuestionDropdown.appendChild( selectElement );
+					
+
 
 				}
-				
-
-				
 				
 				// Einfärben der bereits hinzugefügten Fragen im Dropdown
 				let addQuestionDropdownList = document.getElementById("add_question_dropdown").getElementsByTagName("div");
