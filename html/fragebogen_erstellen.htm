@@ -3,12 +3,25 @@
 		<div class="header">Fragebogen erstellen</div>
 		
 		</br>
-		<div>
-			Klasse zuweisen <select id="questionnaire_class_dropdown"></select>
-			Anzahl Schüler <input type="number" value="25" style="width:3%;"></input>
-			<button id="addQuestion">hinzufügen +</button>
-			<button id="addAllQuestions">alle hinzufügen</button>
-			<button id="publish_questionnaire">veröffentlichen</button>
+		<div style="width:90%;">
+			<table style="width:100%;">
+				<tr style="width:100%;">
+					<td id="select_class" style="width:90%;">
+						<div>
+							Klasse&nbsp;<select id="questionnaire_class_dropdown"></select> &nbsp;&nbsp;&nbsp;&nbsp;
+							Schulfach&nbsp;<select id="questionnaire_subject"></select> &nbsp;&nbsp;&nbsp;&nbsp;
+							Anzahl Schüler&nbsp;<input id="questionnaire_students_amount" type="number" value="25" style="width:40px;"></input> &nbsp;&nbsp;&nbsp;&nbsp;
+							Fragebogen-Name&nbsp;<input id="questionnaire_unique_name" type="text" style="width:350px;"></input>
+							<label id="messageCreateQuestionnaire"></label>
+						</div>
+					</td>
+					<td id="publish_button" style="width:30%;">
+						<div style="text-align:right;width:100%;">
+							<button class="button" id="publish_questionnaire">veröffentlichen &#10004;</button>
+						</div>
+					</td>
+				</tr>
+			</table>
 		</div>
 		</br>
 		
@@ -19,7 +32,7 @@
 
 	</div>
 	
-	<div id="add_question_dropdown"></div>
+	<div id="add_question_dropdown" style="align:center;"></div>
 	<!--</br>-->
 	
 	<div style="height:1px;"></div>

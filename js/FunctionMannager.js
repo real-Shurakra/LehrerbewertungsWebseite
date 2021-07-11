@@ -158,24 +158,7 @@ export default class FunctionMannager
 		})
 	}
 	
-	displayMessage( messageAreaId, response )
-	{
-		let timestampStart = Math.floor(Date.now());
-		let responseMessage = document.getElementById( messageAreaId );
-		responseMessage.style.opacity = 1;
-		responseMessage.innerHTML = response['returnvalue'];
-						
-		var interval = setInterval(()=>{
-			let currentTimestamp = Math.floor(Date.now());
-			responseMessage.style.opacity = ( ( (1 - ( (currentTimestamp - timestampStart) / 1000) / 4) ) );
-			
-			if (responseMessage.style.opacity < 0)
-			{
-				responseMessage.innerHTML = "";
-				clearInterval(interval);
-			}
-		}, 100);					
-	}
+
 
 	login_area_teacher()
 	{
@@ -248,6 +231,8 @@ export default class FunctionMannager
 			{
 				response = JSON.parse(xhttp.responseText);
 
+
+				// Aufbau der Fragebogen Tabelle mit den Kategorien (Diesen können anschließend auf der Page durch den User Fragen hinzugefügt werden)
 				for ( let i = 0; i < response.returnvalue[0].length; i++ )
 				{
 					let tempId = "create_questionnaire_" + response.returnvalue[0][i].kategorie;
@@ -263,14 +248,9 @@ export default class FunctionMannager
 					questionnaireCategoriesTable.appendChild(tableRowElement);
 				}
 				
-				this.addQuestionsDropDown();
 				
-				// Einfärben der bereits hinzugefügten Fragen im Dropdown
-				let addQuestionDropdownList = document.getElementById("add_question_dropdown").getElementsByTagName("div");
-				for (let i = 0; i < addQuestionDropdownList.length; i++)
-				{
-					this.changeSelectedOptionBackgroundColor(addQuestionDropdownList[i]);
-				}
+				// Aufbau des Intelligenten Auswahl-Menüs für die Fragen
+				this.addQuestionsDropDown();
 				
 			}
 		}
@@ -278,7 +258,8 @@ export default class FunctionMannager
 		xhttp.send();
 	}
 	
-	Fragebogen_erstellen_page_1() // Auswahl der Schulklasse Dropdown
+	// TODO PHP Funktion zum Erhalt aller Fächer implementieren und Request von Dummy auf PHP Funktion entsprechend ändern
+	Fragebogen_erstellen_page_1() // Auswahl der Schulklasse Dropdown, Auswahl des Schulfachs Dropdown 
 	{
 		let selectFieldQuestionnaireClass = document.getElementById("questionnaire_class_dropdown");
 		selectFieldQuestionnaireClass.innerHTML = "";
@@ -305,128 +286,184 @@ export default class FunctionMannager
 			xhttp.open("POST", path, true);
 			xhttp.send();		
 		}
-	}
-	
-	Fragebogen_erstellen_page_event_0() // Frage hinzufügen Button (Aktion Frage hinzufügen)
-	{
-		let addQuestionButton = document.getElementById( "addQuestion" );
-		addQuestionButton.addEventListener("mousedown", ()=>{
-			
-			// TODO addQuestion hier einfügen
-		});
-	}
-	
-	Fragebogen_erstellen_page_event_1() // Alle Fragen hinzufügen Button (Aktion alle Fragen hinzufügen)
-	{
-		let addAllQuestionsButton = document.getElementById( "addAllQuestions" );
-		addAllQuestionsButton.addEventListener("mousedown", ()=>{
-			
-			let path = "./php/main.php?mode=askAlleFragen";
-			var response;
+		
+		let selectFieldQuestionnaireSubject = document.getElementById("questionnaire_subject");
+		selectFieldQuestionnaireSubject.innerHTML = "";
+		if ( selectFieldQuestionnaireSubject != undefined )
+		{
+			let path = "./json/dummy.json";
+			let response;
 			let xhttp = new XMLHttpRequest();
-			
+		
 			xhttp.onreadystatechange = ()=>{
 				if ( xhttp.readyState == 4 && xhttp.status == 200 )
 				{
-					response = JSON.parse( xhttp.responseText );
-					
-					let addQuestionDropdown = document.getElementById("add_question_dropdown");
-					
-					var allQuestions = Array.from(addQuestionDropdown);
-					
-					for ( let i = 0; i < allQuestions.length; i++ )
+					response = JSON.parse(xhttp.responseText);
+				
+					for ( let i = 0; i < response.subjects.length; i++ )
 					{
-						let tempValue = allQuestions[i].value;
-			
-						let subTable = document.createElement( "table" );
-						subTable.style.width = "100%";
-						subTable.id = tempValue + "_addedQuestion";
-						let subTableRow = document.createElement( "tr" );
-					
-						let subTableQuestion = document.createElement( "td" );
-						subTableQuestion.style.width = "95%";
-
-						subTableQuestion.innerHTML = tempValue;
-						subTableRow.appendChild( subTableQuestion );
-					
-						let subTableRemoveQuestionButtonTd = document.createElement( "td" );
-					
-						let subTableRemoveQuestionButton = document.createElement( "button" );
-						subTableRemoveQuestionButton.innerHTML = "entfernen"
-					
-						subTableRemoveQuestionButton.addEventListener("mousedown", ()=>{
-							var thisQuestion = document.getElementById( tempValue + "_addedQuestion" );
-							thisQuestion.remove();
-
-							this.addQuestionsDropDown();
-							this.changeSelectedOptionsColors();
-							//Fragebogen_erstellen_page_event_2() //REM Bewirkt nichts?
-
-
-						});
-
-						subTableRemoveQuestionButtonTd.appendChild( subTableRemoveQuestionButton );
-
-						subTableRow.appendChild( subTableRemoveQuestionButtonTd );
-	
-						subTable.appendChild( subTableRow );
-					
-						for ( let j = 0; j < response.returnvalue[1].length; j++ )
-						{	
-							let category = "";
-							if ( tempValue.includes( response.returnvalue[1][j].frage ) )
-							{
-								category = "create_questionnaire_" + response.returnvalue[1][j].kategorie;
-
-								let categoryRow = document.getElementById( category );
-								if ( document.getElementById( tempValue + "_addedQuestion" ) == null ) categoryRow.appendChild( subTable );
-								break;
-							}
-						}						
+						let selectElement = document.createElement( "option" );
+						selectElement.value = response.subjects[i];
+						selectElement.innerHTML = response.subjects[i];
+						selectFieldQuestionnaireSubject.appendChild( selectElement );
 					}
 				}
-			}
+			};
 			xhttp.open("POST", path, true);
-			xhttp.send();
-		});
+			xhttp.send();		
+		}
 	}
-
-	Fragebogen_erstellen_page_event_2() // Fragen hinzufügen Button (Aktion im Dropdown alle bereits hinzugefügten Fragen einfärben)
+	
+	Fragebogen_erstellen_page_event_0() // Event-Listener für den Button zum Veröffentlichen eines Fragebogens
 	{
-		let addQuestionDropdown = document.getElementById("add_question_dropdown");
-		addQuestionDropdown.addEventListener("mousedown", ()=>{
+		let publishQuestionnaireButton = document.getElementById("publish_questionnaire");
+		
+		if(publishQuestionnaireButton != null)
+		{
+			publishQuestionnaireButton.addEventListener("click", ()=>{
+			
+				let questionnaireClassDropdown = document.getElementById("questionnaire_class_dropdown").value;
+				questionnaireClassDropdown = this.replaceAllUmlauts(questionnaireClassDropdown, true);
+				
+				let questionnaireStudentsAmount = document.getElementById("questionnaire_students_amount").value;
+				let questionnaireUniqueName = document.getElementById("questionnaire_unique_name").value;
+				let questionnaireSubject = document.getElementById("questionnaire_subject").value;
+				
+				//console.log(questionnaireClassDropdown + " " + questionnaireStudentsAmount + " " + questionnaireUniqueName + " " + questionnaireSubject);
+				
+		
+				let questionnaireCategoriesTableList = this.getAllAddedQuestions();
+				var questionnaireQuestions = [];
+				questionnaireQuestions["fragen"] = [];
+				
+				
+				for(let table in questionnaireCategoriesTableList)
+				{
+					let tempQuestion;
+					if (questionnaireCategoriesTableList[table].children != undefined) tempQuestion = questionnaireCategoriesTableList[table].children[0].children[0].firstChild.textContent;
+					if (tempQuestion != undefined) questionnaireQuestions.push(tempQuestion);
+				}
+				
+				console.log(questionnaireQuestions);
+				
+				//console.log(questionnaireQuestions);
+				
+				if ( questionnaireClassDropdown != undefined && questionnaireStudentsAmount != undefined && questionnaireUniqueName != undefined )
+				{
+					console.log(questionnaireClassDropdown + " " + questionnaireStudentsAmount + " " + questionnaireUniqueName + " " + questionnaireSubject);
+					
+					let formData = new FormData();
+					formData.append( 'name', questionnaireUniqueName );
+					formData.append( 'anzahl', questionnaireStudentsAmount );
+					formData.append( 'klasse', questionnaireStudentsAmount );
+					formData.append( 'fach', questionnaireSubject );
+					formData.append( 'fragen', questionnaireQuestions);
+			
+					console.log(formData);
+			
+					let path = "./php/main.php?mode=makeFragebogen";
+					let xhttp = new XMLHttpRequest();
+			
+					let response;
+					xhttp.onreadystatechange = ()=>{
+						if ( xhttp.readyState == 4 && xhttp.status == 200 )
+						{
+							var responseRow = xhttp.responseText;
+							console.log(responseRow);
+							try
+							{
+								response = JSON.parse( responseRow );
+	
+								if( response['returncode'] == 0 && response['returnvalue'] )
+								{
+									//window.open("./verwaltung.php", "_self");
+									document.getElementById("messageCreateQuestionnaire").innerHTML = response['returnvalue'];
+								}
+								//document.getElementById("messageCreateQuestionnaire").innerHTML = response['returnvalue'];
+						
+							}
+							catch( error )
+							{
+								console.log( error );
+								console.log( response );
+							}
+						}
+					};
+					xhttp.open("POST", path, true);
+					xhttp.send( formData );	
+					
+				}
+			});			
+		}
 
-			//this.changeSelectedOptionsColors()
-		})
 	}
-
-
+	
 
 
 
 	//== Subroutinen ==========================================================================================================================
 
+	displayMessage( messageAreaId, response )
+	{
+		let timestampStart = Math.floor(Date.now());
+		let responseMessage = document.getElementById( messageAreaId );
+		responseMessage.style.opacity = 1;
+		responseMessage.innerHTML = response['returnvalue'];
+						
+		var interval = setInterval(()=>{
+			let currentTimestamp = Math.floor(Date.now());
+			responseMessage.style.opacity = ( ( (1 - ( (currentTimestamp - timestampStart) / 1000) / 4) ) );
+			
+			if (responseMessage.style.opacity < 0)
+			{
+				responseMessage.innerHTML = "";
+				clearInterval(interval);
+			}
+		}, 100);					
+	}
+
 	changeSelectedOptionBackgroundColor(option)
 	{
-		let questionnaireCategoriesTableList = [];
-		questionnaireCategoriesTableList = document.getElementById("questionnaire_categories_table").getElementsByTagName("table");
+		let questionnaireCategoriesTableList = this.getAllAddedQuestions();
 		
 		if(document.getElementById(option.id + "_addedQuestion") != undefined) option.style.backgroundColor = "#3EB489";	
 		else option.style.backgroundColor = "";
 	}
 
-
-	replaceAllUmlauts(string) // wird nicht mehr genutzt
+	getAllAddedQuestions()
 	{
-		var umlauts = {"Ä":"&#196;", "ä":"&#228;", "Ö":"&#214;", "ö":"&#246;", "Ü":"&#220;", "ü":"&#252;", "ß":"&#223;"}
+		let questionnaireCategoriesTableList = [];
+		questionnaireCategoriesTableList = document.getElementById("questionnaire_categories_table").getElementsByTagName("table");
+		return questionnaireCategoriesTableList;
+	}
 
-		for (var umlaut in umlauts)
+	replaceAllUmlauts(string, reverse)
+	{
+		// reverse = true kehrt das ersetzen der Codes um (Der Umlaut wird durch den Code ersetzt)
+		var umlauts = {"Ä":"&#196;", "ä":"&#228;", "Ö":"&#214;", "ö":"&#246;", "Ü":"&#220;", "ü":"&#252;", "ß":"&#223;", "-":"&#45;"};
+					
+		if (!reverse)
 		{
-			while(string.includes(umlauts[umlaut]))
+			for (var umlaut in umlauts)
 			{
-				string = string.replace(umlauts[umlaut], umlaut);
+				while(string.includes(umlauts[umlaut]))
+				{
+					string = string.replace(umlauts[umlaut], umlaut);
+				}
 			}
 		}
+		else
+		{
+			for (var umlaut in umlauts)
+			{
+				while(string.includes(umlaut))
+				{
+					string = string.replace( umlaut, umlauts[umlaut]);
+				}
+			}
+		}
+		
+		console.log(string);
 		return string
 	}
 
@@ -442,12 +479,12 @@ export default class FunctionMannager
 				response = JSON.parse( xhttp.responseText );
 				let addQuestionDropdown = document.getElementById("add_question_dropdown");
 				addQuestionDropdown.innerHTML = "";
-
+				
 				for ( var i = 0; i < response.returnvalue[1].length; i++ )
 				{
 					let selectElement = document.createElement( "div" );
 					selectElement.className = "questionSelectElement";
-					
+				
 					// Event-Listener für selectElement
 					selectElement.addEventListener("contextmenu", (event)=>{
 						event.preventDefault();
@@ -455,26 +492,29 @@ export default class FunctionMannager
 					
 					selectElement.addEventListener("mouseenter", (event)=>{
 						event.target.style.fontWeight = "900";
+						event.target.style.cursor = "pointer";
 						//event.target.focus();
-						
+					
 						let question = document.getElementById(event.target.id + "_addedQuestion");
 						if (question != null)
 						{
 							question.style.backgroundColor = "#ff9999";
 							question.scrollIntoView(true);
 						}
-						
 					})
 					
 					selectElement.addEventListener("mouseleave", ()=>{
 						selectElement.style.fontWeight = "normal";
-						
+					
 						let question = document.getElementById(event.target.id + "_addedQuestion");
 						if (question != null) question.style.backgroundColor = "";
 					})
 					
 					selectElement.addEventListener("mousedown", (event)=>{
-	
+						
+					let triggers = [];
+					triggers[0] = ()=>
+					{
 						let thisQuestion = document.getElementById( event.target.id + "_addedQuestion" );
 						
 						if(thisQuestion == undefined) this.addQuestion(event.target);
@@ -486,37 +526,52 @@ export default class FunctionMannager
 						{
 							this.changeSelectedOptionBackgroundColor(addQuestionDropdownList[i]);
 						}
-						
-					})
-					
-					selectElement.addEventListener("mouseup", (event)=>{
-		
-						this.changeSelectedOptionBackgroundColor(event.target);
-						
-						let question = document.getElementById(event.target.id + "_addedQuestion");
-						if(question != null)
+					}
+					triggers[2] = ()=>
+					{
+						this.addAllQuestions();
+						// Einfärben der bereits hinzugefügten Fragen im Dropdown
+						let addQuestionDropdownList = document.getElementById("add_question_dropdown").getElementsByTagName("div");
+						for (let i = 0; i < addQuestionDropdownList.length; i++)
 						{
-							question.style.backgroundColor = "#ff9999";
-							question.scrollIntoView(true);
+							this.changeSelectedOptionBackgroundColor(addQuestionDropdownList[i]);
 						}
-					})
-									
+					}
+					triggers[event.button]();
+				
+				})
+			
+				selectElement.addEventListener("mouseup", (event)=>{
+		
+					// Einfärben der bereits hinzugefügten Fragen im Dropdown
+					let addQuestionDropdownList = document.getElementById("add_question_dropdown").getElementsByTagName("div");
+					for (let i = 0; i < addQuestionDropdownList.length; i++)
+					{
+						this.changeSelectedOptionBackgroundColor(addQuestionDropdownList[i]);
+					}
+				
+					let question = document.getElementById(event.target.id + "_addedQuestion");
+					if(question != null)
+					{
+						question.style.backgroundColor = "#ff9999";
+						question.scrollIntoView(true);
+					}
+				})
+
 					selectElement.value = response.returnvalue[1][i].frage;
 					selectElement.id = response.returnvalue[1][i].frage;
 					selectElement.innerHTML = response.returnvalue[1][i].kategorie + " &#11166; " + response.returnvalue[1][i].frage;
 
-					addQuestionDropdown.appendChild( selectElement );
-					
-
-
+					addQuestionDropdown.appendChild( selectElement );		
 				}
 				
 				// Einfärben der bereits hinzugefügten Fragen im Dropdown
-				let addQuestionDropdownList = document.getElementById("add_question_dropdown").getElementsByTagName("div");
+				let addQuestionDropdownList = document.getElementById("add_question_dropdown").childNodes;
 				for (let i = 0; i < addQuestionDropdownList.length; i++)
 				{
-					this.changeSelectedOptionBackgroundColor(addQuestionDropdownList[i]);
+				this.changeSelectedOptionBackgroundColor(addQuestionDropdownList[i]);
 				}
+				
 			}
 		}
 		xhttp.open("POST", path, true);
@@ -581,5 +636,62 @@ export default class FunctionMannager
 			xhttp.open("POST", path, true);
 			xhttp.send();
 	}
+	
+	addAllQuestions()
+	{
+			let path = "./php/main.php?mode=askAlleFragen";
+			var response;
+			let xhttp = new XMLHttpRequest();
+			
+			xhttp.onreadystatechange = ()=>{
+				if ( xhttp.readyState == 4 && xhttp.status == 200 )
+				{
+					response = JSON.parse( xhttp.responseText );
+					
+					let addQuestionDropdown = document.getElementById("add_question_dropdown").childNodes;
+					
+					var allQuestions = Array.from(addQuestionDropdown);
+					
+					for ( let i = 0; i < allQuestions.length; i++ )
+					{
+						let tempValue = allQuestions[i].id;
+			
+						let subTable = document.createElement( "table" );
+						subTable.style.width = "100%";
+						subTable.id = tempValue + "_addedQuestion";
+						let subTableRow = document.createElement( "tr" );
+					
+						let subTableQuestion = document.createElement( "td" );
+						subTableQuestion.style.width = "95%";
+
+						subTableQuestion.innerHTML = tempValue;
+						subTableRow.appendChild( subTableQuestion );
+	
+						subTable.appendChild( subTableRow );
+					
+						for ( let j = 0; j < response.returnvalue[1].length; j++ )
+						{	
+							let category = "";
+							if ( tempValue.includes( response.returnvalue[1][j].frage ) )
+							{
+								category = "create_questionnaire_" + response.returnvalue[1][j].kategorie;
+
+								let categoryRow = document.getElementById( category );
+								if ( document.getElementById( tempValue + "_addedQuestion" ) == null ) categoryRow.appendChild( subTable );
+								break;
+							}
+						}
+					}
+					
+					// Im Fragebogen automatisch nach ganz unten scrollen
+					let addQuestionDropdownTemp = document.getElementById("add_question_dropdown");
+					addQuestionDropdownTemp.scrollTo(0, addQuestionDropdownTemp.scrollHeight);
+				}
+			}
+			xhttp.open("POST", path, true);
+			xhttp.send();
+	}
+	
+
 
 }

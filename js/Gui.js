@@ -39,8 +39,7 @@ export default class Gui
 		this.functionKeys['Fragebogen_erstellen_page'][0] = "Fragebogen_erstellen_page_0";
 		this.functionKeys['Fragebogen_erstellen_page'][1] = "Fragebogen_erstellen_page_1";
 		this.functionKeys['Fragebogen_erstellen_page'][2] = "Fragebogen_erstellen_page_event_0";
-		this.functionKeys['Fragebogen_erstellen_page'][3] = "Fragebogen_erstellen_page_event_1";
-		this.functionKeys['Fragebogen_erstellen_page'][4] = "Fragebogen_erstellen_page_event_2";
+		//this.functionKeys['Fragebogen_erstellen_page'][4] = "Fragebogen_erstellen_page_event_2";
 		
 		this.functionKeys['Fragen_verwalten_page'] = [];
 		this.functionKeys['Fragen_verwalten_page'][0] = "Fragen_verwalten_page_0";
@@ -99,6 +98,7 @@ export default class Gui
 					this.initVerticalMenu();
 					this.initPageContainer();
 					this.addEventsVerticalMenu(pages, pagesNames, this.functionMannager, this.functionKeys);
+					
 				}
 			}
 		};
@@ -268,7 +268,7 @@ export default class Gui
 			
 			containerVerticalMenu.appendChild(this.verticalMenuButtons[i]);
 		}
-		// Lückenfüller zum ausfüllen des restlichen Verwaltungsmenüs hinzufügen
+		// Lückenfüller zum ausfüllen des restlichen Verwaltungsmenüs hinzufügen (Bereich von Unterkante-letzer-Button bis Page-Ende Marineblau ausfüllen)
 		let spaceFiller = document.createElement("div");
 		spaceFiller.id = "spaceFiller";
 		spaceFiller.style.height = containerVerticalMenuBarHeight - (containerVerticalMenuBarHeight / 100 * 8 * pages.length) + "px";
@@ -288,7 +288,9 @@ export default class Gui
 			this.addHTML(page.id, pagesNames[i], page, functions, functionKeys);
 			
 			containerPages.appendChild(page);
+			
 		}
+		
 	}
 	
 	// Funktion zum Wechseln der Page
