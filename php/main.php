@@ -243,6 +243,7 @@ class FragenVerwaltung {
     }
 
     public static function makeFragebogen($name, $anzahl, $klasse, $fach, $fragenids)  {
+        #var_dump($fragenids);
         $fragen = explode(',', $fragenids);
         $sqlstring_MakeFragebogen = "
             INSERT INTO fragebogen 
@@ -278,6 +279,7 @@ class FragenVerwaltung {
             }
             $sqlquery_InsertFbFragen = rtrim($row_sqlquery_InsertFbFragen, ",");
             $sqlquery_InsertFbFragen .= ";";
+            #var_dump($sqlquery_InsertFbFragen);
             mysqli_query($link, $sqlquery_InsertFbFragen);
             if (self::genCodes($anzahl, $fbId) == 1){
                 $antwort = array(
@@ -565,7 +567,3 @@ else{
     $_REQUEST['kritik']         = 'Alles Gefixt! Garkein Problem!';
     //////////////////////////////////////////  DEBUG END  /////////////////////////////////////////
 }
-
-
-
-
