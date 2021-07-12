@@ -339,8 +339,9 @@ export default class FunctionMannager
 				
 				for(let table in questionnaireCategoriesTableList)
 				{
-					let tempQuestion;
-					if (questionnaireCategoriesTableList[table].children != undefined) tempQuestion = questionnaireCategoriesTableList[table].children[0].children[0].firstChild.textContent;
+					let tempQuestionId;
+					// if (questionnaireCategoriesTableList[table].children != undefined) tempQuestion = questionnaireCategoriesTableList[table].children[0].children[0].firstChild.textContent;
+					if (questionnaireCategoriesTableList[table].children != undefined) tempQuestionId = questionnaireCategoriesTableList[table].children[0].children[0].firstChild.id
 					if (tempQuestion != undefined) questionnaireQuestions.push(tempQuestion);
 				}
 				
@@ -479,6 +480,9 @@ export default class FunctionMannager
 			if ( xhttp.readyState == 4 && xhttp.status == 200 )
 			{
 				response = JSON.parse( xhttp.responseText );
+				console.log("response askAlleFragen:");
+				console.log(response);
+
 				let addQuestionDropdown = document.getElementById("add_question_dropdown");
 				addQuestionDropdown.innerHTML = "";
 				
@@ -558,6 +562,8 @@ export default class FunctionMannager
 					selectElement.value = response.returnvalue[1][i].frage;
 					selectElement.id = response.returnvalue[1][i].frage;
 					selectElement.innerHTML = response.returnvalue[1][i].kategorie + " &#11166; " + response.returnvalue[1][i].frage;
+					selectElement.value = response.returnvalue[1][i].id;
+					//console.log(selectElement.value);
 
 					addQuestionDropdown.appendChild( selectElement );		
 				}
@@ -589,6 +595,8 @@ export default class FunctionMannager
 					response = JSON.parse( xhttp.responseText );
 					
 					let tempValue = question.id;
+					let tempId = question.value;
+					console.error(tempId);
 			
 					let subTable = document.createElement( "table" );
 					subTable.style.width = "100%";
@@ -596,6 +604,7 @@ export default class FunctionMannager
 					let subTableRow = document.createElement( "tr" );
 					
 					let subTableQuestion = document.createElement( "td" );
+					subTableQuestion.id = tempId;
 					subTableQuestion.className ="addedQuestion";
 					subTableQuestion.style.width = "95%";
 
@@ -654,6 +663,7 @@ export default class FunctionMannager
 					for ( let i = 0; i < allQuestions.length; i++ )
 					{
 						let tempValue = allQuestions[i].id;
+						let tempId = allQuestions[i].value;
 			
 						let subTable = document.createElement( "table" );
 						subTable.style.width = "100%";
@@ -661,6 +671,8 @@ export default class FunctionMannager
 						let subTableRow = document.createElement( "tr" );
 					
 						let subTableQuestion = document.createElement( "td" );
+						subTableQuestion.id = tempId;
+						console.table(subTableQuestion.id);
 						subTableQuestion.style.width = "95%";
 
 						subTableQuestion.innerHTML = tempValue;
