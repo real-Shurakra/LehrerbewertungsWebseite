@@ -323,7 +323,7 @@ export default class FunctionMannager
 			publishQuestionnaireButton.addEventListener("click", ()=>{
 			
 				let questionnaireClassDropdown = document.getElementById("questionnaire_class_dropdown").value;
-				questionnaireClassDropdown = this.replaceAllUmlauts(questionnaireClassDropdown, true);
+				//questionnaireClassDropdown = this.replaceAllUmlauts(questionnaireClassDropdown, true);
 				
 				let questionnaireStudentsAmount = document.getElementById("questionnaire_students_amount").value;
 				let questionnaireUniqueName = document.getElementById("questionnaire_unique_name").value;
@@ -355,7 +355,7 @@ export default class FunctionMannager
 					let formData = new FormData();
 					formData.append( 'name', questionnaireUniqueName );
 					formData.append( 'anzahl', questionnaireStudentsAmount );
-					formData.append( 'klasse', questionnaireStudentsAmount );
+					formData.append( 'klasse', questionnaireClassDropdown );
 					formData.append( 'fach', questionnaireSubject );
 					formData.append( 'fragen', questionnaireQuestions);
 			
