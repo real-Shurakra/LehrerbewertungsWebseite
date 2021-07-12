@@ -78,6 +78,7 @@ class main {
 }
 
 class validation {
+
     /**
      * @brief Encode des Passworts
      * @details 
@@ -85,11 +86,7 @@ class validation {
      * @return string $antwort = Sha512 verschluesselter String
      * @note In der Datei 'save.php' stehen die Variablen die bei der Verschl�sselnug ben�tigt werden.
      */
-    function pass_encode
-    (
-        $passwort
-    ) 
-    {
+    static function pass_encode($passwort) {
         include 'save.php'; 
         $passwort = hash("sha512", $pepper . $passwort . $salt);
         return $passwort;}
@@ -97,12 +94,7 @@ class validation {
 
 class nutzerverwaltung {
     
-    public static function loginUser
-    (
-        $mail,
-        $passwort
-    )
-    {
+    public static function loginUser($mail, $passwort) {
         $passwort = validation::pass_encode($passwort);
         global $link;
         try {
@@ -295,7 +287,7 @@ class FragenVerwaltung {
         return $antwort; 
     }
     
-    function genCodes($anz, $fbId) {
+    static function genCodes($anz, $fbId) {
         global $link;
         for ($i = 0; $i < $anz; $i++) {
             $memcode = array();
@@ -325,7 +317,7 @@ class FragenVerwaltung {
         }
     }
     
-    function genNumber() {
+    static function genNumber() {
         $numb = random_int(0, 99);
         if ($numb <= 9){
             $numb = '0' . $numb;
