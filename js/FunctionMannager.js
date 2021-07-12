@@ -342,7 +342,7 @@ export default class FunctionMannager
 					let tempQuestionId;
 					// if (questionnaireCategoriesTableList[table].children != undefined) tempQuestion = questionnaireCategoriesTableList[table].children[0].children[0].firstChild.textContent;
 					if (questionnaireCategoriesTableList[table].children != undefined) tempQuestionId = questionnaireCategoriesTableList[table].children[0].children[0].firstChild.id
-					if (tempQuestion != undefined) questionnaireQuestions.push(tempQuestion);
+					if (tempQuestion != undefined) questionnaireQuestions.push(tempQuestionId);
 				}
 				
 				console.log(questionnaireQuestions);
