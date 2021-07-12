@@ -424,7 +424,9 @@ export default class FunctionMannager
 
 	changeSelectedOptionBackgroundColor(option)
 	{
-		let questionnaireCategoriesTableList = this.getAllAddedQuestions();
+		console.log("... wirde ausgeführt!");
+
+		//let questionnaireCategoriesTableList = this.getAllAddedQuestions();
 		
 		if(document.getElementById(option.id + "_addedQuestion") != undefined) option.style.backgroundColor = "#3EB489";	
 		else option.style.backgroundColor = "";
@@ -517,24 +519,26 @@ export default class FunctionMannager
 					{
 						let thisQuestion = document.getElementById( event.target.id + "_addedQuestion" );
 						
-						if(thisQuestion == undefined) this.addQuestion(event.target);
-						else thisQuestion.remove();
-						
-						// Einfärben der bereits hinzugefügten Fragen im Dropdown
-						let addQuestionDropdownList = document.getElementById("add_question_dropdown").getElementsByTagName("div");
-						for (let i = 0; i < addQuestionDropdownList.length; i++)
+						if(thisQuestion == undefined)
 						{
-							this.changeSelectedOptionBackgroundColor(addQuestionDropdownList[i]);
+							this.addQuestion(event.target);
+							event.target.style.backgroundColor = "#3EB489";
 						}
+						else 
+						{
+							thisQuestion.remove();
+							event.target.style.backgroundColor = "";
+						}
+
 					}
 					triggers[2] = ()=>
 					{
 						this.addAllQuestions();
-						// Einfärben der bereits hinzugefügten Fragen im Dropdown
+
 						let addQuestionDropdownList = document.getElementById("add_question_dropdown").getElementsByTagName("div");
 						for (let i = 0; i < addQuestionDropdownList.length; i++)
 						{
-							this.changeSelectedOptionBackgroundColor(addQuestionDropdownList[i]);
+							addQuestionDropdownList[i].style.backgroundColor = "#3EB489";
 						}
 					}
 					triggers[event.button]();
@@ -542,13 +546,6 @@ export default class FunctionMannager
 				})
 			
 				selectElement.addEventListener("mouseup", (event)=>{
-		
-					// Einfärben der bereits hinzugefügten Fragen im Dropdown
-					let addQuestionDropdownList = document.getElementById("add_question_dropdown").getElementsByTagName("div");
-					for (let i = 0; i < addQuestionDropdownList.length; i++)
-					{
-						this.changeSelectedOptionBackgroundColor(addQuestionDropdownList[i]);
-					}
 				
 					let question = document.getElementById(event.target.id + "_addedQuestion");
 					if(question != null)
@@ -565,12 +562,14 @@ export default class FunctionMannager
 					addQuestionDropdown.appendChild( selectElement );		
 				}
 				
+				
 				// Einfärben der bereits hinzugefügten Fragen im Dropdown
 				let addQuestionDropdownList = document.getElementById("add_question_dropdown").childNodes;
 				for (let i = 0; i < addQuestionDropdownList.length; i++)
 				{
 				this.changeSelectedOptionBackgroundColor(addQuestionDropdownList[i]);
 				}
+				
 				
 			}
 		}
