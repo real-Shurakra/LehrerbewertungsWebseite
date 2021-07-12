@@ -565,7 +565,7 @@ export default class FunctionMannager
 
 					selectElement.value = response.returnvalue[1][i].frage;
 					selectElement.id = response.returnvalue[1][i].frage;
-					selectElement.innerHTML = response.returnvalue[1][i].kategorie + " &#11166; " + response.returnvalue[1][i].frage;
+					selectElement.innerHTML = response.returnvalue[1][i].kategorie + " &#8250; " + response.returnvalue[1][i].frage;
 					selectElement.value = response.returnvalue[1][i].id;
 					//console.log(selectElement.value);
 
