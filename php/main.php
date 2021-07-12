@@ -171,7 +171,7 @@ class FragenVerwaltung {
         {
             global $link;
             $sqlquary_AlleFragen_Result_Data = array();
-            $sqlquary_AlleFragen = "SELECT frage, kategorie FROM fragen WHERE lehrerid = (SELECT id FROM lehrer WHERE mail = '" . $mail ."') OR lehrerid IS NULL ORDER BY kategorie ASC;";
+            $sqlquary_AlleFragen = "SELECT id, frage, kategorie FROM fragen WHERE lehrerid = (SELECT id FROM lehrer WHERE mail = '" . $mail ."') OR lehrerid IS NULL ORDER BY kategorie ASC;";
             //var_dump($sqlquary_AlleFragen);
             //echo('<br><br>');
             $sqlquary_AlleFragen_Result = mysqli_query($link, $sqlquary_AlleFragen);
@@ -180,6 +180,7 @@ class FragenVerwaltung {
             $answer = array();
             for ($i = 0; $i < $sqlquary_AlleFragen_Result->num_rows; $i++) {
                 $sqlquary_AlleFragen_Result_Data[$i]                = mysqli_fetch_array($sqlquary_AlleFragen_Result);
+                $answer[$i]['id']          = main::toDE($sqlquary_AlleFragen_Result_Data[$i]['id']);
                 $answer[$i]['frage']       = main::toDE($sqlquary_AlleFragen_Result_Data[$i]['frage']);
                 $answer[$i]['kategorie']   = main::toDE($sqlquary_AlleFragen_Result_Data[$i]['kategorie']);
                 $answer[$i][0]             = main::toDE($sqlquary_AlleFragen_Result_Data[$i][0]);
@@ -241,18 +242,11 @@ class FragenVerwaltung {
         };
     }
 
-    public static function makeFragebogen($name, $anzahl, $klasse, $fach, $fragen)  {
+    public static function makeFragebogen($name, $anzahl, $klasse, $fach, $fragenids)  {
+        $fragen = explode(',', $fragenids);
         $sqlstring_MakeFragebogen = "
             INSERT INTO fragebogen 
-            (
-                zeitstempel, 
-                id, 
-                name, 
-                schueleranzahl, 
-                klassename,
-                fachid, 
-                lehrerid
-            )
+            (zeitstempel, id, name, schueleranzahl, klassename, fachid, lehrerid)
             VALUES
             (
                 CURRENT_TIMESTAMP,
@@ -273,33 +267,14 @@ class FragenVerwaltung {
             );
         }
         else{
-            $sqlquery_GetLastFbId = "SELECT MAX(id) FROM fragebogen WHERE `lehrerid` = (SELECT id FROM lehrer WHERE mail = 'temp.dump@hotmail.com');";
+            $sqlquery_GetLastFbId = "SELECT MAX(id) FROM fragebogen WHERE `lehrerid` = (SELECT id FROM lehrer WHERE mail = '" . $_SESSION['usermail'] ."');";
             $sqlquery_GetLastFbId_Result = mysqli_query($link, $sqlquery_GetLastFbId);
             $sqlquery_GetLastFbId_Result_Data = mysqli_fetch_array($sqlquery_GetLastFbId_Result);
             $fbId = $sqlquery_GetLastFbId_Result_Data['MAX(id)'];
             $row_sqlquery_InsertFbFragen = "INSERT INTO nm_frage_fragebogen (bogenid, frageid) VALUES";
             for ($i = 0; $i < count($fragen); $i++) {
                 $row_sqlquery_InsertFbFragen .= "
-                    (" . $fbId . ", 
-                    (   
-                        SELECT id FROM fragen WHERE 
-                            (
-                                frage = '" . $fragen[$i] ."' 
-                                AND 
-                                lehrerid = 
-                                ( 
-                                    SELECT id 
-                                    FROM lehrer 
-                                    WHERE mail = '" . $_SESSION['usermail'] ."' 
-                                ) 
-                            )
-                            OR
-                            (
-                                frage = '" . $fragen[$i] ."' 
-                                AND 
-                                lehrerid IS NULL)
-                        )
-                    ),";
+                    (" . $fbId . ", " . $fragen[$i] ."),";
             }
             $sqlquery_InsertFbFragen = rtrim($row_sqlquery_InsertFbFragen, ",");
             $sqlquery_InsertFbFragen .= ";";
