@@ -488,6 +488,15 @@ export default class FunctionMannager
 				console.log(response);
 
 				let addQuestionDropdown = document.getElementById("add_question_dropdown");
+				addQuestionDropdown.addEventListener("mouseenter", ()=>{
+					let toolTip = document.getElementById("toolTip");
+					if (toolTip != null) toolTip.style.visibility = "visible";
+				});
+				addQuestionDropdown.addEventListener("mouseleave", ()=>{
+					let toolTip = document.getElementById("toolTip");
+					if (toolTip != null) toolTip.style.visibility = "hidden";
+				});
+
 				addQuestionDropdown.innerHTML = "";
 				
 				for ( var i = 0; i < response.returnvalue[1].length; i++ )
@@ -504,7 +513,7 @@ export default class FunctionMannager
 						event.target.style.fontWeight = "900";
 						event.target.style.cursor = "pointer";
 						//event.target.focus();
-					
+						
 						let question = document.getElementById(event.target.id + "_addedQuestion");
 						if (question != null)
 						{
@@ -513,11 +522,12 @@ export default class FunctionMannager
 						}
 					})
 					
-					selectElement.addEventListener("mouseleave", ()=>{
+					selectElement.addEventListener("mouseleave", (event)=>{
 						selectElement.style.fontWeight = "normal";
 					
 						let question = document.getElementById(event.target.id + "_addedQuestion");
 						if (question != null) question.style.backgroundColor = "";
+
 					})
 					
 					selectElement.addEventListener("mousedown", (event)=>{
