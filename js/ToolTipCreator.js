@@ -4,30 +4,49 @@ export default class ToolTipCreator
 {
 	constructor()
 	{
+		this.svg;
+		
+		let path = "./svg/ToolTip.svg";
+		let response;
+		let xhttp = new XMLHttpRequest();
+		
+		xhttp.onreadystatechange = ()=>{
+			if ( xhttp.readyState == 4 && xhttp.status == 200 )
+			{
+				response = xhttp.responseText;
+				this.svg = response;
+			}
+		};
+		xhttp.open("POST", path, true);
+		xhttp.send();	
 	}
-
-	createToolTip()
+	
+	createToolTip(toolTipId, targetId)
 	{
-		let toolTipId = "toolTip";
-		let toolTipWidth = 100;
-		let toolTipHeight = 100;
 		let toolTip = document.createElement("div");
 		toolTip.id = toolTipId;
-		toolTip.style.width = toolTipWidth + "px";
-		toolTip.style.height = toolTipHeight + "px";
-		toolTip.style.backgroundColor = "white";
-		//toolTip.style.opacity = "99%";
 		toolTip.style.position = "absolute";
-		toolTip.style.zIndex = 10;
-		toolTip.style.borderStyle ="solid";
-		toolTip.style.borderRadius = "15px 15px 15px 15px";
-		toolTip.style.borderWidth = "3px";
-		toolTip.style.visibility = "hidden";
-		toolTip.style.padding = "5px";
-		toolTip.style.fontSize = "medium";
-
-		toolTip.innerHTML = " \n l-click: one in \n r-click: all in";
-
+		toolTip.style.height = "10px";
+		toolTip.style.width = "20px";
+		
+		toolTip.innerHTML = this.svg;
+		document.body.appendChild(toolTip);
+		
+		document.addEventListener("mousemove", (event)=>{
+			let toolTipHeight =  parseInt(toolTip.style.height);
+			let toolTipWidth = parseInt(toolTip.style.width);
+			toolTip.style.top = event.clientY - 60 + "px";
+			toolTip.style.left = window.innerWidth - (toolTipWidth + 180) + "px";
+		});
+		
+		let target = document.getElementById(targetId);
+		target.addEventListener("mouseenter", ()=>{
+			if (toolTip != null) toolTip.style.visibility = "visible";
+		});
+		target.addEventListener("mouseleave", ()=>{
+			if (toolTip != null) toolTip.style.visibility = "hidden";
+		});
+		
 		return toolTip;
 	}
 }

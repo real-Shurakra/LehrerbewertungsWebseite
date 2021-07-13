@@ -9,13 +9,17 @@ import ToolTipCreator from "./ToolTipCreator.js";
 
 var gui = new Gui();
 var functionMannager = new FunctionMannager();
+
 var toolTipCreator = new ToolTipCreator();
+
 
 gui.functionMannager = functionMannager;
 gui.functionMannager.toolTipCreator = toolTipCreator;
 
 gui.loadSvgAndMenus("verwaltung");
 
+
+/*
 let toolTip = toolTipCreator.createToolTip();
 document.body.appendChild(toolTip);
 
@@ -25,6 +29,7 @@ document.addEventListener("mousemove", (event)=>{
     toolTip.style.top = event.clientY - toolTipHeightHalf + "px";
     toolTip.style.left = window.innerWidth - (toolTipWidth + 40) + "px";
 });
+*/
 
 
 

@@ -488,14 +488,13 @@ export default class FunctionMannager
 				console.log(response);
 
 				let addQuestionDropdown = document.getElementById("add_question_dropdown");
-				addQuestionDropdown.addEventListener("mouseenter", ()=>{
-					let toolTip = document.getElementById("toolTip");
-					if (toolTip != null) toolTip.style.visibility = "visible";
-				});
-				addQuestionDropdown.addEventListener("mouseleave", ()=>{
-					let toolTip = document.getElementById("toolTip");
-					if (toolTip != null) toolTip.style.visibility = "hidden";
-				});
+				
+				let toolTipAddQuestionDropdownLeftClick = this.toolTipCreator.createToolTip("toolTipAddQuestionDropdownLeftClick", "add_question_dropdown");
+				
+				// ToolTip Layer mit rechter Maustaste sichtbar machen
+				// TODO überprüfen ob das Element doch von der Klasse ToolTipCreator adressierbar ist
+				document.getElementById("mouse_right_click").style.display = "inline";
+
 
 				addQuestionDropdown.innerHTML = "";
 				
@@ -610,7 +609,6 @@ export default class FunctionMannager
 					
 					let tempValue = question.id;
 					let tempId = question.value;
-					console.error(tempId);
 			
 					let subTable = document.createElement( "table" );
 					subTable.style.width = "100%";
@@ -686,7 +684,7 @@ export default class FunctionMannager
 					
 						let subTableQuestion = document.createElement( "td" );
 						subTableQuestion.id = tempId;
-						console.table(subTableQuestion.id);
+						
 						subTableQuestion.style.width = "95%";
 
 						subTableQuestion.innerHTML = tempValue;
