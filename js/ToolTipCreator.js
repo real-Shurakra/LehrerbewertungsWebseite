@@ -12,7 +12,7 @@ export default class ToolTipCreator
 		let target = document.getElementById(targetId);
 		console.log(target);
 		let rect = target.getBoundingClientRect();
-		console.log(rect.top, rect.right, rect.bottom, rect.left);
+		//console.log(rect.top, rect.right, rect.bottom, rect.left);
 		
 		let toolTip = document.createElement("div");
 		toolTip.style.position = "absolute";
@@ -21,6 +21,7 @@ export default class ToolTipCreator
 		toolTip.style.display = "inline";
 		toolTip.style.background = "url('./html/" + imageFilename + ".png') no-repeat";
 		toolTip.style.backgroundSize = "contain";
+		toolTip.style.visibility = "hidden";
 		
 		if(toolTipId.includes("right"))
 		{

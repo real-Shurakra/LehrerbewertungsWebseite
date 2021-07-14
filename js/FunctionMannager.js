@@ -492,6 +492,7 @@ export default class FunctionMannager
 				let addQuestionDropdown = document.getElementById("add_question_dropdown");
 				
 				let toolTipAddQuestionDropdownLeftClick = this.toolTipCreator1.createToolTip("Tooltip_mouse_left_click", "mouse_left_click", "add_question_dropdown");
+				toolTipAddQuestionDropdownLeftClick.style.visibility = "hidden";
 				//toolTipAddQuestionDropdownLeftClick.style.left = 180 + "px";
 				//toolTipAddQuestionDropdownLeftClick.style.top = 180 + "px";
 
