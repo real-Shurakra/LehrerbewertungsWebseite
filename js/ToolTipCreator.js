@@ -29,7 +29,7 @@ export default class ToolTipCreator
 			toolTip.style.fontWeight = "bold";
 			toolTip.style.padding = "15px";
 			toolTip.style.textAlign = "right";
-			toolTip.innerText = "↓ all";
+			toolTip.innerText = "✓ all";
 		}
 		if(toolTipId.includes("left"))
 		{
@@ -38,7 +38,7 @@ export default class ToolTipCreator
 			toolTip.style.fontWeight = "bold";
 			toolTip.style.padding = "15px";
 			toolTip.style.textAlign = "left";
-			toolTip.innerText = " one↓";
+			toolTip.innerText = " one ✓";
 		}
 		
 		document.body.appendChild(toolTip);
