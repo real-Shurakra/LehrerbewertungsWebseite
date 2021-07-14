@@ -10,11 +10,13 @@ import ToolTipCreator from "./ToolTipCreator.js";
 var gui = new Gui();
 var functionMannager = new FunctionMannager();
 
-var toolTipCreator = new ToolTipCreator();
+var toolTipCreator1 = new ToolTipCreator();
+var toolTipCreator2 = new ToolTipCreator();
 
 
 gui.functionMannager = functionMannager;
-gui.functionMannager.toolTipCreator = toolTipCreator;
+gui.functionMannager.toolTipCreator1 = toolTipCreator1;
+gui.functionMannager.toolTipCreator2 = toolTipCreator2;
 
 gui.loadSvgAndMenus("verwaltung");
 

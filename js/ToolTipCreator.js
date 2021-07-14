@@ -4,49 +4,55 @@ export default class ToolTipCreator
 {
 	constructor()
 	{
-		this.svg;
-		
-		let path = "./svg/ToolTip.svg";
-		let response;
-		let xhttp = new XMLHttpRequest();
-		
-		xhttp.onreadystatechange = ()=>{
-			if ( xhttp.readyState == 4 && xhttp.status == 200 )
-			{
-				response = xhttp.responseText;
-				this.svg = response;
-			}
-		};
-		xhttp.open("POST", path, true);
-		xhttp.send();	
+
 	}
 	
-	createToolTip(toolTipId, targetId)
+	createToolTip(imageFilename, toolTipId, targetId)
 	{
-		let toolTip = document.createElement("div");
-		toolTip.id = toolTipId;
-		toolTip.style.position = "absolute";
-		toolTip.style.height = "10px";
-		toolTip.style.width = "20px";
-		
-		toolTip.innerHTML = this.svg;
-		document.body.appendChild(toolTip);
-		
-		document.addEventListener("mousemove", (event)=>{
-			let toolTipHeight =  parseInt(toolTip.style.height);
-			let toolTipWidth = parseInt(toolTip.style.width);
-			toolTip.style.top = event.clientY - 60 + "px";
-			toolTip.style.left = window.innerWidth - (toolTipWidth + 180) + "px";
-		});
-		
 		let target = document.getElementById(targetId);
+		console.log(target);
+		let rect = target.getBoundingClientRect();
+		console.log(rect.top, rect.right, rect.bottom, rect.left);
+		
+		let toolTip = document.createElement("div");
+		toolTip.style.position = "absolute";
+		toolTip.style.height = "60px";
+		toolTip.style.width = "120px";
+		toolTip.style.display = "inline";
+		toolTip.style.background = "url('./html/" + imageFilename + ".png') no-repeat";
+		toolTip.style.backgroundSize = "contain";
+		
+		if(toolTipId.includes("right"))
+		{
+			toolTip.style.left = rect.right - 35 + "px";
+			toolTip.style.top = rect.top - parseInt(toolTip.style.height) - 12 + "px";
+			toolTip.style.fontWeight = "bold";
+			toolTip.style.padding = "15px";
+			toolTip.style.textAlign = "right";
+			toolTip.innerText = "↓ all";
+		}
+		if(toolTipId.includes("left"))
+		{
+			toolTip.style.left = rect.left + 35 - parseInt(toolTip.style.width) + "px";
+			toolTip.style.top = rect.top - parseInt(toolTip.style.height) - 12 + "px";
+			toolTip.style.fontWeight = "bold";
+			toolTip.style.padding = "15px";
+			toolTip.style.textAlign = "left";
+			toolTip.innerText = " one↓";
+		}
+		
+		document.body.appendChild(toolTip);
+
 		target.addEventListener("mouseenter", ()=>{
 			if (toolTip != null) toolTip.style.visibility = "visible";
+
 		});
 		target.addEventListener("mouseleave", ()=>{
 			if (toolTip != null) toolTip.style.visibility = "hidden";
+
 		});
 		
 		return toolTip;
+
 	}
 }
