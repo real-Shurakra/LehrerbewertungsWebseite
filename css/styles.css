@@ -147,7 +147,7 @@ body
 #Uebersicht_page
 {
 	visibility: visible;
-	overflow-y:auto
+	overflow-y:auto;
 }
 
 #Fragebogen_erstellen_page

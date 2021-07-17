@@ -468,6 +468,10 @@ export default class FunctionMannager
 	{
 		let publishQuestionnaireButton = document.getElementById("publish_questionnaire");
 		
+		// Tooltips fürs Intelligente Fragen-Auswahl-Menü
+		let toolTipAddQuestionDropdownLeftClick = this.toolTipCreator1.createToolTip("Tooltip_mouse_left_click", "mouse_left_click", "add_question_dropdown");
+		let toolTipAddQuestionDropdownRightClick = this.toolTipCreator1.createToolTip("Tooltip_mouse_right_click", "mouse_right_click", "add_question_dropdown");
+
 		if(publishQuestionnaireButton != null)
 		{
 			publishQuestionnaireButton.addEventListener("click", ()=>{
@@ -639,12 +643,15 @@ export default class FunctionMannager
 
 				let addQuestionDropdown = document.getElementById("add_question_dropdown");
 				
-				let toolTipAddQuestionDropdownLeftClick = this.toolTipCreator1.createToolTip("Tooltip_mouse_left_click", "mouse_left_click", "add_question_dropdown");
+				
+				//if (document.getElementById("Tooltip_mouse_left_click") == null)
+				
 
 				//toolTipAddQuestionDropdownLeftClick.style.left = 180 + "px";
 				//toolTipAddQuestionDropdownLeftClick.style.top = 180 + "px";
 
-				let toolTipAddQuestionDropdownRightClick = this.toolTipCreator1.createToolTip("Tooltip_mouse_right_click", "mouse_right_click", "add_question_dropdown");
+				//if (document.getElementById("Tooltip_mouse_right_click") == null )
+
 				//toolTipAddQuestionDropdownRightClick.style.left =  + "px";
 				//toolTipAddQuestionDropdownRightClick.style.top = 100 + "px";
 
