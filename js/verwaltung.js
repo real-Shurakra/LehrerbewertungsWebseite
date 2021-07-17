@@ -9,6 +9,8 @@ import ToolTipCreator from "./ToolTipCreator.js";
 
 var gui = new Gui();
 var functionMannager = new FunctionMannager();
+functionMannager.menuBarColor = gui.menuBarColor;
+functionMannager.menuOpacity = gui.menuOpacity;
 
 var toolTipCreator1 = new ToolTipCreator();
 var toolTipCreator2 = new ToolTipCreator();

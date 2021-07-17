@@ -34,6 +34,7 @@ export default class Gui
 		this.functionKeys['login_area_student'][0] = "login_area_student";
 		
 		this.functionKeys['Uebersicht_page'] = [];
+		this.functionKeys['Uebersicht_page'][0] = "Uebersicht_page_0";
 		
 		this.functionKeys['Fragebogen_erstellen_page'] = [];
 		this.functionKeys['Fragebogen_erstellen_page'][0] = "Fragebogen_erstellen_page_0";

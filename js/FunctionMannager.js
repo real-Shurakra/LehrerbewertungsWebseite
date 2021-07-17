@@ -6,7 +6,154 @@ export default class FunctionMannager
 	{
 		this.toolTipCreator1 = undefined;
 		this.toolTipCreator2 = undefined;
+		this.menuBarColor = undefined;
+		this.menuOpacity = undefined;
 	}
+	
+	Uebersicht_page_0()
+	{
+		let openQuestionnaires = document.getElementById("open_questionnaires");
+		openQuestionnaires.innerHTML = "";
+		if ( openQuestionnaires != undefined )
+		{
+			let path = "./php/main.php?mode=getFragebogens";
+			let response;
+			let xhttp = new XMLHttpRequest();
+		
+			xhttp.onreadystatechange = ()=>{
+				if ( xhttp.readyState == 4 && xhttp.status == 200 )
+				{
+					response = JSON.parse(xhttp.responseText);
+					
+					console.log("getFragebogens");
+					console.log(response);
+					
+					for (let questionnaire in response)
+					{
+						openQuestionnaires.appendChild(document.createElement("br"));
+						
+						let div = document.createElement("div");
+						div.style.borderStyle = "solid";
+						div.style.borderColor = "#9eb3c7";
+						div.style.borderWidth = "1px";
+						div.style.width = "99%";
+						div.id = response[questionnaire].id;
+
+						let tds = div.getElementsByClassName("questionnaireHeader");
+						div.addEventListener("mouseenter", ()=>{
+							div.style.cursor = "pointer";
+							for(let td in tds)
+							{
+								if (tds[td].style != undefined)
+								{
+									tds[td].style.color = "#ffffff";
+									tds[td].style.backgroundColor = this.menuBarColor;
+									
+								}
+							}
+						});
+						div.addEventListener("mouseleave", ()=>{
+							for(let td in tds)
+							{
+								if (tds[td].style != undefined)
+								{
+									tds[td].style.color = this.menuBarColor;
+									tds[td].style.backgroundColor = "#9eb3c7";
+								}
+							}
+						});
+						
+							let table = document.createElement("table");
+							table.style.borderCollapse = "collapse";
+							table.style.tableLayout = "fixed";
+							table.style.width = "100%";
+								let rowHeaders = document.createElement("tr");
+								let rowData = document.createElement("tr");
+
+								// Dokument-Symbol hinzufügen
+								let columnSymbol = document.createElement("td");
+								columnSymbol.className = "questionnaireHeader";
+								columnSymbol.rowSpan = 2;
+								columnSymbol.style.width = "50px";
+								columnSymbol.style.fontSize = "40px";
+								columnSymbol.style.textAlign = "center";
+								columnSymbol.style.color = this.menuBarColor;
+								columnSymbol.innerHTML = " &#128462;"; // 🗎
+								columnSymbol.style.backgroundColor = "#9eb3c7";
+
+								rowHeaders.append(columnSymbol);
+									for (let index in response[questionnaire])
+									{
+										//console.log(response[questionnaire][index]);
+										let columnHeaders = document.createElement("td");
+										columnHeaders.className = "questionnaireHeader";
+
+										// Änderung der Header-Bezeichnungen
+										if (index == "name") columnHeaders.innerHTML = "Thema";
+										else if (index == "zeitstempel") columnHeaders.innerHTML = "Datum";
+										else if (index == "id") continue;
+										else if (index == "anzfragen") continue;
+										else if (index == "schueleranzahl") continue;
+										else if (index == "klassenname") columnHeaders.innerHTML = "Klasse";
+										else if (index == "fach") columnHeaders.innerHTML = "Fach";
+										else if (index == "bewertungsumme") columnHeaders.innerHTML = "Punkte";
+										else columnHeaders.innerHTML = index;
+
+										columnHeaders.style.backgroundColor = "#9eb3c7";
+										columnHeaders.style.fontWeight = "bold";
+										columnHeaders.style.fontSize = "small";
+										columnHeaders.style.color = this.menuBarColor;
+										rowHeaders.appendChild(columnHeaders);
+										
+										let columnData = document.createElement("td");
+
+										if (index == "zeitstempel")
+										{
+											let timestamp = response[questionnaire][index].split(" ");
+											columnData.innerHTML = timestamp[0];
+										}
+										else columnData.innerHTML = response[questionnaire][index];
+										
+										rowData.appendChild(columnData);
+									}
+								table.appendChild(rowHeaders);
+								table.appendChild(rowData);
+							div.appendChild(table);
+						openQuestionnaires.appendChild(div);
+						
+						// Event-Listener zum Hinzufügen der Fragen bei einem Klick auf den Bogen (Öffnen des Fragebogens)
+						div.addEventListener("click", ()=>{
+							let formData = new FormData();
+							formData.append('fbId', div.id.toString());
+
+							var response = this.Request("./php/main.php?mode=getFbFragen", formData);
+							console.log(response);
+
+							/*
+							for ( let i = 0; i < response.returnvalue[0].length; i++ )
+							{
+								// TODO: Iteration durch die Fragen um diese dem Bogen hinzuzufügen
+								// - Warten auf Anpassung der Backend-Methode "getFbFragen" (die Kategorien müssen noch hinzugefügt werden)	
+							}
+							*/
+						});
+
+					}
+				}
+			};
+			xhttp.open("POST", path, true);
+			xhttp.send();		
+		}	
+	}
+
+	Request(path, formData)
+	{
+		let xhttp = new XMLHttpRequest();
+		xhttp.open("POST", path, false);
+		xhttp.send(formData);
+		return JSON.parse(xhttp.responseText);
+	}
+
 	
 	Fragen_verwalten_page_0()
 	{
@@ -492,7 +639,7 @@ export default class FunctionMannager
 				let addQuestionDropdown = document.getElementById("add_question_dropdown");
 				
 				let toolTipAddQuestionDropdownLeftClick = this.toolTipCreator1.createToolTip("Tooltip_mouse_left_click", "mouse_left_click", "add_question_dropdown");
-				toolTipAddQuestionDropdownLeftClick.style.visibility = "hidden";
+
 				//toolTipAddQuestionDropdownLeftClick.style.left = 180 + "px";
 				//toolTipAddQuestionDropdownLeftClick.style.top = 180 + "px";
 
