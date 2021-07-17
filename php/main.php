@@ -17,6 +17,8 @@ class main {
         elseif  ($_REQUEST['mode'] == 'insertRate')         {echo json_encode(FragenVerwaltung::insertRate          ($_REQUEST['rate'],         $_REQUEST['codehash']                                                                           ));}
         elseif  ($_REQUEST['mode'] == 'insertkritik')       {echo json_encode(FragenVerwaltung::insertkritik        ($_REQUEST['fbId'],         $_REQUEST['kritik']                                                                             ));}
         elseif  ($_REQUEST['mode'] == 'getkritik')          {echo json_encode(FragenVerwaltung::getkritik           ($_REQUEST['fbId']                                                                                                          ));}
+        elseif  ($_REQUEST['mode'] == 'getAlleSchulklassen'){echo json_encode(FragenVerwaltung::getAlleSchulklassen (                                                                                                                           ));}
+        elseif  ($_REQUEST['mode'] == 'getAllSubjects')     {echo json_encode(FragenVerwaltung::getAllSubjects      (                                                                                                                           ));}
         
         
         
