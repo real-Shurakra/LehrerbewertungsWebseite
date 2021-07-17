@@ -150,6 +150,11 @@ body
 	overflow-y:auto
 }
 
+#Fragebogen_erstellen_page
+{
+	overflow-y:auto;
+}
+
 #add_question_dropdown
 {
 	overflow: scroll;
@@ -165,7 +170,7 @@ body
 {
 	overflow: scroll;
 	overflow-x: hidden;
-	height: 500px;
+	height: 475px;
 	width: 93%;
 	border-style: solid;
 	border-width: 1px;

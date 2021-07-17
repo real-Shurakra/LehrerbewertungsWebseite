@@ -151,6 +151,7 @@ export default class FunctionMannager
 		let xhttp = new XMLHttpRequest();
 		xhttp.open("POST", path, false);
 		xhttp.send(formData);
+		console.log(response);
 		return JSON.parse(xhttp.responseText);
 	}
 
