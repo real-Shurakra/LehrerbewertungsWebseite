@@ -4,6 +4,8 @@ export default class FunctionMannager
 {
 	constructor()
 	{
+		this.toolTipCreator1 = undefined;
+		this.toolTipCreator2 = undefined;
 	}
 	
 	Fragen_verwalten_page_0()
@@ -488,6 +490,16 @@ export default class FunctionMannager
 				console.log(response);
 
 				let addQuestionDropdown = document.getElementById("add_question_dropdown");
+				
+				let toolTipAddQuestionDropdownLeftClick = this.toolTipCreator1.createToolTip("Tooltip_mouse_left_click", "mouse_left_click", "add_question_dropdown");
+				toolTipAddQuestionDropdownLeftClick.style.visibility = "hidden";
+				//toolTipAddQuestionDropdownLeftClick.style.left = 180 + "px";
+				//toolTipAddQuestionDropdownLeftClick.style.top = 180 + "px";
+
+				let toolTipAddQuestionDropdownRightClick = this.toolTipCreator1.createToolTip("Tooltip_mouse_right_click", "mouse_right_click", "add_question_dropdown");
+				//toolTipAddQuestionDropdownRightClick.style.left =  + "px";
+				//toolTipAddQuestionDropdownRightClick.style.top = 100 + "px";
+
 				addQuestionDropdown.innerHTML = "";
 				
 				for ( var i = 0; i < response.returnvalue[1].length; i++ )
@@ -504,7 +516,7 @@ export default class FunctionMannager
 						event.target.style.fontWeight = "900";
 						event.target.style.cursor = "pointer";
 						//event.target.focus();
-					
+						
 						let question = document.getElementById(event.target.id + "_addedQuestion");
 						if (question != null)
 						{
@@ -513,11 +525,12 @@ export default class FunctionMannager
 						}
 					})
 					
-					selectElement.addEventListener("mouseleave", ()=>{
+					selectElement.addEventListener("mouseleave", (event)=>{
 						selectElement.style.fontWeight = "normal";
 					
 						let question = document.getElementById(event.target.id + "_addedQuestion");
 						if (question != null) question.style.backgroundColor = "";
+
 					})
 					
 					selectElement.addEventListener("mousedown", (event)=>{
@@ -565,7 +578,7 @@ export default class FunctionMannager
 
 					selectElement.value = response.returnvalue[1][i].frage;
 					selectElement.id = response.returnvalue[1][i].frage;
-					selectElement.innerHTML = response.returnvalue[1][i].kategorie + " &#11166; " + response.returnvalue[1][i].frage;
+					selectElement.innerHTML = response.returnvalue[1][i].kategorie + " &#8250; " + response.returnvalue[1][i].frage;
 					selectElement.value = response.returnvalue[1][i].id;
 					//console.log(selectElement.value);
 
@@ -600,7 +613,6 @@ export default class FunctionMannager
 					
 					let tempValue = question.id;
 					let tempId = question.value;
-					console.error(tempId);
 			
 					let subTable = document.createElement( "table" );
 					subTable.style.width = "100%";
@@ -676,7 +688,7 @@ export default class FunctionMannager
 					
 						let subTableQuestion = document.createElement( "td" );
 						subTableQuestion.id = tempId;
-						console.table(subTableQuestion.id);
+						
 						subTableQuestion.style.width = "95%";
 
 						subTableQuestion.innerHTML = tempValue;

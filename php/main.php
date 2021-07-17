@@ -401,7 +401,7 @@ class FragenVerwaltung {
     public static function getFbFragen($fbId) {
         try{
             global $link;
-            $sqlquery_GetFbFragen = "SELECT frage, id FROM getfbfragen WHERE bogenid = '" . $fbId . "'";
+            $sqlquery_GetFbFragen = "SELECT frage, id, kategorie FROM getfbfragen WHERE bogenid = '" . $fbId . "'";
             $sqlquery_GetFbFragen_Result = mysqli_query($link, $sqlquery_GetFbFragen);
             if ($sqlquery_GetFbFragen_Result->num_rows == 0) {
                 return array(
@@ -412,7 +412,12 @@ class FragenVerwaltung {
             $antwort = array();
             for ($i = 0; $i < $sqlquery_GetFbFragen_Result->num_rows; $i++) {
                 $sqlquery_GetFbFragen_Result_Data[$i] = mysqli_fetch_array($sqlquery_GetFbFragen_Result);
-                array_push($antwort, array('frageid'=>$sqlquery_GetFbFragen_Result_Data[$i]['id'], 'fragestring'=>$sqlquery_GetFbFragen_Result_Data[$i]['frage']));
+                array_push($antwort, array('frageid'=>$sqlquery_GetFbFragen_Result_Data[$i]['id'], 
+                                           array('fragestring'=>$sqlquery_GetFbFragen_Result_Data[$i]['frage'],
+                                                 'fragekategorie'=>$sqlquery_GetFbFragen_Result_Data[$i]['kategorie']
+                                           )
+                                     )
+                          );
             }
             return array(
                 'returncode'=>0,
