@@ -113,9 +113,29 @@ export default class FunctionMannager
 											columnData.innerHTML = timestamp[0];
 										}
 										else columnData.innerHTML = response[questionnaire][index];
-										
+
 										rowData.appendChild(columnData);
+
+										if( index == "schueleranzahl" && response[questionnaire][index] > 0 )
+										{
+											// Bogenstatus anhand der Anzahl der Codes ermitteln
+											let formDataCodes = new FormData();
+											formDataCodes.append("fbId", response[questionnaire].id);
+											var responseQuestionnaireCodes = this.Request("./php/main.php?mode=getCodes", formDataCodes);
+
+											console.log("=== codes =========================");
+											if (responseQuestionnaireCodes != null) console.log(responseQuestionnaireCodes);
+
+											columnHeaders.innerHTML = "";
+											columnData.innerHTML = "";
+											// TODO: Bögen mit einer Schüleranzahl von 0 Löschen
+											// Matthias eine Issue-Nachricht auf GitHub schreiben, die Methode getCodes muss optimiert werden
+											// Es darf nicht nur einfach eine Fehlermeldung kommen wenn es keine Codes für den Bogen gibt.
+										}
+										
+										
 									}
+
 								table.appendChild(rowHeaders);
 								table.appendChild(rowData);
 							div.appendChild(table);
@@ -148,11 +168,14 @@ export default class FunctionMannager
 
 	Request(path, formData)
 	{
+		let response;
 		let xhttp = new XMLHttpRequest();
 		xhttp.open("POST", path, false);
 		xhttp.send(formData);
-		console.log(response);
-		return JSON.parse(xhttp.responseText);
+		response = xhttp.responseText;
+		if (response.indexOf("{") != 0) return response;
+		//if (response.length > 100 && response != null) return JSON.parse(response);
+		//else return null;
 	}
 
 	
