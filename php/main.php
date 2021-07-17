@@ -235,6 +235,7 @@ class FragenVerwaltung {
     }
 
     public static function makeFragebogen($name, $anzahl, $klasse, $fach, $fragenids)  {
+        #var_dump($fragenids);
         $fragen = explode(',', $fragenids);
         $sqlstring_MakeFragebogen = "
             INSERT INTO fragebogen 
@@ -270,6 +271,7 @@ class FragenVerwaltung {
             }
             $sqlquery_InsertFbFragen = rtrim($row_sqlquery_InsertFbFragen, ",");
             $sqlquery_InsertFbFragen .= ";";
+            #var_dump($sqlquery_InsertFbFragen);
             mysqli_query($link, $sqlquery_InsertFbFragen);
             if (self::genCodes($anzahl, $fbId) == 1){
                 $antwort = array(
@@ -529,8 +531,27 @@ class FragenVerwaltung {
             return false;
         }
     }
-}
 
+    public static function getAllSubjects(){
+        global $link;
+        $sqlquery_getAlleSchulklassen = "SELECT name FROM fach";
+        $sqlquery_getAlleSchulklassen_Result = mysqli_query($link, $sqlquery_getAlleSchulklassen);
+        if ($sqlquery_getAlleSchulklassen_Result->num_rows == 0) {
+            return array(
+                'returncode'=>-1,
+                'returnvalue'=>main::toDE('<strong>Keine Fächer gefunden</strong><br>Es wurden keine Fächer in der Datenbank gefunden.')
+            );
+        }
+        for ($i=0; $i < $sqlquery_getAlleSchulklassen_Result->num_rows; $i++) { 
+            $sqlquery_getAlleSchulklassen_Result_Data[$i] = mysqli_fetch_array($sqlquery_getAlleSchulklassen_Result);
+            array_push($answer, $sqlquery_getAlleSchulklassen_Result_Data[$i]['name']);
+        }
+        return array(
+            'returncode'=>0,
+            'returnvalue'=>$answer
+        );
+    }
+}
 
 if (isset($_REQUEST['mode'])){
     $_REQUEST = main::checkSemicolon($_REQUEST);
@@ -557,7 +578,3 @@ else{
     $_REQUEST['kritik']         = 'Alles Gefixt! Garkein Problem!';
     //////////////////////////////////////////  DEBUG END  /////////////////////////////////////////
 }
-
-
-
-
