@@ -25,11 +25,11 @@ export default class FunctionMannager
 				{
 					response = JSON.parse(xhttp.responseText);
 					
-					console.log("getFragebogens");
-					console.log(response);
-					
 					for (let questionnaire in response)
 					{
+						console.log("Datenreihe: ");
+						console.log(response[questionnaire]);
+
 						openQuestionnaires.appendChild(document.createElement("br"));
 						
 						let div = document.createElement("div");
@@ -63,82 +63,105 @@ export default class FunctionMannager
 							}
 						});
 						
-							let table = document.createElement("table");
-							table.style.borderCollapse = "collapse";
-							table.style.tableLayout = "fixed";
-							table.style.width = "100%";
-								let rowHeaders = document.createElement("tr");
-								let rowData = document.createElement("tr");
+						let table = document.createElement("table");
+						table.style.borderCollapse = "collapse";
+						table.style.tableLayout = "fixed";
+						table.style.width = "100%";
 
-								// Dokument-Symbol hinzufügen
-								let columnSymbol = document.createElement("td");
-								columnSymbol.className = "questionnaireHeader";
-								columnSymbol.rowSpan = 2;
-								columnSymbol.style.width = "50px";
-								columnSymbol.style.fontSize = "40px";
-								columnSymbol.style.textAlign = "center";
-								columnSymbol.style.color = this.menuBarColor;
-								columnSymbol.innerHTML = " &#128462;"; // 🗎
-								columnSymbol.style.backgroundColor = "#9eb3c7";
+						let rowHeaders = document.createElement("tr");
+						let rowData = document.createElement("tr");
 
-								rowHeaders.append(columnSymbol);
-									for (let index in response[questionnaire])
-									{
-										//console.log(response[questionnaire][index]);
-										let columnHeaders = document.createElement("td");
-										columnHeaders.className = "questionnaireHeader";
+						// Dokument-Symbol hinzufügen
+						let columnSymbol = document.createElement("td");
+						columnSymbol.className = "questionnaireHeader";
+						columnSymbol.rowSpan = 2;
+						columnSymbol.style.width = "50px";
+						columnSymbol.style.fontSize = "40px";
+						columnSymbol.style.textAlign = "center";
+						columnSymbol.style.color = this.menuBarColor;
+						columnSymbol.innerHTML = " &#128462;"; // 🗎
+						columnSymbol.style.backgroundColor = "#9eb3c7";
 
-										// Änderung der Header-Bezeichnungen
-										if (index == "name") columnHeaders.innerHTML = "Thema";
-										else if (index == "zeitstempel") columnHeaders.innerHTML = "Datum";
-										else if (index == "id") continue;
-										else if (index == "anzfragen") continue;
-										else if (index == "schueleranzahl") continue;
-										else if (index == "klassenname") columnHeaders.innerHTML = "Klasse";
-										else if (index == "fach") columnHeaders.innerHTML = "Fach";
-										else if (index == "bewertungsumme") columnHeaders.innerHTML = "Punkte";
-										else columnHeaders.innerHTML = index;
+						rowHeaders.append(columnSymbol);
+						for (let index in response[questionnaire])
+						{
+							//console.log(response[questionnaire][index]);
+							let columnHeaders = document.createElement("td");
+							columnHeaders.className = "questionnaireHeader";
 
-										columnHeaders.style.backgroundColor = "#9eb3c7";
-										columnHeaders.style.fontWeight = "bold";
-										columnHeaders.style.fontSize = "small";
-										columnHeaders.style.color = this.menuBarColor;
-										rowHeaders.appendChild(columnHeaders);
-										
-										let columnData = document.createElement("td");
+							// Änderung der Header-Bezeichnungen
+							if (index == "name") columnHeaders.innerHTML = "Thema";
+							else if (index == "zeitstempel") columnHeaders.innerHTML = "Datum";
+							else if (index == "id") continue;
+							else if (index == "anzfragen") continue;
+							else if (index == "schueleranzahl") continue;
+							else if (index == "klassenname") columnHeaders.innerHTML = "Klasse";
+							else if (index == "fach") columnHeaders.innerHTML = "Fach";
+							else if (index == "bewertungsumme") columnHeaders.innerHTML = "Punkte";
+							else columnHeaders.innerHTML = index;
 
-										if (index == "zeitstempel")
-										{
-											let timestamp = response[questionnaire][index].split(" ");
-											columnData.innerHTML = timestamp[0];
-										}
-										else columnData.innerHTML = response[questionnaire][index];
+							columnHeaders.style.backgroundColor = "#9eb3c7";
+							columnHeaders.style.fontWeight = "bold";
+							columnHeaders.style.fontSize = "small";
+							columnHeaders.style.color = this.menuBarColor;
+							rowHeaders.appendChild(columnHeaders);
+								
+							let columnData = document.createElement("td");
 
-										rowData.appendChild(columnData);
+							if (index == "zeitstempel")
+							{
+								let timestamp = response[questionnaire][index].split(" ");
+								columnData.innerHTML = timestamp[0];
+							}
+							else columnData.innerHTML = response[questionnaire][index];
 
-										if( index == "schueleranzahl" && response[questionnaire][index] > 0 )
-										{
-											// Bogenstatus anhand der Anzahl der Codes ermitteln
-											let formDataCodes = new FormData();
-											formDataCodes.append("fbId", response[questionnaire].id);
-											var responseQuestionnaireCodes = this.Request("./php/main.php?mode=getCodes", formDataCodes);
+							rowData.appendChild(columnData);			
+						}
 
-											console.log("=== codes =========================");
-											if (responseQuestionnaireCodes != null) console.log(responseQuestionnaireCodes);
+						// Bogenstatus Header hinzufügen
+						let columnStatusHeader = document.createElement("td");
+						columnStatusHeader.className = "questionnaireHeader";
+						columnStatusHeader.style.color = this.menuBarColor;
+						columnStatusHeader.style.fontWeight = "bold";
+						columnStatusHeader.style.fontSize = "small";
+						columnStatusHeader.innerHTML = "Status";
+						columnStatusHeader.style.backgroundColor = "#9eb3c7";
+						rowHeaders.appendChild(columnStatusHeader);
 
-											columnHeaders.innerHTML = "";
-											columnData.innerHTML = "";
-											// TODO: Bögen mit einer Schüleranzahl von 0 Löschen
-											// Matthias eine Issue-Nachricht auf GitHub schreiben, die Methode getCodes muss optimiert werden
-											// Es darf nicht nur einfach eine Fehlermeldung kommen wenn es keine Codes für den Bogen gibt.
-										}
-										
-										
-									}
+						// Bogenstatus hinzufügen
+						let columnStatus = document.createElement("td");
+						columnStatus.style.fontWeight = "bold";
+	
+						let formDataCodes = new FormData();
+						formDataCodes.append("fbId", response[questionnaire].id);
+						var responseQuestionnaireCodes = this.Request("./php/main.php?mode=getCodes", formDataCodes);
 
-								table.appendChild(rowHeaders);
-								table.appendChild(rowData);
-							div.appendChild(table);
+						console.log("responseQuestionnaireCodes:");
+						console.log(responseQuestionnaireCodes);
+
+						let codesArray = responseQuestionnaireCodes.split("},");
+						console.log(codesArray);
+
+						if (codesArray != null && codesArray.length > 1)
+						{
+							columnStatus.innerHTML = "offen";
+							columnStatus.style.color = "#feb460"; // orange
+						}
+						else
+						{
+							columnStatus.innerHTML = "abgeschlossen";
+							columnStatus.style.color = "green";	
+						}
+
+						rowData.appendChild(columnStatus);
+
+						// TODO: Bögen mit einer Schüleranzahl von 0 Löschen
+						// Matthias eine Issue-Nachricht auf GitHub schreiben, die Methode getCodes muss optimiert werden
+						// Es darf nicht nur einfach eine Fehlermeldung kommen wenn es keine Codes für den Bogen gibt.
+	
+						table.appendChild(rowHeaders);
+						table.appendChild(rowData);
+						div.appendChild(table);
 						openQuestionnaires.appendChild(div);
 						
 						// Event-Listener zum Hinzufügen der Fragen bei einem Klick auf den Bogen (Öffnen des Fragebogens)
@@ -173,9 +196,10 @@ export default class FunctionMannager
 		xhttp.open("POST", path, false);
 		xhttp.send(formData);
 		response = xhttp.responseText;
-		if (response.indexOf("{") != 0) return response;
+
+		//if (response.indexOf("{") != 0) return response;
 		//if (response.length > 100 && response != null) return JSON.parse(response);
-		//else return null;
+		return response;
 	}
 
 	
