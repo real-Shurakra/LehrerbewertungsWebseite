@@ -507,6 +507,7 @@ class FragenVerwaltung {
                 'returnvalue'=>main::toDE('<strong>Keine Klassen gefunden</strong><br>Es wurden keine Schulklassen in der Datenbank gefunden.')
             );
         }
+        $answer = array();
         for ($i=0; $i < $sqlquery_getAlleSchulklassen_Result->num_rows; $i++) { 
             $sqlquery_getAlleSchulklassen_Result_Data[$i] = mysqli_fetch_array($sqlquery_getAlleSchulklassen_Result);
             array_push($answer, $sqlquery_getAlleSchulklassen_Result_Data[$i]['name']);
@@ -549,6 +550,7 @@ class FragenVerwaltung {
                 'returnvalue'=>main::toDE('<strong>Keine Fächer gefunden</strong><br>Es wurden keine Fächer in der Datenbank gefunden.')
             );
         }
+        $answer = array();
         for ($i=0; $i < $sqlquery_getAlleSchulklassen_Result->num_rows; $i++) { 
             $sqlquery_getAlleSchulklassen_Result_Data[$i] = mysqli_fetch_array($sqlquery_getAlleSchulklassen_Result);
             array_push($answer, $sqlquery_getAlleSchulklassen_Result_Data[$i]['name']);

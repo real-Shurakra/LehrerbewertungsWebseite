@@ -11,9 +11,162 @@ export default class FunctionMannager
 		this.menuBarColor = undefined;
 		this.menuOpacity = undefined;
 	}
+
+	SortQuestionnairesWithFilters(target)
+	{
+		console.log("target");
+		console.log(target.value);
+
+		// TODO: Möglichkeit finden über den Scope des Asynchronen Requests zu kommen um die Values aus den Select Feldern zu ziehen
+		// Filter dürfen nicht unabhängig voneinander sein, eine Möglichkeit könnte deren Verundung sein
+
+		let path = "./php/main.php?mode=getFragebogens";
+		let response;
+		let xhttp = new XMLHttpRequest();
+		var filters = [];
+		var selectedQuestionnaires = [];
+
+						// Filter für Klasse ermitteln
+						filters["class"] = document.getElementById("questionnaire_filter_classes").value;
+						console.log("filter-classes");
+						console.log(filters["class"]);
+		
+						// Filter für Schulfach ermitteln
+						filters["subject"] = document.getElementById("questionnaire_filter_subjects").value;
+						console.log("filter-subject");
+						console.log(filters["subject"]);
+		
+						// Filter für Thema ermitteln
+						filters["qSubject"] = document.getElementById("questionnaire_filter_qSubject").value;
+						console.log("filter-qSubject");
+						console.log(filters["qSubject"]);
+		
+		xhttp.onreadystatechange = ()=>{
+			if ( xhttp.readyState == 4 && xhttp.status == 200 )
+			{
+				// Leeren des Divs mit den Fragebögen
+				var questionnaireList = document.getElementById("open_questionnaires");
+				questionnaireList.innerHTML = "";
+
+
+
+				// Abhängig von den gewählten Filtern
+				response = JSON.parse(xhttp.responseText);
+
+
+				
+				for (let questionnaire in response)
+				{				
+					//console.log(response[questionnaire]);
+					let questionnaireIndex = response[questionnaire]["name"];
+					//console.log(questionnaireIndex);
+
+					let compare1 = response[questionnaire]["fach"];
+					let compare2 = document.getElementById("questionnaire_filter_classes").value;
+					console.log(compare1);
+					console.log(compare2);
+					console.log(compare1.localeCompare(compare2));
+					if (!compare1.localeCompare(compare2))
+					{
+						if (selectedQuestionnaires.indexOf(questionnaireIndex) == -1) selectedQuestionnaires[questionnaireIndex] = response[questionnaire];
+					}
+					let compare3 = response[questionnaire]["klassenname"].toString();
+					let compare4 = filters["subject"].toString();
+					if (!compare3.localeCompare(compare4))
+					{
+						if (selectedQuestionnaires.indexOf(questionnaireIndex) == -1) selectedQuestionnaires[questionnaireIndex] = response[questionnaire];
+					}
+					/*
+					if (response[questionnaire]["name"].includes( document.getElementById("questionnaire_filter_qSubject").value ))
+					{
+						if (selectedQuestionnaires.indexOf(questionnaireIndex) == -1) selectedQuestionnaires[questionnaireIndex] = response[questionnaire];
+					}
+					*/
+
+						
+					
+
+
+					/*
+					if (index == "name") columnHeaders.innerHTML = "Thema";
+					else if (index == "zeitstempel") columnHeaders.innerHTML = "Datum";
+					else if (index == "id") continue;
+					else if (index == "anzfragen") continue;
+					else if (index == "schueleranzahl") continue;
+					else if (index == "klassenname") columnHeaders.innerHTML = "Klasse";
+					else if (index == "fach") columnHeaders.innerHTML = "Fach";
+					else if (index == "bewertungsumme") columnHeaders.innerHTML = "Punkte";
+					else columnHeaders.innerHTML = index;
+
+					let tempQuestionnaire = new Questionnaire(response[questionnaire], questionnaireList);
+					tempQuestionnaire.menuBarColor = this.menuBarColor;
+					*/
+				}
+				
+				// Filter zurücksetzen
+				filters["class"] = "";
+				//document.getElementById("questionnaire_filter_classes").value = "";
+
+				filters["subject"] = "";
+				//document.getElementById("questionnaire_filter_subjects").value = "";
+
+				filters["qSubject"] = "";
+				//document.getElementById("questionnaire_filter_qSubject").value = "";
+
+
+				console.log("gefilterte Fragebögen:");
+				console.log(selectedQuestionnaires);
+
+
+			}
+		};
+		xhttp.open("POST", path, true);
+		xhttp.send();				
+	}
 	
 	Uebersicht_page_0()
 	{
+		// Dropdown für Klasse füllen
+		let responseClasses = JSON.parse(this.Request("./php/main.php?mode=getAlleSchulklassen"));
+		let dropdownClasses = document.getElementById("questionnaire_filter_classes");
+		dropdownClasses.addEventListener("input", (event)=>{
+			this.SortQuestionnairesWithFilters(event.target);
+		});
+
+		dropdownClasses.innerHTML = "";
+		let tempOption = document.createElement("option");
+		tempOption.innerHTML = "keine";
+		dropdownClasses.appendChild(tempOption);
+		for (let i = 0; i < responseClasses.returnvalue.length; i++)
+		{
+			let tempOption = document.createElement("option");
+			tempOption.innerHTML = responseClasses.returnvalue[i];
+			tempOption.value = responseClasses.returnvalue[i];
+			dropdownClasses.appendChild(tempOption);
+		}
+		
+		// Dropdown für Schulfach füllen
+		let responseSubjects = JSON.parse(this.Request("./php/main.php?mode=getAllSubjects"));
+		let dropdownSubjects = document.getElementById("questionnaire_filter_subjects");
+		dropdownSubjects.addEventListener("input", (event)=>{
+			this.SortQuestionnairesWithFilters(event.target);
+		});
+
+		dropdownSubjects.innerHTML = "";
+		tempOption = document.createElement("option");
+		tempOption.innerHTML = "keine"
+		dropdownSubjects.appendChild(tempOption);
+		for (let i = 0; i < responseSubjects.returnvalue.length; i++)
+		{
+			let tempOption = document.createElement("option");
+			tempOption.innerHTML = responseSubjects.returnvalue[i];
+			tempOption.value = responseSubjects.returnvalue[i];
+			dropdownSubjects.appendChild(tempOption);
+		}
+
+		// TODO: Methode ausbauen
+		// this.SortQuestionnairesWithFilters();
+
 		let path = "./php/main.php?mode=getFragebogens";
 		let response;
 		let xhttp = new XMLHttpRequest();
@@ -21,23 +174,63 @@ export default class FunctionMannager
 		xhttp.onreadystatechange = ()=>{
 			if ( xhttp.readyState == 4 && xhttp.status == 200 )
 			{
+				// Leeren des Divs mit den Fragebögen
 				var questionnaireList = document.getElementById("open_questionnaires");
 				questionnaireList.innerHTML = "";
 
+				// Filter für Klasse ermitteln
+				let classes = this.Request("./php/main.php?mode=getAlleSchulklassen");
+				// console.log("classes");
+				// console.log(JSON.parse(classes));
+
+				// Filter für Schulfach ermitteln
+				let subjects = this.Request("./php/main.php?mode=getAllSubjects");
+				// console.log("subjects");
+				// console.log(JSON.parse(subjects));
+				// Filter für Thema ermitteln 
+
+
+
+				// Abhängig von den gewählten Filtern
 				response = JSON.parse(xhttp.responseText);
 				
 				for (let questionnaire in response)
 				{
-					console.log("Datenreihe: ");
-					console.log(response[questionnaire]);
+					// console.log("Datenreihe: ");
+					// console.log(response[questionnaire]);
 
 					let tempQuestionnaire = new Questionnaire(response[questionnaire], questionnaireList);
 					tempQuestionnaire.menuBarColor = this.menuBarColor;
 				}
+
+
 			}
 		};
 		xhttp.open("POST", path, true);
 		xhttp.send();		
+	}
+
+	Uebersicht_page_event_0() // Noch nicht genutzt
+	{
+		// Dropdown für Klasse füllen
+		let responseClasses = JSON.parse(this.Request("./php/main.php?mode=getAlleSchulklassen"));
+
+		for (let i = 0; i < responseClasses.returnvalue.length; i++)
+		{
+			let tempOption = document.createElement("option");
+			tempOption.innerHTML = responseClasses.returnvalue[i];
+			document.getElementById("questionnaire_filter_classes").appendChild(tempOption);
+		}
+		
+		// Dropdown für Schulfach füllen
+		let responseSubjects = JSON.parse(this.Request("./php/main.php?mode=getAllSubjects"));
+
+		for (let i = 0; i < responseSubjects.returnvalue.length; i++)
+		{
+			let tempOption = document.createElement("option");
+			tempOption.innerHTML = responseSubjects.returnvalue[i];
+			document.getElementById("questionnaire_filter_subjects").appendChild(tempOption);
+		}
 	}
 
 	Request(path, formData) // zurzeit nicht genutzt
@@ -401,13 +594,13 @@ export default class FunctionMannager
 					if (tempQuestionId != undefined) questionnaireQuestions.push(tempQuestionId);
 				}
 				
-				console.log(questionnaireQuestions);
+				//console.log(questionnaireQuestions);
 				
 				//console.log(questionnaireQuestions);
 				
 				if ( questionnaireClassDropdown != undefined && questionnaireStudentsAmount != undefined && questionnaireUniqueName != undefined )
 				{
-					console.log(questionnaireClassDropdown + " " + questionnaireStudentsAmount + " " + questionnaireUniqueName + " " + questionnaireSubject);
+					// console.log(questionnaireClassDropdown + " " + questionnaireStudentsAmount + " " + questionnaireUniqueName + " " + questionnaireSubject);
 					
 					let formData = new FormData();
 					formData.append( 'name', questionnaireUniqueName );
@@ -416,7 +609,7 @@ export default class FunctionMannager
 					formData.append( 'fach', questionnaireSubject );
 					formData.append( 'fragen', questionnaireQuestions);
 			
-					console.log(formData);
+					// console.log(formData);
 			
 					let path = "./php/main.php?mode=makeFragebogen";
 					let xhttp = new XMLHttpRequest();
@@ -426,7 +619,7 @@ export default class FunctionMannager
 						if ( xhttp.readyState == 4 && xhttp.status == 200 )
 						{
 							var responseRow = xhttp.responseText;
-							console.log(responseRow);
+							// console.log(responseRow);
 							try
 							{
 								response = JSON.parse( responseRow );
@@ -481,9 +674,9 @@ export default class FunctionMannager
 
 	changeSelectedOptionBackgroundColor(option)
 	{
-		console.log("... wirde ausgeführt!");
+		// console.log("... wirde ausgeführt!");
 
-		//let questionnaireCategoriesTableList = this.getAllAddedQuestions();
+		// let questionnaireCategoriesTableList = this.getAllAddedQuestions();
 		
 		if(document.getElementById(option.id + "_addedQuestion") != undefined) option.style.backgroundColor = "#3EB489";	
 		else option.style.backgroundColor = "";
@@ -536,8 +729,8 @@ export default class FunctionMannager
 			if ( xhttp.readyState == 4 && xhttp.status == 200 )
 			{
 				response = JSON.parse( xhttp.responseText );
-				console.log("response askAlleFragen:");
-				console.log(response);
+				// console.log("response askAlleFragen:");
+				// console.log(response);
 
 				let addQuestionDropdown = document.getElementById("add_question_dropdown");
 				

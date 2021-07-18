@@ -4,8 +4,8 @@ export default class Questionnaire
 {
 	constructor(questionnaire, questionnaireList)
 	{
-		console.log("Aufruf von Klasse Questionnaire:");
-		console.log(questionnaire);
+		// console.log("Aufruf von Klasse Questionnaire:");
+		// console.log(questionnaire);
 
 		questionnaireList.appendChild(document.createElement("br"));
 
@@ -126,11 +126,11 @@ export default class Questionnaire
 			formDataCodes.append("fbId", questionnaire.id);
 			var responseQuestionnaireCodes = this.Request("./php/main.php?mode=getCodes", formDataCodes);
 	
-			console.log("responseQuestionnaireCodes:");
-			console.log(responseQuestionnaireCodes);
+			// console.log("responseQuestionnaireCodes:");
+			// console.log(responseQuestionnaireCodes);
 	
 			let codesArray = responseQuestionnaireCodes.split("},");
-			console.log(codesArray);
+			//console.log(codesArray);
 	
 			if (codesArray != null && codesArray.length > 1)
 			{
@@ -156,7 +156,7 @@ export default class Questionnaire
 			// Event-Listener zum Hinzufügen der Fragen bei einem Klick auf den Bogen (Öffnen des Fragebogens)
 			div.addEventListener("click", ()=>{
 	
-				this.ShowQuestions();
+				this.ShowQuestions(div.id);
 				/*
 				for ( let i = 0; i < response.returnvalue[0].length; i++ )
 				{
@@ -183,12 +183,12 @@ export default class Questionnaire
 		return response;
 	}
 
-	ShowQuestions()
+	ShowQuestions(divId)
 	{
 		let formData = new FormData();
-		formData.append('fbId', div.id.toString());
+		formData.append('fbId', divId);
 
 		var response = this.Request("./php/main.php?mode=getFbFragen", formData);
-		console.log(response);
+		// console.log(response);
 	}
 }

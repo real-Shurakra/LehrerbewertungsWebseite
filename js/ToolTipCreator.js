@@ -10,9 +10,9 @@ export default class ToolTipCreator
 	createToolTip(imageFilename, toolTipId, targetId)
 	{
 		let target = document.getElementById(targetId);
-		console.log(target);
+		// console.log(target);
 		let rect = target.getBoundingClientRect();
-		//console.log(rect.top, rect.right, rect.bottom, rect.left);
+		// console.log(rect.top, rect.right, rect.bottom, rect.left);
 		
 		let toolTip = document.createElement("div");
 		toolTip.style.position = "absolute";

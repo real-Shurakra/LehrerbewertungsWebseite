@@ -35,6 +35,7 @@ export default class Gui
 		
 		this.functionKeys['Uebersicht_page'] = [];
 		this.functionKeys['Uebersicht_page'][0] = "Uebersicht_page_0";
+		//this.functionKeys['Uebersicht_page'][1] = "Uebersicht_page_event_0";
 		
 		this.functionKeys['Fragebogen_erstellen_page'] = [];
 		this.functionKeys['Fragebogen_erstellen_page'][0] = "Fragebogen_erstellen_page_0";
@@ -321,8 +322,8 @@ export default class Gui
 	// Funktion zum Wechseln der Page
 	switchPage(pageName, pagesArray, menuBarColor, functions, functionKeys)
 	{
-		console.log("switchPage:");
-		console.log(pageName);
+		// console.log("switchPage:");
+		// console.log(pageName);
 		for (let i = 0; i < pagesArray.length; i++)
 		{
 			let idPage = pagesArray[i] + "_page";
