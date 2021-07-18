@@ -1,5 +1,7 @@
 // Klasse FunctionMannager
 
+import Questionnaire from "./Questionnaire.js";
+
 export default class FunctionMannager
 {
 	constructor()
@@ -12,184 +14,33 @@ export default class FunctionMannager
 	
 	Uebersicht_page_0()
 	{
-		let openQuestionnaires = document.getElementById("open_questionnaires");
-		openQuestionnaires.innerHTML = "";
-		if ( openQuestionnaires != undefined )
-		{
-			let path = "./php/main.php?mode=getFragebogens";
-			let response;
-			let xhttp = new XMLHttpRequest();
-		
-			xhttp.onreadystatechange = ()=>{
-				if ( xhttp.readyState == 4 && xhttp.status == 200 )
+		let path = "./php/main.php?mode=getFragebogens";
+		let response;
+		let xhttp = new XMLHttpRequest();
+	
+		xhttp.onreadystatechange = ()=>{
+			if ( xhttp.readyState == 4 && xhttp.status == 200 )
+			{
+				var questionnaireList = document.getElementById("open_questionnaires");
+				questionnaireList.innerHTML = "";
+
+				response = JSON.parse(xhttp.responseText);
+				
+				for (let questionnaire in response)
 				{
-					response = JSON.parse(xhttp.responseText);
-					
-					for (let questionnaire in response)
-					{
-						console.log("Datenreihe: ");
-						console.log(response[questionnaire]);
+					console.log("Datenreihe: ");
+					console.log(response[questionnaire]);
 
-						openQuestionnaires.appendChild(document.createElement("br"));
-						
-						let div = document.createElement("div");
-						div.style.borderStyle = "solid";
-						div.style.borderColor = "#9eb3c7";
-						div.style.borderWidth = "1px";
-						div.style.width = "99%";
-						div.id = response[questionnaire].id;
-
-						let tds = div.getElementsByClassName("questionnaireHeader");
-						div.addEventListener("mouseenter", ()=>{
-							div.style.cursor = "pointer";
-							for(let td in tds)
-							{
-								if (tds[td].style != undefined)
-								{
-									tds[td].style.color = "#ffffff";
-									tds[td].style.backgroundColor = this.menuBarColor;
-									
-								}
-							}
-						});
-						div.addEventListener("mouseleave", ()=>{
-							for(let td in tds)
-							{
-								if (tds[td].style != undefined)
-								{
-									tds[td].style.color = this.menuBarColor;
-									tds[td].style.backgroundColor = "#9eb3c7";
-								}
-							}
-						});
-						
-						let table = document.createElement("table");
-						table.style.borderCollapse = "collapse";
-						table.style.tableLayout = "fixed";
-						table.style.width = "100%";
-
-						let rowHeaders = document.createElement("tr");
-						let rowData = document.createElement("tr");
-
-						// Dokument-Symbol hinzufügen
-						let columnSymbol = document.createElement("td");
-						columnSymbol.className = "questionnaireHeader";
-						columnSymbol.rowSpan = 2;
-						columnSymbol.style.width = "50px";
-						columnSymbol.style.fontSize = "40px";
-						columnSymbol.style.textAlign = "center";
-						columnSymbol.style.color = this.menuBarColor;
-						columnSymbol.innerHTML = " &#128462;"; // 🗎
-						columnSymbol.style.backgroundColor = "#9eb3c7";
-
-						rowHeaders.append(columnSymbol);
-						for (let index in response[questionnaire])
-						{
-							//console.log(response[questionnaire][index]);
-							let columnHeaders = document.createElement("td");
-							columnHeaders.className = "questionnaireHeader";
-
-							// Änderung der Header-Bezeichnungen
-							if (index == "name") columnHeaders.innerHTML = "Thema";
-							else if (index == "zeitstempel") columnHeaders.innerHTML = "Datum";
-							else if (index == "id") continue;
-							else if (index == "anzfragen") continue;
-							else if (index == "schueleranzahl") continue;
-							else if (index == "klassenname") columnHeaders.innerHTML = "Klasse";
-							else if (index == "fach") columnHeaders.innerHTML = "Fach";
-							else if (index == "bewertungsumme") columnHeaders.innerHTML = "Punkte";
-							else columnHeaders.innerHTML = index;
-
-							columnHeaders.style.backgroundColor = "#9eb3c7";
-							columnHeaders.style.fontWeight = "bold";
-							columnHeaders.style.fontSize = "small";
-							columnHeaders.style.color = this.menuBarColor;
-							rowHeaders.appendChild(columnHeaders);
-								
-							let columnData = document.createElement("td");
-
-							if (index == "zeitstempel")
-							{
-								let timestamp = response[questionnaire][index].split(" ");
-								columnData.innerHTML = timestamp[0];
-							}
-							else columnData.innerHTML = response[questionnaire][index];
-
-							rowData.appendChild(columnData);			
-						}
-
-						// Bogenstatus Header hinzufügen
-						let columnStatusHeader = document.createElement("td");
-						columnStatusHeader.className = "questionnaireHeader";
-						columnStatusHeader.style.color = this.menuBarColor;
-						columnStatusHeader.style.fontWeight = "bold";
-						columnStatusHeader.style.fontSize = "small";
-						columnStatusHeader.innerHTML = "Status";
-						columnStatusHeader.style.backgroundColor = "#9eb3c7";
-						rowHeaders.appendChild(columnStatusHeader);
-
-						// Bogenstatus hinzufügen
-						let columnStatus = document.createElement("td");
-						columnStatus.style.fontWeight = "bold";
-	
-						let formDataCodes = new FormData();
-						formDataCodes.append("fbId", response[questionnaire].id);
-						var responseQuestionnaireCodes = this.Request("./php/main.php?mode=getCodes", formDataCodes);
-
-						console.log("responseQuestionnaireCodes:");
-						console.log(responseQuestionnaireCodes);
-
-						let codesArray = responseQuestionnaireCodes.split("},");
-						console.log(codesArray);
-
-						if (codesArray != null && codesArray.length > 1)
-						{
-							columnStatus.innerHTML = "offen";
-							columnStatus.style.color = "#feb460"; // orange
-						}
-						else
-						{
-							columnStatus.innerHTML = "abgeschlossen";
-							columnStatus.style.color = "green";	
-						}
-
-						rowData.appendChild(columnStatus);
-
-						// TODO: Bögen mit einer Schüleranzahl von 0 Löschen
-						// Matthias eine Issue-Nachricht auf GitHub schreiben, die Methode getCodes muss optimiert werden
-						// Es darf nicht nur einfach eine Fehlermeldung kommen wenn es keine Codes für den Bogen gibt.
-	
-						table.appendChild(rowHeaders);
-						table.appendChild(rowData);
-						div.appendChild(table);
-						openQuestionnaires.appendChild(div);
-						
-						// Event-Listener zum Hinzufügen der Fragen bei einem Klick auf den Bogen (Öffnen des Fragebogens)
-						div.addEventListener("click", ()=>{
-							let formData = new FormData();
-							formData.append('fbId', div.id.toString());
-
-							var response = this.Request("./php/main.php?mode=getFbFragen", formData);
-							console.log(response);
-
-							/*
-							for ( let i = 0; i < response.returnvalue[0].length; i++ )
-							{
-								// TODO: Iteration durch die Fragen um diese dem Bogen hinzuzufügen
-								// - Warten auf Anpassung der Backend-Methode "getFbFragen" (die Kategorien müssen noch hinzugefügt werden)	
-							}
-							*/
-						});
-
-					}
+					let tempQuestionnaire = new Questionnaire(response[questionnaire], questionnaireList);
+					tempQuestionnaire.menuBarColor = this.menuBarColor;
 				}
-			};
-			xhttp.open("POST", path, true);
-			xhttp.send();		
-		}	
+			}
+		};
+		xhttp.open("POST", path, true);
+		xhttp.send();		
 	}
 
-	Request(path, formData)
+	Request(path, formData) // zurzeit nicht genutzt
 	{
 		let response;
 		let xhttp = new XMLHttpRequest();

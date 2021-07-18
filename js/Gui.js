@@ -99,7 +99,10 @@ export default class Gui
 					this.initVerticalMenu();
 					this.initPageContainer();
 					this.addEventsVerticalMenu(pages, pagesNames, this.functionMannager, this.functionKeys);
-					
+
+					// Initial-Page öffnen, Page-Button des vertikalen Menüs entsprechend einfärben
+					// (Visibility der anderen Pages auf "invisible" stellen)
+					document.onreadystatechange = this.openInitialPage("Uebersicht");
 				}
 			}
 		};
@@ -293,19 +296,43 @@ export default class Gui
 		}
 		
 	}
+
+	openInitialPage(pageName)
+	{
+		let menuButton = document.getElementById(pageName + "_button");
+		menuButton.style.backgroundColor = "white";
+		menuButton.style.color = this.menuBarColor;
+		menuButton.style.borderLeft = "5px solid " + this.menuBarColor;
+		menuButton.style.fontWeight = "bold";
+
+
+		for (let i = 0; i < this.pages.length; i++)
+		{
+			if (this.pages[i] == pageName) continue;
+
+			let tempPage = document.getElementById(this.pages[i] + "_page");
+			tempPage.style.visibility = "hidden";
+
+
+
+		}
+	}
 	
 	// Funktion zum Wechseln der Page
 	switchPage(pageName, pagesArray, menuBarColor, functions, functionKeys)
 	{
+		console.log("switchPage:");
+		console.log(pageName);
 		for (let i = 0; i < pagesArray.length; i++)
 		{
 			let idPage = pagesArray[i] + "_page";
-			let tempPage = document.getElementById(idPage);
+			let tempPage = undefined;
+			if (document.getElementById(idPage) != null) tempPage = document.getElementById(idPage);
 			
 			var idButton = pagesArray[i] + "_button";
 			let menuButton = document.getElementById(idButton);
 			
-			let bool = idPage.includes( pageName );
+			let bool = idPage.includes(pageName);
 			
 			if (!bool)
 			{
