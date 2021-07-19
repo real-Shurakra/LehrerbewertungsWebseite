@@ -35,13 +35,13 @@ export default class Gui
 		
 		this.functionKeys['Uebersicht_page'] = [];
 		this.functionKeys['Uebersicht_page'][0] = "Uebersicht_page_0";
-		//this.functionKeys['Uebersicht_page'][1] = "Uebersicht_page_event_0";
+		this.functionKeys['Uebersicht_page'][1] = "Uebersicht_page_event_0";
 		
 		this.functionKeys['Fragebogen_erstellen_page'] = [];
 		this.functionKeys['Fragebogen_erstellen_page'][0] = "Fragebogen_erstellen_page_0";
 		this.functionKeys['Fragebogen_erstellen_page'][1] = "Fragebogen_erstellen_page_1";
 		this.functionKeys['Fragebogen_erstellen_page'][2] = "Fragebogen_erstellen_page_event_0";
-		//this.functionKeys['Fragebogen_erstellen_page'][4] = "Fragebogen_erstellen_page_event_2";
+		this.functionKeys['Fragebogen_erstellen_page'][4] = "Fragebogen_erstellen_page_event_2";
 		
 		this.functionKeys['Fragen_verwalten_page'] = [];
 		this.functionKeys['Fragen_verwalten_page'][0] = "Fragen_verwalten_page_0";
