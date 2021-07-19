@@ -403,8 +403,14 @@ class FragenVerwaltung {
     public static function getFbFragen($fbId) {
         try{
             global $link;
-            $sqlquery_GetFbFragen = "SELECT frage, id, kategorie FROM getfbfragen WHERE bogenid = '" . $fbId . "'";
+            $sqlquery_GetFbFragen = "SELECT * FROM getfbfragen WHERE bogenid = '" . $fbId . "'";
             $sqlquery_GetFbFragen_Result = mysqli_query($link, $sqlquery_GetFbFragen);
+            if ($sqlquery_GetFbFragen_Result == FALSE){
+                return array(
+                    'returncode'=>1,
+                    'returnvalue'=>main::toDE('<strong>SQL-Fehler.</strong><br>Der SQL-String von getFbFragen()-$sqlquery_GetFbFragen ist fehlerhaft.')
+                );
+            }
             if ($sqlquery_GetFbFragen_Result->num_rows == 0) {
                 return array(
                     'returncode'=>-1,
@@ -562,28 +568,28 @@ class FragenVerwaltung {
     }
 }
 
+//////////////////////////////////////////  DEBUG  /////////////////////////////////////////////
+session_unset();
+$_SESSION['usermail']       = 'temp.dump@hotmail.com';
+$_REQUEST['mode']           = 'getFbFragen';
+$_REQUEST['frage']          = 'Tafelbilder und Folien sind gut lesbar.';
+$_REQUEST['mail']           = 'temp.dump@hotmail.com';
+$_REQUEST['passwort']       = 'Admin';
+$_REQUEST['kategorie']      = 'Unterricht';
+$_REQUEST['name']           = 'BogenX';
+$_REQUEST['anzahl']         = '1';
+$_REQUEST['klasse']         = 'ITB1-19';
+$_REQUEST['fach']           = 'ITS';
+$_REQUEST['fbId']           = '112';
+$_REQUEST['fragen']         = array('Die Beurteilungskriterien sind nachvollziehbar.', 'Die Unterrichtsinhalte sind praxisbezogen.');
+$_REQUEST['rate']           = array(array('frageid'=>'7','bogenid'=>'70','bewertung'=>-1),array('frageid'=>'35','bogenid'=>'70','bewertung'=>2));
+$_REQUEST['codehash']       = '09-48-12-18';
+$_REQUEST['kritik']         = 'Alles Gefixt! Garkein Problem!';
+//////////////////////////////////////////  DEBUG END  /////////////////////////////////////////
+
+
 if (isset($_REQUEST['mode'])){
     $_REQUEST = main::checkSemicolon($_REQUEST);
     $jsablauf = new main();
     $jsablauf->aktivierungJS();
-}
-else{
-    //////////////////////////////////////////  DEBUG  /////////////////////////////////////////////
-    session_unset();
-    $_SESSION['usermail']       = 'temp.dump@hotmail.com';
-    $_REQUEST['mode']           = 'askAlleFragen';
-    $_REQUEST['frage']          = 'Tafelbilder und Folien sind gut lesbar.';
-    $_REQUEST['mail']           = 'temp.dump@hotmail.com';
-    $_REQUEST['passwort']       = 'Admin';
-    $_REQUEST['kategorie']      = 'Unterricht';
-    $_REQUEST['name']           = 'BogenX';
-    $_REQUEST['anzahl']         = '1';
-    $_REQUEST['klasse']         = 'ITB1-19';
-    $_REQUEST['fach']           = 'ITS';
-    $_REQUEST['fbId']           = '70';
-    $_REQUEST['fragen']         = array('Die Beurteilungskriterien sind nachvollziehbar.', 'Die Unterrichtsinhalte sind praxisbezogen.');
-    $_REQUEST['rate']           = array(array('frageid'=>'7','bogenid'=>'70','bewertung'=>-1),array('frageid'=>'35','bogenid'=>'70','bewertung'=>2));
-    $_REQUEST['codehash']       = '09-48-12-18';
-    $_REQUEST['kritik']         = 'Alles Gefixt! Garkein Problem!';
-    //////////////////////////////////////////  DEBUG END  /////////////////////////////////////////
 }

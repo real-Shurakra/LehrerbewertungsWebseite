@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Erstellungszeit: 19. Jul 2021 um 22:29
+-- Erstellungszeit: 19. Jul 2021 um 23:06
 -- Server-Version: 10.4.8-MariaDB
 -- PHP-Version: 7.2.24
 
@@ -415,6 +415,7 @@ CREATE TABLE `getbewertungen` (
 --
 CREATE TABLE `getfbfragen` (
 `frage` varchar(255)
+,`kategorie` varchar(255)
 ,`id` bigint(20) unsigned
 ,`bogenid` bigint(20) unsigned
 );
@@ -1013,7 +1014,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `getfbfragen`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getfbfragen`  AS  select `fragen`.`frage` AS `frage`,`fragen`.`id` AS `id`,`nm_frage_fragebogen`.`bogenid` AS `bogenid` from (`nm_frage_fragebogen` left join `fragen` on(`nm_frage_fragebogen`.`frageid` = `fragen`.`id`)) ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getfbfragen`  AS  select `fragen`.`frage` AS `frage`,`fragen`.`kategorie` AS `kategorie`,`fragen`.`id` AS `id`,`nm_frage_fragebogen`.`bogenid` AS `bogenid` from (`nm_frage_fragebogen` left join `fragen` on(`nm_frage_fragebogen`.`frageid` = `fragen`.`id`)) ;
 
 -- --------------------------------------------------------
 
