@@ -7,8 +7,6 @@ export default class Questionnaire
 		// console.log("Aufruf von Klasse Questionnaire:");
 		// console.log(questionnaire);
 
-		questionnaireList.appendChild(document.createElement("br"));
-
 		this.menuBarColor;
 		this.id;
 		this.className;
@@ -27,7 +25,9 @@ export default class Questionnaire
 			div.style.borderColor = "#9eb3c7";
 			div.style.borderWidth = "1px";
 			div.style.width = "99%";
+			//div.style.visibility = "hidden";
 			div.id = questionnaire.id;
+			
 	
 			let tds = div.getElementsByClassName("questionnaireHeader");
 			div.addEventListener("mouseenter", ()=>{
@@ -122,10 +122,61 @@ export default class Questionnaire
 			let columnStatus = document.createElement("td");
 			columnStatus.style.fontWeight = "bold";
 	
+			//let formDataCodes = new FormData();
+			//formDataCodes.append("fbId", questionnaire.id);
+
+			// Synchroner Request
+			//var responseQuestionnaireCodes = this.Request("./php/main.php?mode=getCodes", formDataCodes);
+			
+			// Asynchroner Request
+			let xhttp = new XMLHttpRequest()
+			let path = "./php/main.php?mode=getCodes";
+
 			let formDataCodes = new FormData();
 			formDataCodes.append("fbId", questionnaire.id);
-			var responseQuestionnaireCodes = this.Request("./php/main.php?mode=getCodes", formDataCodes);
+
+			xhttp.onreadystatechange = ()=>{
+				if ( xhttp.readyState == 4 && xhttp.status == 200 )
+				{
+					
+					var responseQuestionnaireCodes = xhttp.responseText;
+					// console.log("responseQuestionnaireCodes:");
+					// console.log(responseQuestionnaireCodes);
 	
+					let codesArray = responseQuestionnaireCodes.split("},");
+					//console.log(codesArray);
+	
+					if (codesArray != null && codesArray.length > 1)
+					{
+						columnStatus.innerHTML = "offen";
+						columnStatus.style.color = "#feb460"; // orange
+					}
+					else
+					{
+						columnStatus.innerHTML = "abgeschlossen";
+						columnStatus.style.color = "green";	
+					}
+
+					rowData.appendChild(columnStatus);
+	
+					// TODO: Matthias eine Issue-Nachricht auf GitHub schreiben, die Methode getCodes muss optimiert werden
+					// Es darf nicht nur einfach eine Fehlermeldung kommen wenn es keine Codes für den Bogen gibt.
+			
+					div.appendChild(table);
+					table.appendChild(rowHeaders);
+					table.appendChild(rowData);
+					
+					
+					questionnaireList.appendChild(div);
+					questionnaireList.appendChild(document.createElement("br"));
+					
+				}
+				//div.style.visibility = null;
+			};
+			xhttp.open("POST", path, true);
+			xhttp.send(formDataCodes);
+
+			/*
 			// console.log("responseQuestionnaireCodes:");
 			// console.log(responseQuestionnaireCodes);
 	
@@ -163,8 +214,10 @@ export default class Questionnaire
 					// TODO: Iteration durch die Fragen um diese dem Bogen hinzuzufügen
 					// - Warten auf Anpassung der Backend-Methode "getFbFragen" (die Kategorien müssen noch hinzugefügt werden)	
 				}
-				*/
+				
+				
 			});
+			*/
 		}
 
 

@@ -34,8 +34,8 @@ export default class Gui
 		this.functionKeys['login_area_student'][0] = "login_area_student";
 		
 		this.functionKeys['Uebersicht_page'] = [];
-		this.functionKeys['Uebersicht_page'][0] = "Uebersicht_page_0";
-		this.functionKeys['Uebersicht_page'][1] = "Uebersicht_page_event_0";
+		//this.functionKeys['Uebersicht_page'][0] = "Uebersicht_page_0";
+		this.functionKeys['Uebersicht_page'][0] = "Uebersicht_page_event_0";
 		
 		this.functionKeys['Fragebogen_erstellen_page'] = [];
 		this.functionKeys['Fragebogen_erstellen_page'][0] = "Fragebogen_erstellen_page_0";
@@ -343,13 +343,7 @@ export default class Gui
 				menuButton.style.fontWeight = "normal";
 			}
 			else
-			{
-				tempPage.style.visibility = "visible";
-				menuButton.style.backgroundColor = "white";
-				menuButton.style.color = menuBarColor;
-				menuButton.style.borderLeft = "5px solid " + menuBarColor;
-				menuButton.style.fontWeight = "bold";
-				
+			{	
 				for( var key in functionKeys[idPage] )
 				{
 					let functionName = functionKeys[idPage][key];
@@ -358,7 +352,13 @@ export default class Gui
 					{
 						if ( typeof functions[functionName] == "function" ) functions[functionName]();						
 					}
-				}	
+				}
+				
+				menuButton.style.backgroundColor = "white";
+				menuButton.style.color = menuBarColor;
+				menuButton.style.borderLeft = "5px solid " + menuBarColor;
+				menuButton.style.fontWeight = "bold";
+				tempPage.style.visibility = "visible";
 			}
 		}
 	}

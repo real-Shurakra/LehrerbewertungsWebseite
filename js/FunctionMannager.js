@@ -21,9 +21,16 @@ export default class FunctionMannager
 		xhttp.onreadystatechange = ()=>{
 			if ( xhttp.readyState == 4 && xhttp.status == 200 )
 			{
+
+				let questionnaireListContainer = document.getElementById("questionnaire_list_container");
+				
 				// Leeren des Divs mit den Fragebögen
-				var questionnaireList = document.getElementById("open_questionnaires");
-				questionnaireList.innerHTML = "";
+				var questionnaireList = document.getElementById("questionnaire_list");
+				if (questionnaireList != undefined) questionnaireList.remove();
+				questionnaireList = document.createElement("div");
+				questionnaireList.id = "questionnaire_list";
+
+				//questionnaireList.innerHTML = "";
 
 				// Wird nach Filter-Feldern modifiziert
 				response = JSON.parse(xhttp.responseText);
@@ -60,9 +67,13 @@ export default class FunctionMannager
 
 				}
 
+				
+				
+
+
 				// Leeren des Divs mit den Fragebögen
-				var questionnaireList = document.getElementById("open_questionnaires");
-				questionnaireList.innerHTML = "";
+				// var questionnaireList = document.getElementById("questionnaire_list");
+				// questionnaireList.innerHTML = "";
 
 				// Gefilterte Bögen anzeigen
 				for (let questionnaire in response)
@@ -73,19 +84,25 @@ export default class FunctionMannager
 						tempQuestionnaire.menuBarColor = this.menuBarColor;
 					}
 				}
+				
+				questionnaireListContainer.appendChild(questionnaireList);
+				
 
 				// response zurücksetzen
 				response = undefined;
 			}
 		};
 		xhttp.open("POST", path, true);
-		xhttp.send();				
+		xhttp.send();
+
+						
 	}
 	
 	Uebersicht_page_0()
 	{
+		console.log(JSON.parse(this.Request("./php/main.php?mode=getAlleSchulklassen")));
 		let responseClasses = JSON.parse(this.Request("./php/main.php?mode=getAlleSchulklassen"));
-
+		
 		// Dropdown für Klasse füllen
 		let dropdownClasses = document.getElementById("questionnaire_filter_classes");
 		dropdownClasses.innerHTML = "";
@@ -118,7 +135,7 @@ export default class FunctionMannager
 		}
 
 		// Resettet alle Suchfilter und zeigt ALLE Bögen bei Page-Aufruf an
-		this.SortQuestionnairesWithFilters();
+		// this.SortQuestionnairesWithFilters();
 	}
 
 	Uebersicht_page_event_0()
@@ -164,7 +181,12 @@ export default class FunctionMannager
 		// Input-Feld für Themensuche
 		let searchInputQSubjects = document.getElementById("questionnaire_filter_qSubject");
 		searchInputQSubjects.addEventListener("input", ()=>{
-			this.SortQuestionnairesWithFilters();
+			// TODO: Eventuell Methodenaufrufe durch "input"-Event in Queue speichern und nur letzes Element der Queue ausführen
+			// Das gewünschte Ergebnis ist, dass nicht alle Aufrufe ausgeführt werden.
+			setTimeout(()=>{
+				this.SortQuestionnairesWithFilters();
+			},500)
+			
 		});
 
 		this.SortQuestionnairesWithFilters();
@@ -202,8 +224,10 @@ export default class FunctionMannager
 				{
 					try
 					{
+						console.log(xhttp.responseText);
 						dummyResponse = JSON.parse(xhttp.responseText);
-					
+						
+
 						for ( let i = 0; i < dummyResponse.returnvalue[0].length; i++ )
 						{
 							let tableRowElement = document.createElement( "tr" );
