@@ -23,6 +23,8 @@ export default class FunctionMannager
 			{
 
 				let questionnaireListContainer = document.getElementById("questionnaire_list_container");
+				questionnaireListContainer.style.width = "99%";
+				questionnaireListContainer.style.margin = "auto";
 				
 				// Leeren des Divs mit den Fragebögen
 				var questionnaireList = document.getElementById("questionnaire_list");

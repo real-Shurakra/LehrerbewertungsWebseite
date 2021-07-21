@@ -8,6 +8,7 @@ export default class Questionnaire
 		// console.log(questionnaire);
 
 		this.menuBarColor;
+		this.unhighlightedColor = "#9eb3c7";
 		this.id;
 		this.className;
 		this.subject;
@@ -15,6 +16,8 @@ export default class Questionnaire
 		this.questions;
 		this.currentStatus;
 		this.date;
+		this.state = false;
+
 
 		let div = document.getElementById(questionnaire.id);
 		if (div !== null) div.remove();
@@ -22,10 +25,9 @@ export default class Questionnaire
 		{
 			div = document.createElement("div");
 			div.style.borderStyle = "solid";
-			div.style.borderColor = "#9eb3c7";
+			div.style.borderColor = this.unhighlightedColor;
 			div.style.borderWidth = "1px";
 			div.style.width = "99%";
-			//div.style.visibility = "hidden";
 			div.id = questionnaire.id;
 			
 	
@@ -43,18 +45,49 @@ export default class Questionnaire
 				}
 			});
 			div.addEventListener("mouseleave", ()=>{
-				for(let td in tds)
+				if (!this.state)
 				{
-					if (tds[td].style != undefined)
+					for(let td in tds)
 					{
-						tds[td].style.color = this.menuBarColor;
-						tds[td].style.backgroundColor = "#9eb3c7";
+						if (tds[td].style != undefined)
+						{
+							tds[td].style.color = this.menuBarColor;
+							tds[td].style.backgroundColor = this.unhighlightedColor;
+						}
 					}
+					div.style.borderColor = this.unhighlightedColor;
 				}
 			});
 			div.addEventListener("click", ()=>{
-				console.log(div.id);
-				this.ShowQuestions(div.id);
+				if (!this.state) this.state = true;
+				else this.state = false;
+
+				if (this.state)
+				{
+					this.ShowQuestions(div.id);
+					for(let td in tds)
+					{
+						if (tds[td].style != undefined)
+						{
+							tds[td].style.color = "#ffffff";
+							tds[td].style.backgroundColor = this.menuBarColor;
+							
+						}
+					}
+				}
+				else
+				{
+					this.HideQuestions(div.id);
+					for(let td in tds)
+					{
+						if (tds[td].style != undefined)
+						{
+							tds[td].style.color = this.menuBarColor;
+							tds[td].style.backgroundColor = this.unhighlightedColor;
+						}
+					}
+					div.style.borderColor = this.unhighlightedColor;
+				}
 			});
 			
 			let table = document.createElement("table");
@@ -73,8 +106,8 @@ export default class Questionnaire
 			columnSymbol.style.fontSize = "40px";
 			columnSymbol.style.textAlign = "center";
 			columnSymbol.style.color = this.menuBarColor;
-			columnSymbol.innerHTML = " &#128462;"; // 🗎
-			columnSymbol.style.backgroundColor = "#9eb3c7";
+			columnSymbol.innerHTML = " &#128462;"; // 🗎-Zeichen
+			columnSymbol.style.backgroundColor = this.unhighlightedColor;
 	
 			rowHeaders.append(columnSymbol);
 			for (let index in questionnaire)
@@ -94,7 +127,7 @@ export default class Questionnaire
 				else if (index == "bewertungsumme") columnHeaders.innerHTML = "Punkte";
 				else columnHeaders.innerHTML = index;
 	
-				columnHeaders.style.backgroundColor = "#9eb3c7";
+				columnHeaders.style.backgroundColor = this.unhighlightedColor;
 				columnHeaders.style.fontWeight = "bold";
 				columnHeaders.style.fontSize = "small";
 				columnHeaders.style.color = this.menuBarColor;
@@ -125,12 +158,6 @@ export default class Questionnaire
 			// Bogenstatus hinzufügen
 			let columnStatus = document.createElement("td");
 			columnStatus.style.fontWeight = "bold";
-	
-			//let formDataCodes = new FormData();
-			//formDataCodes.append("fbId", questionnaire.id);
-
-			// Synchroner Request
-			//var responseQuestionnaireCodes = this.Request("./php/main.php?mode=getCodes", formDataCodes);
 			
 			// Asynchroner Request
 			let xhttp = new XMLHttpRequest()
@@ -142,13 +169,10 @@ export default class Questionnaire
 			xhttp.onreadystatechange = ()=>{
 				if ( xhttp.readyState == 4 && xhttp.status == 200 )
 				{
-					
+					questionnaireList.appendChild(document.createElement("br"));
 					var responseQuestionnaireCodes = xhttp.responseText;
-					// console.log("responseQuestionnaireCodes:");
-					// console.log(responseQuestionnaireCodes);
-	
+
 					let codesArray = responseQuestionnaireCodes.split("},");
-					//console.log(codesArray);
 	
 					if (codesArray != null && codesArray.length > 1)
 					{
@@ -162,72 +186,29 @@ export default class Questionnaire
 					}
 
 					rowData.appendChild(columnStatus);
-	
-					// TODO: Matthias eine Issue-Nachricht auf GitHub schreiben, die Methode getCodes muss optimiert werden
-					// Es darf nicht nur einfach eine Fehlermeldung kommen wenn es keine Codes für den Bogen gibt.
 			
-					div.appendChild(table);
 					table.appendChild(rowHeaders);
 					table.appendChild(rowData);
+					div.appendChild(table);
+
+					let questionContainer = document.createElement("div");
+					questionContainer.id = div.id + "_question_container";
+					questionContainer.style.width = "99%";
+					questionContainer.style.margin = "auto";
 					
+					div.appendChild(questionContainer);
 					
 					questionnaireList.appendChild(div);
-					questionnaireList.appendChild(document.createElement("br"));
+					
 					
 				}
-				//div.style.visibility = null;
 			};
 			xhttp.open("POST", path, true);
 			xhttp.send(formDataCodes);
-
-			/*
-			// console.log("responseQuestionnaireCodes:");
-			// console.log(responseQuestionnaireCodes);
-	
-			let codesArray = responseQuestionnaireCodes.split("},");
-			//console.log(codesArray);
-	
-			if (codesArray != null && codesArray.length > 1)
-			{
-				columnStatus.innerHTML = "offen";
-				columnStatus.style.color = "#feb460"; // orange
-			}
-			else
-			{
-				columnStatus.innerHTML = "abgeschlossen";
-				columnStatus.style.color = "green";	
-			}
-	
-			rowData.appendChild(columnStatus);
-	
-			// TODO: Matthias eine Issue-Nachricht auf GitHub schreiben, die Methode getCodes muss optimiert werden
-			// Es darf nicht nur einfach eine Fehlermeldung kommen wenn es keine Codes für den Bogen gibt.
-	
-			table.appendChild(rowHeaders);
-			table.appendChild(rowData);
-			div.appendChild(table);
-			questionnaireList.appendChild(div);
-			
-			// Event-Listener zum Hinzufügen der Fragen bei einem Klick auf den Bogen (Öffnen des Fragebogens)
-			div.addEventListener("click", ()=>{
-	
-				this.ShowQuestions(div.id);
-				/*
-				for ( let i = 0; i < response.returnvalue[0].length; i++ )
-				{
-					// TODO: Iteration durch die Fragen um diese dem Bogen hinzuzufügen
-					// - Warten auf Anpassung der Backend-Methode "getFbFragen" (die Kategorien müssen noch hinzugefügt werden)	
-				}
-				
-				
-			});
-			*/
 		}
-
-
 	}
 
-	Request(path, formData)
+	Request(path, formData) // Synchroner Request wird nicht mehr genutzt
 	{
 		let response;
 		let xhttp = new XMLHttpRequest();
@@ -240,6 +221,13 @@ export default class Questionnaire
 		return response;
 	}
 
+	HideQuestions(questionnaireId)
+	{
+		let tempQuestionnaire = document.getElementById(questionnaireId);
+		tempQuestionnaire.style.borderColor = this.unhighlightedColor;
+		document.getElementById(questionnaireId + "_question_container").innerHTML = "";
+	}
+
 	ShowQuestions(questionnaireId)
 	{
 		let xhttp = new XMLHttpRequest()
@@ -248,41 +236,54 @@ export default class Questionnaire
 		let formData = new FormData();
 		formData.append("fbId", questionnaireId);
 
+		document.getElementById(questionnaireId).style.borderColor = this.menuBarColor;
+
 		xhttp.onreadystatechange = ()=>{
 			if ( xhttp.readyState == 4 && xhttp.status == 200 )
 			{
 				let response = JSON.parse(xhttp.responseText);
-				console.log(response);
 
 				for(let i = 0; i < response.returnvalue.length; i++)
 				{
-					console.log(response.returnvalue[i].frageid);
-					console.log(response.returnvalue[i][0].fragekategorie);
-					console.log(response.returnvalue[i][0].fragestring);
-
-					// Kategorie-Header hinzufügen
+					// Kategorie-Header hinzufügen, Zusammengesetzte Id aus Fragebogen-Id und Kategorie-Id
 					let tempCategoryId = "expanded_questionnaire_" + questionnaireId + "_category_" + response.returnvalue[i][0].fragekategorie;
 					let tempCategory = document.getElementById(tempCategoryId);
-					console.log(tempCategory);
+					//console.log(tempCategory);
 					if (tempCategory == undefined) 
 					{
+						let tempCategoryBeforeSpacer = document.createElement("div");
+						tempCategoryBeforeSpacer.style.height = "5px";
+						tempCategoryBeforeSpacer.style.backgroundColor = "white";
+						document.getElementById(questionnaireId + "_question_container").appendChild(tempCategoryBeforeSpacer)
+
+
 						tempCategory = document.createElement("div");
 						tempCategory.id = tempCategoryId;
 						tempCategory.style.backgroundColor = this.menuBarColor;
 						tempCategory.style.color = "white";
+						tempCategory.style.fontSize = "16px";
+						//tempCategory.style.height = "12px";
 						tempCategory.innerHTML = response.returnvalue[i][0].fragekategorie;
-						document.getElementById(questionnaireId).appendChild(tempCategory);
+						//document.getElementById(questionnaireId).appendChild(tempCategory);
+
+						let tempCategoryAfterSpacer = document.createElement("div");
+						tempCategoryAfterSpacer.style.height = "5px";
+						tempCategoryAfterSpacer.style.backgroundColor = "white";
+						tempCategory.appendChild(tempCategoryAfterSpacer);
 					}
 					// Frage hinzufügen
 					let tempQuestion = document.createElement("div");
 					tempQuestion.style.backgroundColor = "white";
 					tempQuestion.style.color = "black";
-					tempQuestion.id = response.returnvalue[i].frageid;
+					tempQuestion.style.fontSize = "16px";
+					tempQuestion.style.height = "22px";
+					// Zusammengesetzte Id aus Fragebogen-Id und Frage-Id
+					tempQuestion.id = "expanded_questionnaire_" + questionnaireId + "_question_" + response.returnvalue[i].frageid;
 					tempQuestion.innerHTML = response.returnvalue[i][0].fragestring;
 					tempCategory.appendChild(tempQuestion);
+					
+					document.getElementById(questionnaireId + "_question_container").appendChild(tempCategory);
 				}
-				
-
 			}
 		};
 		xhttp.open("POST", path, true);
