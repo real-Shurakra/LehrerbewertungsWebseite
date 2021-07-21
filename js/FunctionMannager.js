@@ -224,7 +224,7 @@ export default class FunctionMannager
 				{
 					try
 					{
-						console.log(xhttp.responseText);
+						//console.log(xhttp.responseText);
 						dummyResponse = JSON.parse(xhttp.responseText);
 						
 

@@ -240,21 +240,49 @@ export default class Questionnaire
 		return response;
 	}
 
-	ShowQuestions(questionnaireDiv)
+	ShowQuestions(questionnaireId)
 	{
 		let xhttp = new XMLHttpRequest()
 		let path = "./php/main.php?mode=getFbFragen";
 
 		let formData = new FormData();
-		formData.append("fbId", questionnaireDiv.id);
+		formData.append("fbId", questionnaireId);
 
 		xhttp.onreadystatechange = ()=>{
 			if ( xhttp.readyState == 4 && xhttp.status == 200 )
 			{
-		
 				let response = JSON.parse(xhttp.responseText);
 				console.log(response);
-		
+
+				for(let i = 0; i < response.returnvalue.length; i++)
+				{
+					console.log(response.returnvalue[i].frageid);
+					console.log(response.returnvalue[i][0].fragekategorie);
+					console.log(response.returnvalue[i][0].fragestring);
+
+					// Kategorie-Header hinzufügen
+					let tempCategoryId = "expanded_questionnaire_" + questionnaireId + "_category_" + response.returnvalue[i][0].fragekategorie;
+					let tempCategory = document.getElementById(tempCategoryId);
+					console.log(tempCategory);
+					if (tempCategory == undefined) 
+					{
+						tempCategory = document.createElement("div");
+						tempCategory.id = tempCategoryId;
+						tempCategory.style.backgroundColor = this.menuBarColor;
+						tempCategory.style.color = "white";
+						tempCategory.innerHTML = response.returnvalue[i][0].fragekategorie;
+						document.getElementById(questionnaireId).appendChild(tempCategory);
+					}
+					// Frage hinzufügen
+					let tempQuestion = document.createElement("div");
+					tempQuestion.style.backgroundColor = "white";
+					tempQuestion.style.color = "black";
+					tempQuestion.id = response.returnvalue[i].frageid;
+					tempQuestion.innerHTML = response.returnvalue[i][0].fragestring;
+					tempCategory.appendChild(tempQuestion);
+				}
+				
+
 			}
 		};
 		xhttp.open("POST", path, true);
