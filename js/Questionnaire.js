@@ -52,6 +52,10 @@ export default class Questionnaire
 					}
 				}
 			});
+			div.addEventListener("click", ()=>{
+				console.log(div.id);
+				this.ShowQuestions(div.id);
+			});
 			
 			let table = document.createElement("table");
 			table.style.borderCollapse = "collapse";
@@ -236,12 +240,25 @@ export default class Questionnaire
 		return response;
 	}
 
-	ShowQuestions(divId)
+	ShowQuestions(questionnaireDiv)
 	{
-		let formData = new FormData();
-		formData.append('fbId', divId);
+		let xhttp = new XMLHttpRequest()
+		let path = "./php/main.php?mode=getFbFragen";
 
-		var response = this.Request("./php/main.php?mode=getFbFragen", formData);
-		// console.log(response);
+		let formData = new FormData();
+		formData.append("fbId", questionnaireDiv.id);
+
+		xhttp.onreadystatechange = ()=>{
+			if ( xhttp.readyState == 4 && xhttp.status == 200 )
+			{
+		
+				let response = JSON.parse(xhttp.responseText);
+				console.log(response);
+		
+			}
+		};
+		xhttp.open("POST", path, true);
+		xhttp.send(formData);
 	}
+
 }
