@@ -12,7 +12,7 @@ export default class FunctionMannager
 		this.menuOpacity = undefined;
 	}
 
-	SortQuestionnairesWithFilters(target)
+	SortQuestionnairesWithFilters()
 	{
 		let path = "./php/main.php?mode=getFragebogens";
 		let response;
@@ -39,31 +39,90 @@ export default class FunctionMannager
 
 				for (let questionnaire in response)
 				{				
+					// Filter KLasse gesetzt
 					if(document.getElementById("questionnaire_filter_classes").value != "keine" && response[questionnaire] != undefined)
 					{
-						//console.log(response[questionnaire]["klassenname"].includes(document.getElementById("questionnaire_filter_subjects").value));
 						if (!response[questionnaire]["klassenname"].includes(document.getElementById("questionnaire_filter_classes").value))
 						{
 							response[questionnaire] = undefined;
 						}
 					}
 
+					// Filter Fach gesetzt
 					if (document.getElementById("questionnaire_filter_subjects").value != "keins" && response[questionnaire] != undefined)
 					{
-						//console.log(response[questionnaire]["fach"].includes(document.getElementById("questionnaire_filter_subjects").value));
 						if (!response[questionnaire]["fach"].includes(document.getElementById("questionnaire_filter_subjects").value))
 						{
 							response[questionnaire] = undefined;
 						}
 					}
 
+					// Filter Thema-Suche gesetzt (gesuchtes Theme eingegeben)
 					if (document.getElementById("questionnaire_filter_qSubject").value != "" && response[questionnaire] != undefined)
 					{
-						//console.log(response[questionnaire]["fach"].includes(document.getElementById("questionnaire_filter_subjects").value));
 						if (!response[questionnaire]["name"].includes(document.getElementById("questionnaire_filter_qSubject").value))
 						{
 							response[questionnaire] = undefined;
 						}
+					}
+
+					// Nur Filter "von" gesetzt
+					if (document.getElementById("questionnaire_filter_from").value != "" && response[questionnaire] != undefined)
+					{
+						let tempDate = document.getElementById("questionnaire_filter_from").value.split("-");
+
+						tempDate = this.toTimestamp(tempDate[0], tempDate[1], tempDate[2]);
+
+						if(document.getElementById("questionnaire_filter_to").value == "")
+						{
+							// Nur Datum des Fragebogens berücksichtigen
+							let tempQuestionnaireTimestamp = response[questionnaire]["zeitstempel"].split(" ");
+							tempQuestionnaireTimestamp = tempQuestionnaireTimestamp[0];
+							tempQuestionnaireTimestamp = tempQuestionnaireTimestamp.split("-");
+							tempQuestionnaireTimestamp = this.toTimestamp(tempQuestionnaireTimestamp[0], tempQuestionnaireTimestamp[1], tempQuestionnaireTimestamp[2]);
+
+							// Wenn das Erstellungsdatum des Bogens kleiner ist als das eingestellte Datum wird der Bogen auf undefined gesetzt (aus Response-Array gelöscht)
+							if (tempQuestionnaireTimestamp < tempDate) response[questionnaire] = undefined;
+						}
+					}
+
+					// Nur Filter "bis" gesetzt
+					if (document.getElementById("questionnaire_filter_to").value != "" && response[questionnaire] != undefined)
+					{
+						let tempDate = document.getElementById("questionnaire_filter_to").value.split("-");
+
+						tempDate = this.toTimestamp(tempDate[0], tempDate[1], tempDate[2]);
+
+						if(document.getElementById("questionnaire_filter_from").value == "")
+						{
+							// Nur Datum des Fragebogens berücksichtigen
+							let tempQuestionnaireTimestamp = response[questionnaire]["zeitstempel"].split(" ");
+							tempQuestionnaireTimestamp = tempQuestionnaireTimestamp[0];
+							tempQuestionnaireTimestamp = tempQuestionnaireTimestamp.split("-");
+							tempQuestionnaireTimestamp = this.toTimestamp(tempQuestionnaireTimestamp[0], tempQuestionnaireTimestamp[1], tempQuestionnaireTimestamp[2]);
+
+							// Wenn das Erstellungsdatum des Bogens größer ist als das eingestellte Datum wird der Bogen auf undefined gesetzt (aus Response-Array gelöscht)
+							if (tempQuestionnaireTimestamp > tempDate) response[questionnaire] = undefined;
+						}
+					}
+
+					// Filter "von" und "bis" gesetzt
+					if (document.getElementById("questionnaire_filter_from").value != "" && document.getElementById("questionnaire_filter_to").value != "" && response[questionnaire] != undefined)
+					{
+						let tempDateFrom = document.getElementById("questionnaire_filter_from").value.split("-");
+						tempDateFrom = this.toTimestamp(tempDateFrom[0], tempDateFrom[1], tempDateFrom[2]);
+
+						let tempDateTo = document.getElementById("questionnaire_filter_to").value.split("-");
+						tempDateTo = this.toTimestamp(tempDateTo[0], tempDateTo[1], tempDateTo[2]);
+
+						// Nur Datum des Fragebogens berücksichtigen
+						let tempQuestionnaireTimestamp = response[questionnaire]["zeitstempel"].split(" ");
+						tempQuestionnaireTimestamp = tempQuestionnaireTimestamp[0];
+						tempQuestionnaireTimestamp = tempQuestionnaireTimestamp.split("-");
+						tempQuestionnaireTimestamp = this.toTimestamp(tempQuestionnaireTimestamp[0], tempQuestionnaireTimestamp[1], tempQuestionnaireTimestamp[2]);
+
+						// Wenn das Erstellungsdatum des Bogens kleiner ist als das eingestellte Datum wird der Bogen auf undefined gesetzt (aus Response-Array gelöscht)
+						if (tempQuestionnaireTimestamp < tempDateFrom || tempQuestionnaireTimestamp > tempDateTo) response[questionnaire] = undefined;
 					}
 
 
@@ -188,7 +247,18 @@ export default class FunctionMannager
 			setTimeout(()=>{
 				this.SortQuestionnairesWithFilters();
 			},500)
-			
+		});
+
+		// Input-Feld für Datum "von"
+		let inputFrom = document.getElementById("questionnaire_filter_from");
+		inputFrom.addEventListener("input", ()=>{
+			this.SortQuestionnairesWithFilters();
+		});
+
+		// Input-Feld für Datum "bis"
+		let inputTo = document.getElementById("questionnaire_filter_to");
+		inputTo.addEventListener("input", ()=>{
+			this.SortQuestionnairesWithFilters();
 		});
 
 		this.SortQuestionnairesWithFilters();
@@ -413,7 +483,56 @@ export default class FunctionMannager
 	
 	login_area_student()
 	{
-	
+		let inputCodeStudent = document.getElementsByClassName("input_student");
+
+		let counter = 0;
+		for(let element in inputCodesStudent)
+		{
+			if(inputCodesStudend[element].value.length < 2) break;
+			else formData.append("nr" + counter.toString,);
+		}
+
+		var inputFieldTeacherPassword = document.getElementById("input_teacher_password");
+		var buttonTeacherLogin = document.getElementById("login_teacher_area");
+		var response;
+		
+		if ( inputFieldTeacherEmail != undefined && inputFieldTeacherPassword != undefined && buttonTeacherLogin != undefined )
+		{
+			buttonTeacherLogin.addEventListener("mousedown", ()=>{
+				let formData = new FormData();
+				formData.append( 'mail', inputFieldTeacherEmail.value );
+				formData.append( 'passwort', inputFieldTeacherPassword.value );
+				
+				let path = "./php/main.php?mode=loginUser";
+				let dummyCategoriesResponse;
+				let xhttp = new XMLHttpRequest();
+				
+				xhttp.onreadystatechange = ()=>{
+					if ( xhttp.readyState == 4 && xhttp.status == 200 )
+					{
+						var responseRow = xhttp.responseText;
+
+						try
+						{
+							response = JSON.parse( responseRow );
+
+							if( response['returncode'] == 0 && response['returnvalue'] )
+							{
+								window.open("./verwaltung.php", "_self");
+							}
+							
+						}
+						catch( error )
+						{
+							console.log( error );
+							console.log( response );
+						}
+					}
+				};
+				xhttp.open("POST", path, true);
+				xhttp.send( formData );	
+			});
+		}		
 	}
 
 	login_areas_check_for_input()
@@ -596,6 +715,8 @@ export default class FunctionMannager
 								}
 								//document.getElementById("messageCreateQuestionnaire").innerHTML = response['returnvalue'];
 						
+								// TODO: Methode zum nachladen der Bögen auf die Übersicht Page hier aufrufen
+								this.SortQuestionnairesWithFilters();
 							}
 							catch( error )
 							{
@@ -612,8 +733,6 @@ export default class FunctionMannager
 		}
 
 	}
-	
-
 
 
 	//== Subroutinen ==========================================================================================================================
@@ -928,6 +1047,12 @@ export default class FunctionMannager
 			}
 			xhttp.open("POST", path, true);
 			xhttp.send();
+	}
+
+	toTimestamp(year,month,day)
+	{
+		var datum = new Date(Date.UTC(year,month-1,day,0,0,0));
+		return datum.getTime()/1000;
 	}
 
 

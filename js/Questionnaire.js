@@ -108,8 +108,16 @@ export default class Questionnaire
 			columnSymbol.style.color = this.menuBarColor;
 			columnSymbol.innerHTML = " &#128462;"; // 🗎-Zeichen
 			columnSymbol.style.backgroundColor = this.unhighlightedColor;
-	
+
+			// TODO: Eventuell Button zum Anzeigen der Codes in Footer des Bogens verlegen
+			let codesTag = document.createElement("div");
+			codesTag.innerHTML = "CODES";
+			codesTag.style.fontSize = "10px";
+			codesTag.style.fontWeight = "bold";
+			columnSymbol.appendChild(codesTag);
+
 			rowHeaders.append(columnSymbol);
+
 			for (let index in questionnaire)
 			{
 				//console.log(response[questionnaire][index]);
