@@ -20,7 +20,8 @@ class main {
         elseif  ($_REQUEST['mode'] == 'getAlleSchulklassen'){echo json_encode(FragenVerwaltung::getAlleSchulklassen (                                                                                                                           ));}
         elseif  ($_REQUEST['mode'] == 'getAllSubjects')     {echo json_encode(FragenVerwaltung::getAllSubjects      (                                                                                                                           ));}
         elseif  ($_REQUEST['mode'] == 'getFbFragenFromCode'){echo json_encode(FragenVerwaltung::getFbFragenFromCode ($_REQUEST['codehash']                                                                                                      ));}
-        elseif  ($_REQUEST['mode'] == 'alterQuestion')      {echo json_encode(FragenVerwaltung::alterQuestion       ($_REQUEST['frageId'],      $_REQUEST['neuFrage']                                                                           ));}        
+        elseif  ($_REQUEST['mode'] == 'alterQuestion')      {echo json_encode(FragenVerwaltung::alterQuestion       ($_REQUEST['frageId'],      $_REQUEST['neuFrage']                                                                           ));}   
+        elseif  ($_REQUEST['mode'] == 'delQuestionnaire')   {echo json_encode(FragenVerwaltung::delQuestionnaire    ($_REQUEST['fbId']                                                                                                          ));}     
         
         
         elseif  ($_REQUEST['mode'] == 'aecd587fdc09')       {echo json_encode(self::hilfe                           (                                                                                                                           ));}
@@ -610,31 +611,40 @@ class FragenVerwaltung {
             return false;
         }
     }
+
+    public static function delQuestionnaire($fbId) {
+        if(self::deleteAllCodes($fbId) == false){
+            return false;
+        }
+        global $link;
+        if (mysqli_query($link, "DELETE FROM fragebogen WHERE id = '" . $fbId . "'")){
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
 }
 
 //////////////////////////////////////////  DEBUG  /////////////////////////////////////////////
-session_unset();
-$_SESSION['usermail']       = 'temp.dump@hotmail.com';
-$_REQUEST['mode']           = 'alterQuestion';
-$_REQUEST['frage']          = 'Tafelbilder und Folien sind gut lesbar.';
-$_REQUEST['mail']           = 'temp.dump@hotmail.com';
-$_REQUEST['passwort']       = 'Admin';
-$_REQUEST['kategorie']      = 'Unterricht';
-$_REQUEST['name']           = 'BogenX';
-$_REQUEST['anzahl']         = '1';
-$_REQUEST['klasse']         = 'ITB1-19';
-$_REQUEST['fach']           = 'ITS';
-$_REQUEST['fbId']           = '112';
-$_REQUEST['fragen']         = array('Die Beurteilungskriterien sind nachvollziehbar.', 'Die Unterrichtsinhalte sind praxisbezogen.');
-$_REQUEST['rate']           = array(array('frageid'=>'7','bogenid'=>'112','bewertung'=>2),array('frageid'=>'35','bogenid'=>'112','bewertung'=>1));
-$_REQUEST['codehash']       = '34-29-93-90';
-$_REQUEST['kritik']         = 'Alles Gefixt! Garkein Problem!';
-$_REQUEST['frageId']        = '1';
-$_REQUEST['neuFrage']       = array(
-                                    'frage' => 'Der Unterricht ist gut vorbereitet und sorgfaltig geplant.',
-                                    'lehrerId' => 'NULL',
-                                    'kategorie' => 'Unterricht'
-                                   );
+#session_unset();
+#$_SESSION['usermail']       = 'temp.dump@hotmail.com';
+#$_REQUEST['mode']           = 'alterQuestion';
+#$_REQUEST['frage']          = 'Tafelbilder und Folien sind gut lesbar.';
+#$_REQUEST['mail']           = 'temp.dump@hotmail.com';
+#$_REQUEST['passwort']       = 'Admin';
+#$_REQUEST['kategorie']      = 'Unterricht';
+#$_REQUEST['name']           = 'BogenX';
+#$_REQUEST['anzahl']         = '1';
+#$_REQUEST['klasse']         = 'ITB1-19';
+#$_REQUEST['fach']           = 'ITS';
+#$_REQUEST['fbId']           = '112';
+#$_REQUEST['fragen']         = array('Die Beurteilungskriterien sind nachvollziehbar.', 'Die Unterrichtsinhalte sind praxisbezogen.');
+#$_REQUEST['rate']           = array(array('frageid'=>'7','bogenid'=>'112','bewertung'=>2),array('frageid'=>'35','bogenid'=>'112','bewertung'=>1));
+#$_REQUEST['codehash']       = '34-29-93-90';
+#$_REQUEST['kritik']         = 'Alles Gefixt! Garkein Problem!';
+#$_REQUEST['frageId']        = '1';
+#$_REQUEST['neuFrage']       = array('frage' => 'Der Unterricht ist gut vorbereitet und sorgfaltig geplant.','lehrerId' => 'NULL','kategorie' => 'Unterricht');
 //////////////////////////////////////////  DEBUG END  /////////////////////////////////////////
 
 
