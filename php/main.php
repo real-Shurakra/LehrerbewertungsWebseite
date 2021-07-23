@@ -569,24 +569,22 @@ class FragenVerwaltung {
 }
 
 //////////////////////////////////////////  DEBUG  /////////////////////////////////////////////
-/*
-session_unset();
-$_SESSION['usermail']       = 'temp.dump@hotmail.com';
-$_REQUEST['mode']           = 'getFbFragen';
-$_REQUEST['frage']          = 'Tafelbilder und Folien sind gut lesbar.';
-$_REQUEST['mail']           = 'temp.dump@hotmail.com';
-$_REQUEST['passwort']       = 'Admin';
-$_REQUEST['kategorie']      = 'Unterricht';
-$_REQUEST['name']           = 'BogenX';
-$_REQUEST['anzahl']         = '1';
-$_REQUEST['klasse']         = 'ITB1-19';
-$_REQUEST['fach']           = 'ITS';
-$_REQUEST['fbId']           = '112';
-$_REQUEST['fragen']         = array('Die Beurteilungskriterien sind nachvollziehbar.', 'Die Unterrichtsinhalte sind praxisbezogen.');
-$_REQUEST['rate']           = array(array('frageid'=>'7','bogenid'=>'70','bewertung'=>-1),array('frageid'=>'35','bogenid'=>'70','bewertung'=>2));
-$_REQUEST['codehash']       = '09-48-12-18';
-$_REQUEST['kritik']         = 'Alles Gefixt! Garkein Problem!';
-*/
+#session_unset();
+#$_SESSION['usermail']       = 'temp.dump@hotmail.com';
+#$_REQUEST['mode']           = 'getFbFragen';
+#$_REQUEST['frage']          = 'Tafelbilder und Folien sind gut lesbar.';
+#$_REQUEST['mail']           = 'temp.dump@hotmail.com';
+#$_REQUEST['passwort']       = 'Admin';
+#$_REQUEST['kategorie']      = 'Unterricht';
+#$_REQUEST['name']           = 'BogenX';
+#$_REQUEST['anzahl']         = '1';
+#$_REQUEST['klasse']         = 'ITB1-19';
+#$_REQUEST['fach']           = 'ITS';
+#$_REQUEST['fbId']           = '112';
+#$_REQUEST['fragen']         = array('Die Beurteilungskriterien sind nachvollziehbar.', 'Die Unterrichtsinhalte sind praxisbezogen.');
+#$_REQUEST['rate']           = array(array('frageid'=>'7','bogenid'=>'70','bewertung'=>-1),array('frageid'=>'35','bogenid'=>'70','bewertung'=>2));
+#$_REQUEST['codehash']       = '09-48-12-18';
+#$_REQUEST['kritik']         = 'Alles Gefixt! Garkein Problem!';
 //////////////////////////////////////////  DEBUG END  /////////////////////////////////////////
 
 
