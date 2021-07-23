@@ -19,6 +19,7 @@ class main {
         elseif  ($_REQUEST['mode'] == 'getkritik')          {echo json_encode(FragenVerwaltung::getkritik           ($_REQUEST['fbId']                                                                                                          ));}
         elseif  ($_REQUEST['mode'] == 'getAlleSchulklassen'){echo json_encode(FragenVerwaltung::getAlleSchulklassen (                                                                                                                           ));}
         elseif  ($_REQUEST['mode'] == 'getAllSubjects')     {echo json_encode(FragenVerwaltung::getAllSubjects      (                                                                                                                           ));}
+        elseif  ($_REQUEST['mode'] == 'getFbFragenFromCode'){echo json_encode(FragenVerwaltung::getFbFragenFromCode ($_REQUEST['codehash']                                                                                                      ));}
         
         
         
@@ -409,10 +410,13 @@ class FragenVerwaltung {
         ) ;
     }
 
-    public static function getFbFragen($fbId) {
+    public static function getFbFragen($fbId, $code=False) {
         try{
             global $link;
-            $sqlquery_GetFbFragen = "SELECT * FROM getfbfragen WHERE bogenid = '" . $fbId . "'";
+            if($code == False){
+                $fbId = "'" . $fbId . "'";
+            }
+            $sqlquery_GetFbFragen = "SELECT * FROM getfbfragen WHERE bogenid = " . $fbId . "";
             $sqlquery_GetFbFragen_Result = mysqli_query($link, $sqlquery_GetFbFragen);
             if ($sqlquery_GetFbFragen_Result == FALSE){
                 return array(
@@ -448,6 +452,11 @@ class FragenVerwaltung {
                 'returnvalue'=>main::toDE('<strong>Programmfehler</strong><br>Bitte melden Sie sich bei einem Andministrator und nennen Sie folgende Informationen:<br><br>'. $e)
             );
         }
+    }
+
+    public static function getFbFragenFromCode($code)
+    {
+        return self::getFbFragen("(SELECT fragebogenid FROM codes WHERE codehash = '" . $code . "')", True);
     }
 
     public static function insertRate($rates, $codehash) {
