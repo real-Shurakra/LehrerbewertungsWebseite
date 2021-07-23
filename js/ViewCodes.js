@@ -6,9 +6,7 @@ export default class ViewCodes
 {
     constructor()
     {
-        this.codes = [];
-        this.qSubject;
-        this.subject;
+        
     }
 
     getCodes(fbId, qSubject, subject, className)
@@ -27,11 +25,13 @@ export default class ViewCodes
                 console.log(responseQuestionnaireCodes);
 
                 let tempTable = document.getElementById("codes_table");
-                tempTable.style.width = "25%";
+                tempTable.style.width = "35%";
+                tempTable.style.height = window.innerHeight - 150 + "px";
                 tempTable.style.borderCollapse = "collapse";
                 tempTable.style.borderWidth = "2px";
-                tempTable.style.fontFamily = "consolas monospace";
-                tempTable.style.fontSize = "20px";
+                tempTable.style.fontFamily = "calibri";
+                tempTable.style.fontWeight = "bold";
+                tempTable.style.fontSize = "25px";
 
                 // Fragebogen Codes in Tabelle darstellen
 			    for(let i = 0; i < responseQuestionnaireCodes.returnvalue.length; i++)
@@ -41,8 +41,8 @@ export default class ViewCodes
                     tempTr.style.borderStyle = "dashed";
                     tempTr.style.borderWidth = "2px";
                     tempTr.style.width = "99%";
-                    tempTr.style.padding = "50px";
-                    tempTr.style.height = "30px";
+                    tempTr.style.padding = "auto";
+                    tempTr.style.textAlign = "center";
 
                     let tempTdQSubject = document.createElement("td");
                     tempTdQSubject.innerHTML = qSubject;
@@ -53,6 +53,11 @@ export default class ViewCodes
                     tempTdClass.innerHTML = className;
                     //tempTdClass.style.borderStyle = "dashed";
                     tempTr.appendChild(tempTdClass);
+
+                    let tempTdSubject = document.createElement("td")
+                    tempTdSubject.innerHTML = subject;
+                    //tempTdClass.style.borderStyle = "dashed";
+                    tempTr.appendChild(tempTdSubject);
 
                     let tempTdCode = document.createElement("td");
                     tempTdCode.innerHTML = responseQuestionnaireCodes.returnvalue[i].codehash;
@@ -70,8 +75,6 @@ export default class ViewCodes
         xhttp.open("POST", path, true);
         xhttp.send(formDataCodes);
     }
-
-
 }
 
 function getParameter(name){
@@ -86,9 +89,9 @@ let qSubject = getParameter("qSubject");
 let subject = getParameter("subject");
 let className = getParameter("className");
 
-console.log(fbId);
-console.log(qSubject);
-console.log(subject);
-console.log(className);
+//console.log(fbId);
+//console.log(qSubject);
+//console.log(subject);
+//console.log(className);
 
 viewCodes.getCodes(fbId, qSubject, subject, className);
