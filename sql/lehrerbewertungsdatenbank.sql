@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Erstellungszeit: 19. Jul 2021 um 23:06
+-- Erstellungszeit: 23. Jul 2021 um 16:32
 -- Server-Version: 10.4.8-MariaDB
 -- PHP-Version: 7.2.24
 
@@ -34,6 +34,16 @@ CREATE TABLE `bewertungen` (
   `bogenid` bigint(20) UNSIGNED NOT NULL,
   `bewertung` smallint(6) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Daten für Tabelle `bewertungen`
+--
+
+INSERT INTO `bewertungen` (`id`, `frageid`, `bogenid`, `bewertung`) VALUES
+(19, 7, 112, -1),
+(20, 35, 112, 2),
+(21, 7, 112, 2),
+(22, 35, 112, 1);
 
 -- --------------------------------------------------------
 
@@ -416,8 +426,9 @@ CREATE TABLE `getbewertungen` (
 CREATE TABLE `getfbfragen` (
 `frage` varchar(255)
 ,`kategorie` varchar(255)
-,`id` bigint(20) unsigned
+,`frageid` bigint(20) unsigned
 ,`bogenid` bigint(20) unsigned
+,`bewertung` decimal(9,4)
 );
 
 -- --------------------------------------------------------
@@ -1014,7 +1025,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `getfbfragen`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getfbfragen`  AS  select `fragen`.`frage` AS `frage`,`fragen`.`kategorie` AS `kategorie`,`fragen`.`id` AS `id`,`nm_frage_fragebogen`.`bogenid` AS `bogenid` from (`nm_frage_fragebogen` left join `fragen` on(`nm_frage_fragebogen`.`frageid` = `fragen`.`id`)) ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getfbfragen`  AS  select `fragen`.`frage` AS `frage`,`fragen`.`kategorie` AS `kategorie`,`fragen`.`id` AS `frageid`,`nm_frage_fragebogen`.`bogenid` AS `bogenid`,avg(`bewertungen`.`bewertung`) AS `bewertung` from ((`nm_frage_fragebogen` left join `fragen` on(`nm_frage_fragebogen`.`frageid` = `fragen`.`id`)) left join `bewertungen` on(`fragen`.`id` = `bewertungen`.`frageid`)) group by `fragen`.`frage`,`fragen`.`kategorie`,`fragen`.`id`,`nm_frage_fragebogen`.`bogenid` ;
 
 -- --------------------------------------------------------
 
@@ -1123,7 +1134,7 @@ ALTER TABLE `verbesserungen`
 -- AUTO_INCREMENT für Tabelle `bewertungen`
 --
 ALTER TABLE `bewertungen`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- AUTO_INCREMENT für Tabelle `fach`
