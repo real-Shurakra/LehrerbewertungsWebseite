@@ -10,6 +10,7 @@ export default class FunctionMannager
 		this.toolTipCreator2 = undefined;
 		this.menuBarColor = undefined;
 		this.menuOpacity = undefined;
+		this.OverviewPageQuestionnaires = [];
 	}
 
 	SortQuestionnairesWithFilters()
@@ -143,14 +144,16 @@ export default class FunctionMannager
 					{
 						let tempQuestionnaire = new Questionnaire(response[questionnaire], questionnaireList);
 						tempQuestionnaire.menuBarColor = this.menuBarColor;
+						this.OverviewPageQuestionnaires.push(tempQuestionnaire);
 					}
 				}
+				console.log(this.OverviewPageQuestionnaires);
 				
 				questionnaireListContainer.appendChild(questionnaireList);
 				
 
 				// response zurücksetzen
-				response = undefined;
+				// response = undefined;
 			}
 		};
 		xhttp.open("POST", path, true);

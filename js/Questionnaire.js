@@ -10,13 +10,15 @@ export default class Questionnaire
 		this.menuBarColor;
 		this.unhighlightedColor = "#9eb3c7";
 		this.id;
-		this.className;
-		this.subject;
 		this.amountStudents;
 		this.questions;
 		this.currentStatus;
 		this.date;
 		this.state = false;
+		this.codes = [];
+		this.qSubject = "";
+		this.className = "";
+		this.subject = "";
 
 
 		let div = document.getElementById(questionnaire.id);
@@ -29,7 +31,7 @@ export default class Questionnaire
 			div.style.borderWidth = "1px";
 			div.style.width = "99%";
 			div.id = questionnaire.id;
-			
+			this.id = questionnaire.id;
 	
 			let tds = div.getElementsByClassName("questionnaireHeader");
 			div.addEventListener("mouseenter", ()=>{
@@ -109,11 +111,18 @@ export default class Questionnaire
 			columnSymbol.innerHTML = " &#128462;"; // 🗎-Zeichen
 			columnSymbol.style.backgroundColor = this.unhighlightedColor;
 
+
 			// TODO: Eventuell Button zum Anzeigen der Codes in Footer des Bogens verlegen
 			let codesTag = document.createElement("div");
 			codesTag.innerHTML = "CODES";
 			codesTag.style.fontSize = "10px";
 			codesTag.style.fontWeight = "bold";
+			codesTag.addEventListener("click", (event)=>{
+				console.log(this.codes);
+				window.open("./html/codes.htm?fbId=" + this.id + "&qSubject=" + this.qSubject + "&subject=" + this.subject + "&className=" + this.className); 
+				event.stopPropagation();
+			});
+
 			columnSymbol.appendChild(codesTag);
 
 			rowHeaders.append(columnSymbol);
@@ -125,13 +134,27 @@ export default class Questionnaire
 				columnHeaders.className = "questionnaireHeader";
 	
 				// Änderung der Header-Bezeichnungen
-				if (index == "name") columnHeaders.innerHTML = "Thema";
+				if (index == "name") 
+				{
+					columnHeaders.innerHTML = "Thema";
+					this.qSubject = questionnaire[index];
+				}
 				else if (index == "zeitstempel") columnHeaders.innerHTML = "Datum";
 				else if (index == "id") continue;
 				else if (index == "anzfragen") continue;
 				else if (index == "schueleranzahl") continue;
-				else if (index == "klassenname") columnHeaders.innerHTML = "Klasse";
-				else if (index == "fach") columnHeaders.innerHTML = "Fach";
+				else if (index == "klassenname") 
+				{
+					columnHeaders.innerHTML = "Klasse";
+					this.className = questionnaire[index];
+					console.log("className");
+					console.log(this.className);
+				}
+				else if (index == "fach")
+				{
+					this.subject = questionnaire[index];
+					columnHeaders.innerHTML = "Fach";
+				}
 				else if (index == "bewertungsumme") columnHeaders.innerHTML = "Punkte";
 				else columnHeaders.innerHTML = index;
 	
@@ -178,19 +201,24 @@ export default class Questionnaire
 				if ( xhttp.readyState == 4 && xhttp.status == 200 )
 				{
 					questionnaireList.appendChild(document.createElement("br"));
-					var responseQuestionnaireCodes = xhttp.responseText;
+					var responseQuestionnaireCodes = JSON.parse(xhttp.responseText);
 
-					let codesArray = responseQuestionnaireCodes.split("},");
-	
-					if (codesArray != null && codesArray.length > 1)
+					// Anzeige des Bogenstatus auf Page "Übersicht";
+					if (responseQuestionnaireCodes.retruncode == -1)
+					{
+						columnStatus.innerHTML = "abgeschlossen";
+						columnStatus.style.color = "green";	
+					}
+					else if (responseQuestionnaireCodes.retruncode == 0)
 					{
 						columnStatus.innerHTML = "offen";
 						columnStatus.style.color = "#feb460"; // orange
 					}
-					else
+					
+					// Fragebogen Codes in this.codes speichern
+					for(let i = 0; i < responseQuestionnaireCodes.returnvalue.length; i++)
 					{
-						columnStatus.innerHTML = "abgeschlossen";
-						columnStatus.style.color = "green";	
+						this.codes.push(responseQuestionnaireCodes.returnvalue[i].codehash);
 					}
 
 					rowData.appendChild(columnStatus);
