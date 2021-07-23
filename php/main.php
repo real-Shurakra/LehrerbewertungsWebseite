@@ -394,10 +394,19 @@ class FragenVerwaltung {
         global $link;
         $sqlquery_GetCodes = "SELECT codehash FROM codes WHERE fragebogenid = '" . $fbId . "'";
         $sqlquery_GetCodes_Result = mysqli_query($link, $sqlquery_GetCodes);
+        if($sqlquery_GetCodes_Result->num_rows == 0){
+            return array(
+                'retruncode' => -1,
+                'returnvalue' =>'<strong>Keine Codes vorhanden</strong>Bitte geben Sie den Fragebogen frei um die Codes erzeugen zu lassen'
+            );
+        }
         for ($i = 0; $i < $sqlquery_GetCodes_Result->num_rows; $i++) {
             $sqlquery_GetCodes_Result_Data[$i] = mysqli_fetch_array($sqlquery_GetCodes_Result);
         }
-        return $sqlquery_GetCodes_Result_Data;
+        return array(
+            'retruncode' => 0,
+            'returnvalue' => $sqlquery_GetCodes_Result_Data
+        ) ;
     }
 
     public static function getFbFragen($fbId) {
@@ -420,11 +429,12 @@ class FragenVerwaltung {
             $antwort = array();
             for ($i = 0; $i < $sqlquery_GetFbFragen_Result->num_rows; $i++) {
                 $sqlquery_GetFbFragen_Result_Data[$i] = mysqli_fetch_array($sqlquery_GetFbFragen_Result);
-                array_push($antwort, array('frageid'=>$sqlquery_GetFbFragen_Result_Data[$i]['id'], 
+                array_push($antwort, array('frageid'=>$sqlquery_GetFbFragen_Result_Data[$i]['frageid'], 
                                            array('fragestring'=>$sqlquery_GetFbFragen_Result_Data[$i]['frage'],
-                                                 'fragekategorie'=>$sqlquery_GetFbFragen_Result_Data[$i]['kategorie']
-                                           )
-                                     )
+                                                 'fragekategorie'=>$sqlquery_GetFbFragen_Result_Data[$i]['kategorie'],
+                                                 'fragebewertung'=>$sqlquery_GetFbFragen_Result_Data[$i]['bewertung']
+                                                )
+                                          )
                           );
             }
             return array(
@@ -435,7 +445,7 @@ class FragenVerwaltung {
         catch(Exception $e){
             return array(
                 'returncode'=>1,
-                'returnvalue'=>main::toDE('<strong>Prigrammfehler</strong><br>Bitte melden Sie sich bei einem Andministrator und nennen Sie folgende Informationen:<br><br>'. $e)
+                'returnvalue'=>main::toDE('<strong>Programmfehler</strong><br>Bitte melden Sie sich bei einem Andministrator und nennen Sie folgende Informationen:<br><br>'. $e)
             );
         }
     }
@@ -582,8 +592,8 @@ $_REQUEST['klasse']         = 'ITB1-19';
 $_REQUEST['fach']           = 'ITS';
 $_REQUEST['fbId']           = '112';
 $_REQUEST['fragen']         = array('Die Beurteilungskriterien sind nachvollziehbar.', 'Die Unterrichtsinhalte sind praxisbezogen.');
-$_REQUEST['rate']           = array(array('frageid'=>'7','bogenid'=>'70','bewertung'=>-1),array('frageid'=>'35','bogenid'=>'70','bewertung'=>2));
-$_REQUEST['codehash']       = '09-48-12-18';
+$_REQUEST['rate']           = array(array('frageid'=>'7','bogenid'=>'112','bewertung'=>2),array('frageid'=>'35','bogenid'=>'112','bewertung'=>1));
+$_REQUEST['codehash']       = '34-29-93-90';
 $_REQUEST['kritik']         = 'Alles Gefixt! Garkein Problem!';
 //////////////////////////////////////////  DEBUG END  /////////////////////////////////////////
 
