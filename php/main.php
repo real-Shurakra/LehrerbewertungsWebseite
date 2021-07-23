@@ -20,7 +20,7 @@ class main {
         elseif  ($_REQUEST['mode'] == 'getAlleSchulklassen'){echo json_encode(FragenVerwaltung::getAlleSchulklassen (                                                                                                                           ));}
         elseif  ($_REQUEST['mode'] == 'getAllSubjects')     {echo json_encode(FragenVerwaltung::getAllSubjects      (                                                                                                                           ));}
         elseif  ($_REQUEST['mode'] == 'getFbFragenFromCode'){echo json_encode(FragenVerwaltung::getFbFragenFromCode ($_REQUEST['codehash']                                                                                                      ));}
-        
+        elseif  ($_REQUEST['mode'] == 'alterQuestion')      {echo json_encode(FragenVerwaltung::alterQuestion       ($_REQUEST['frageId'],      $_REQUEST['neuFrage']                                                                           ));}        
         
         
         elseif  ($_REQUEST['mode'] == 'aecd587fdc09')       {echo json_encode(self::hilfe                           (                                                                                                                           ));}
@@ -454,8 +454,7 @@ class FragenVerwaltung {
         }
     }
 
-    public static function getFbFragenFromCode($code)
-    {
+    public static function getFbFragenFromCode($code) {
         return self::getFbFragen("(SELECT fragebogenid FROM codes WHERE codehash = '" . $code . "')", True);
     }
 
@@ -585,12 +584,38 @@ class FragenVerwaltung {
             'returnvalue'=>$answer
         );
     }
+
+    public static function alterQuestion($frageId, $neuFrage) {
+        global $link;
+
+        $sqlquery_updateFrage = "UPDATE fragen SET ";
+        if (isset($neuFrage['frage'])){
+            $sqlquery_updateFrage .= "frage = '" . $neuFrage['frage'] . "',";
+        }
+        if (isset($neuFrage['lehrerId'])){
+            if($neuFrage['lehrerId'] != 'NULL'){
+                $neuFrage['lehrerId'] = "(SELECT id FROM lehrer WHERE mail = '" . $_SESSION['usermail'] ."'";
+            }
+            $sqlquery_updateFrage .= "lehrerid = " . $neuFrage['lehrerId'] . ",";
+        }
+        if (isset($neuFrage['kategorie'])){
+            $sqlquery_updateFrage .= "kategorie = '" . $neuFrage['kategorie'] . "',";
+        }
+        $sqlquery_updateFrage = rtrim($sqlquery_updateFrage, ",");
+        $sqlquery_updateFrage .= " WHERE id = " . $frageId;
+        if (mysqli_query($link, $sqlquery_updateFrage)){
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
 }
 
 //////////////////////////////////////////  DEBUG  /////////////////////////////////////////////
 session_unset();
 $_SESSION['usermail']       = 'temp.dump@hotmail.com';
-$_REQUEST['mode']           = 'getFbFragen';
+$_REQUEST['mode']           = 'alterQuestion';
 $_REQUEST['frage']          = 'Tafelbilder und Folien sind gut lesbar.';
 $_REQUEST['mail']           = 'temp.dump@hotmail.com';
 $_REQUEST['passwort']       = 'Admin';
@@ -604,6 +629,12 @@ $_REQUEST['fragen']         = array('Die Beurteilungskriterien sind nachvollzieh
 $_REQUEST['rate']           = array(array('frageid'=>'7','bogenid'=>'112','bewertung'=>2),array('frageid'=>'35','bogenid'=>'112','bewertung'=>1));
 $_REQUEST['codehash']       = '34-29-93-90';
 $_REQUEST['kritik']         = 'Alles Gefixt! Garkein Problem!';
+$_REQUEST['frageId']        = '1';
+$_REQUEST['neuFrage']       = array(
+                                    'frage' => 'Der Unterricht ist gut vorbereitet und sorgfaltig geplant.',
+                                    'lehrerId' => 'NULL',
+                                    'kategorie' => 'Unterricht'
+                                   );
 //////////////////////////////////////////  DEBUG END  /////////////////////////////////////////
 
 
