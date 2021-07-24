@@ -61,7 +61,7 @@ body
 #container_pictorius_foto
 {
 	position: fixed;
-	z-index: -1;
+	z-index: -5;
 	min-width: 100%;
 }
 
@@ -91,6 +91,26 @@ body
 {
 	position: relative;
 	color: white;
+}
+
+#students_questionnaire_container
+{
+	overflow-y: scroll;
+	position: absolute;
+	/*display: inline-block;*/
+	background-color: white;
+	z-index: 1;
+}
+
+.tempTdQuestionnaire
+{
+	/*
+	border-color: "#ffffff";
+	border-width: 2px;
+	border-top: dashed;
+	border-right: none;
+	border-left: none;
+	border-bottom: none;*/
 }
 
 .area_border

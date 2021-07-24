@@ -292,15 +292,12 @@ export default class Questionnaire
 						tempCategoryBeforeSpacer.style.backgroundColor = "white";
 						document.getElementById(questionnaireId + "_question_container").appendChild(tempCategoryBeforeSpacer)
 
-
 						tempCategory = document.createElement("div");
 						tempCategory.id = tempCategoryId;
 						tempCategory.style.backgroundColor = this.menuBarColor;
 						tempCategory.style.color = "white";
 						tempCategory.style.fontSize = "16px";
-						//tempCategory.style.height = "12px";
 						tempCategory.innerHTML = response.returnvalue[i][0].fragekategorie;
-						//document.getElementById(questionnaireId).appendChild(tempCategory);
 
 						let tempCategoryAfterSpacer = document.createElement("div");
 						tempCategoryAfterSpacer.style.height = "5px";

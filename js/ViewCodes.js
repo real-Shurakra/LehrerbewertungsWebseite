@@ -6,10 +6,11 @@ export default class ViewCodes
 {
     constructor()
     {
-        
+        this.menuBarColor = "#191f51"; // Marineblau
+        this.unhighlightedColor = "#9eb3c7"; // helles Grau-Blau
     }
 
-    getCodes(fbId, qSubject, subject, className)
+    CreateCodesTable(fbId, qSubject, subject, className)
     {
         // Asynchroner Request
 		let xhttp = new XMLHttpRequest()
@@ -25,10 +26,9 @@ export default class ViewCodes
                 console.log(responseQuestionnaireCodes);
 
                 let tempTable = document.getElementById("codes_table");
-                tempTable.style.width = "35%";
-                tempTable.style.height = window.innerHeight - 150 + "px";
+                tempTable.style.width = "826px";
+                tempTable.style.height = "1169px";
                 tempTable.style.borderCollapse = "collapse";
-                tempTable.style.borderWidth = "2px";
                 tempTable.style.fontFamily = "calibri";
                 tempTable.style.fontWeight = "bold";
                 tempTable.style.fontSize = "25px";
@@ -36,40 +36,41 @@ export default class ViewCodes
                 // Fragebogen Codes in Tabelle darstellen
 			    for(let i = 0; i < responseQuestionnaireCodes.returnvalue.length; i++)
 				{
-					//this.codes.push(responseQuestionnaireCodes.returnvalue[i].codehash);
                     let tempTr = document.createElement("tr");
-                    tempTr.style.borderStyle = "dashed";
-                    tempTr.style.borderWidth = "2px";
+                    tempTr.className = "tempTdQuestionnaire";
+
                     tempTr.style.width = "99%";
                     tempTr.style.padding = "auto";
                     tempTr.style.textAlign = "center";
 
+                    if(i > 0 && i < responseQuestionnaireCodes.returnvalue.length)
+                    {
+                        tempTr.style.borderWidth = "2px";
+                        tempTr.style.borderTop = "dashed";
+                        tempTr.style.borderRight = "none";
+                        tempTr.style.borderLeft = "none";
+                        tempTr.style.borderBottom = "none";
+                    }
+
                     let tempTdQSubject = document.createElement("td");
                     tempTdQSubject.innerHTML = qSubject;
-                    //tempTdQSubject.style.borderStyle = "dashed";
                     tempTr.appendChild(tempTdQSubject);
 
                     let tempTdClass = document.createElement("td")
                     tempTdClass.innerHTML = className;
-                    //tempTdClass.style.borderStyle = "dashed";
                     tempTr.appendChild(tempTdClass);
 
                     let tempTdSubject = document.createElement("td")
                     tempTdSubject.innerHTML = subject;
-                    //tempTdClass.style.borderStyle = "dashed";
                     tempTr.appendChild(tempTdSubject);
 
                     let tempTdCode = document.createElement("td");
                     tempTdCode.innerHTML = responseQuestionnaireCodes.returnvalue[i].codehash;
-                    //tempTdCode.style.borderStyle = "dashed";
                     tempTr.appendChild(tempTdCode);
 
                     tempTable.appendChild(tempTr);
 				}
-                tempTable.style.borderStyle = "dashed";
                 tempTable.style.fontSize = "16px";
-
-                //console.log(this.codes);
             }
         }
         xhttp.open("POST", path, true);
@@ -89,9 +90,6 @@ let qSubject = getParameter("qSubject");
 let subject = getParameter("subject");
 let className = getParameter("className");
 
-//console.log(fbId);
-//console.log(qSubject);
-//console.log(subject);
-//console.log(className);
+document.body.style.backgroundColor = "#F5F5F5";
 
-viewCodes.getCodes(fbId, qSubject, subject, className);
+viewCodes.CreateCodesTable(fbId, qSubject, subject, className);
