@@ -53,7 +53,7 @@
 		</div>
 
 		
-		<!-- Fragebogen-Conteiner -->
-		<div id="students_questionnaire_container"></div>
+		<!-- Fragebogen-Container -->
+		<div id="students_questionnaire_container" style="opacity:0;"></div>
 	</body>
 </html>

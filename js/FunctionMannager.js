@@ -421,25 +421,26 @@ export default class FunctionMannager
 								horizontalMenuButtonStudents.style.height = "53px";
 								horizontalMenuButtonStudents.style.borderStyle = "none";
 
+								// TODO: In eigene Klasse auslagern
+								//=======================================================================================
+								let studentsQuestionnaireContainer = document.getElementById("students_questionnaire_container");
+								studentsQuestionnaireContainer.style.opacity = "0.0";
+								studentsQuestionnaireContainer.style.visibility = "hidden";
+
 								// Input Values leeren
 								let inputFieldsStudents = document.querySelectorAll(".input_student");			
 								NodeList.prototype.forEach.call(inputFieldsStudents, function (el) {
 									el.value = "";
 								})
 								
-				
-								//if (document.getElementById( domIds[i] ) != null) document.getElementById( domIds[i] ).innerHTML = "";
 
-
-								// TODO: In eigene Klasse auslagern
-								//=======================================================================================
 
 				for(let i = 0; i < response.returnvalue.length; i++)
 				{
 					// Kategorie-Header hinzufügen, Zusammengesetzte Id aus Fragebogen-Id und Kategorie-Id
 					let tempCategoryId = "expanded_questionnaire_category_" + response.returnvalue[i][0].fragekategorie;
 					let tempCategory = document.getElementById(tempCategoryId);
-
+					
 					if (tempCategory == undefined) 
 					{
 						tempCategory = document.createElement("div");
@@ -466,8 +467,17 @@ export default class FunctionMannager
 					tempQuestion.innerHTML = response.returnvalue[i][0].fragestring;
 					tempCategory.appendChild(tempQuestion);
 					
-					document.getElementById("students_questionnaire_container").appendChild(tempCategory);
+					studentsQuestionnaireContainer.appendChild(tempCategory);
 				}
+
+				// Fragebogen einblenden
+				var timestamp = Math.floor(Date.now());
+				let interval = setInterval(()=>{
+					let tempTimestamp = Math.floor(Date.now());			
+					studentsQuestionnaireContainer.style.opacity = ((tempTimestamp - timestamp) / 1000).toString();
+					studentsQuestionnaireContainer.style.visibility = "visible";
+					if(((tempTimestamp - timestamp) / 1000) >= 1) clearInterval(interval);
+				},50);
 								//=======================================================================================
 							}
 							else
