@@ -1025,7 +1025,11 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `getfbfragen`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getfbfragen`  AS  select `fragen`.`frage` AS `frage`,`fragen`.`kategorie` AS `kategorie`,`fragen`.`id` AS `frageid`,`nm_frage_fragebogen`.`bogenid` AS `bogenid`,avg(`bewertungen`.`bewertung`) AS `bewertung` from ((`nm_frage_fragebogen` left join `fragen` on(`nm_frage_fragebogen`.`frageid` = `fragen`.`id`)) left join `bewertungen` on(`fragen`.`id` = `bewertungen`.`frageid`)) group by `fragen`.`frage`,`fragen`.`kategorie`,`fragen`.`id`,`nm_frage_fragebogen`.`bogenid` ;
+--
+-- AUTO_INCREMENT für Tabelle `bewertungen`
+--
+ALTER TABLE `bewertungen`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 -- --------------------------------------------------------
 

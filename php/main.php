@@ -435,13 +435,21 @@ class FragenVerwaltung {
             for ($i = 0; $i < $sqlquery_GetFbFragen_Result->num_rows; $i++) {
                 $sqlquery_GetFbFragen_Result_Data[$i] = mysqli_fetch_array($sqlquery_GetFbFragen_Result);
                 array_push($antwort, array('frageid'=>$sqlquery_GetFbFragen_Result_Data[$i]['frageid'], 
-                                           array('fragestring'=>$sqlquery_GetFbFragen_Result_Data[$i]['frage'],
-                                                 'fragekategorie'=>$sqlquery_GetFbFragen_Result_Data[$i]['kategorie'],
-                                                 'fragebewertung'=>$sqlquery_GetFbFragen_Result_Data[$i]['bewertung']
+                                           array('fragestring'      =>  $sqlquery_GetFbFragen_Result_Data[$i]['frage'],
+                                                 'fragekategorie'   =>  $sqlquery_GetFbFragen_Result_Data[$i]['kategorie'],
+                                                 'fragebewertung'   =>  $sqlquery_GetFbFragen_Result_Data[$i]['bewertung'],
+                                                 'zeitstempel'      =>  $sqlquery_GetFbFragen_Result_Data[$i]['zeitstempel'],
+                                                 'thema'            =>  $sqlquery_GetFbFragen_Result_Data[$i]['thema'],
+                                                 'klassename'       =>  $sqlquery_GetFbFragen_Result_Data[$i]['klassename'],
+                                                 'fachname'         =>  $sqlquery_GetFbFragen_Result_Data[$i]['fachname']
                                                 )
                                           )
                           );
             }
+            $antwort['zeitstempel']      =  $sqlquery_GetFbFragen_Result_Data[0]['zeitstempel'];
+            $antwort['thema']            =  $sqlquery_GetFbFragen_Result_Data[0]['thema'];
+            $antwort['klassename']       =  $sqlquery_GetFbFragen_Result_Data[0]['klassename'];
+            $antwort['fachname']         =  $sqlquery_GetFbFragen_Result_Data[0]['fachname'];
             return array(
                 'returncode'=>0,
                 'returnvalue'=>$antwort
@@ -627,24 +635,24 @@ class FragenVerwaltung {
 }
 
 //////////////////////////////////////////  DEBUG  /////////////////////////////////////////////
-#session_unset();
-#$_SESSION['usermail']       = 'temp.dump@hotmail.com';
-#$_REQUEST['mode']           = 'alterQuestion';
-#$_REQUEST['frage']          = 'Tafelbilder und Folien sind gut lesbar.';
-#$_REQUEST['mail']           = 'temp.dump@hotmail.com';
-#$_REQUEST['passwort']       = 'Admin';
-#$_REQUEST['kategorie']      = 'Unterricht';
-#$_REQUEST['name']           = 'BogenX';
-#$_REQUEST['anzahl']         = '1';
-#$_REQUEST['klasse']         = 'ITB1-19';
-#$_REQUEST['fach']           = 'ITS';
-#$_REQUEST['fbId']           = '112';
-#$_REQUEST['fragen']         = array('Die Beurteilungskriterien sind nachvollziehbar.', 'Die Unterrichtsinhalte sind praxisbezogen.');
-#$_REQUEST['rate']           = array(array('frageid'=>'7','bogenid'=>'112','bewertung'=>2),array('frageid'=>'35','bogenid'=>'112','bewertung'=>1));
-#$_REQUEST['codehash']       = '34-29-93-90';
-#$_REQUEST['kritik']         = 'Alles Gefixt! Garkein Problem!';
-#$_REQUEST['frageId']        = '1';
-#$_REQUEST['neuFrage']       = array('frage' => 'Der Unterricht ist gut vorbereitet und sorgfaltig geplant.','lehrerId' => 'NULL','kategorie' => 'Unterricht');
+session_unset();
+$_SESSION['usermail']       = 'temp.dump@hotmail.com';
+$_REQUEST['mode']           = 'getFbFragen';
+$_REQUEST['frage']          = 'Tafelbilder und Folien sind gut lesbar.';
+$_REQUEST['mail']           = 'temp.dump@hotmail.com';
+$_REQUEST['passwort']       = 'Admin';
+$_REQUEST['kategorie']      = 'Unterricht';
+$_REQUEST['name']           = 'BogenX';
+$_REQUEST['anzahl']         = '1';
+$_REQUEST['klasse']         = 'ITB1-19';
+$_REQUEST['fach']           = 'ITS';
+$_REQUEST['fbId']           = '112';
+$_REQUEST['fragen']         = array('Die Beurteilungskriterien sind nachvollziehbar.', 'Die Unterrichtsinhalte sind praxisbezogen.');
+$_REQUEST['rate']           = array(array('frageid'=>'7','bogenid'=>'112','bewertung'=>2),array('frageid'=>'35','bogenid'=>'112','bewertung'=>1));
+$_REQUEST['codehash']       = '34-29-93-90';
+$_REQUEST['kritik']         = 'Alles Gefixt! Garkein Problem!';
+$_REQUEST['frageId']        = '1';
+$_REQUEST['neuFrage']       = array('frage' => 'Der Unterricht ist gut vorbereitet und sorgfaltig geplant.','lehrerId' => 'NULL','kategorie' => 'Unterricht');
 //////////////////////////////////////////  DEBUG END  /////////////////////////////////////////
 
 
