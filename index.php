@@ -24,7 +24,8 @@
 		<!-- main container -->
 		<div id="main_container">
 
-			<div id="container_pictorius_logo_header"></div>
+			<div id="container_pictorius_logo_header">
+			</div>
 			
 			<div id="container_pictorius_foto">
 				<img src="./fotos/Pictorius-Berufskolleg_in_Coesfeld.jpg" alt="Italian Trulli">

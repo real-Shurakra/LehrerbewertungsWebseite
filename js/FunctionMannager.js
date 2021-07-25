@@ -418,8 +418,9 @@ export default class FunctionMannager
 								
 								horizontalMenuButtonStudents.style.backgroundColor = "#191f51"; // Marineblau
 								horizontalMenuButtonStudents.style.color = "white";
-								horizontalMenuButtonStudents.style.height = "53px";
+								horizontalMenuButtonStudents.style.height = "47px";
 								horizontalMenuButtonStudents.style.borderStyle = "none";
+								horizontalMenuButtonStudents.style.width = "500px";
 
 								// TODO: In eigene Klasse auslagern
 								//=======================================================================================
@@ -432,52 +433,149 @@ export default class FunctionMannager
 								NodeList.prototype.forEach.call(inputFieldsStudents, function (el) {
 									el.value = "";
 								})
-								
 
+			// Container für Bogendaten-Tabelle
+			let containerQuestionnaireTable = document.createElement("div");
+			containerQuestionnaireTable.style.borderStyle = "solid";
+			containerQuestionnaireTable.style.borderWidth = "1px";
 
-				for(let i = 0; i < response.returnvalue.length; i++)
+			// Tabelle für Bogendaten
+			let questionnaireTable = document.createElement("table");
+			questionnaireTable.style.borderCollapse = "collapse";
+			questionnaireTable.style.width = "100%";
+
+			containerQuestionnaireTable.appendChild(questionnaireTable);
+			studentsQuestionnaireContainer.appendChild(containerQuestionnaireTable);
+
+			let rowHeaders = document.createElement("tr");
+			//rowHeaders.style.borderLeft = "solid";
+			//rowHeaders.style.borderBottom = "spolid";
+			//rowHeaders.style.borderRight = "solid";
+
+			let rowData = document.createElement("tr");
+			
+			// Bogen-Header hinzufügen
+			for (let index in response.returnvalue)
+			{
+				console.log(response.returnvalue[index]);
+				let columnHeaders = document.createElement("td");
+				columnHeaders.className = "questionnaireHeader";
+	
+				if (!(typeof response.returnvalue[index] === 'string')) continue;
+				// Änderung der Header-Bezeichnungen
+				if (index == "thema") 
 				{
-					// Kategorie-Header hinzufügen, Zusammengesetzte Id aus Fragebogen-Id und Kategorie-Id
-					let tempCategoryId = "expanded_questionnaire_category_" + response.returnvalue[i][0].fragekategorie;
-					let tempCategory = document.getElementById(tempCategoryId);
-					
-					if (tempCategory == undefined) 
-					{
-						tempCategory = document.createElement("div");
-						tempCategory.id = tempCategoryId;
-						tempCategory.style.backgroundColor = "#191f51"; // Marineblau
-						console.log(this.menuBarColor);
-						tempCategory.style.color = "white";
-						tempCategory.style.fontSize = "16px";
-						tempCategory.innerHTML = response.returnvalue[i][0].fragekategorie;
-
-						let tempCategoryAfterSpacer = document.createElement("div");
-						tempCategoryAfterSpacer.style.height = "5px";
-						tempCategoryAfterSpacer.style.backgroundColor = "white";
-						tempCategory.appendChild(tempCategoryAfterSpacer);
-					}
-					// Frage hinzufügen
-					let tempQuestion = document.createElement("div");
-					tempQuestion.style.backgroundColor = "white";
-					tempQuestion.style.color = "black";
-					tempQuestion.style.fontSize = "16px";
-					tempQuestion.style.height = "22px";
-					// Zusammengesetzte Id aus Fragebogen-Id und Frage-Id
-					tempQuestion.id = "expanded_questionnaire_question_" + response.returnvalue[i].frageid;
-					tempQuestion.innerHTML = response.returnvalue[i][0].fragestring;
-					tempCategory.appendChild(tempQuestion);
-					
-					studentsQuestionnaireContainer.appendChild(tempCategory);
+					columnHeaders.innerHTML = "Thema";
+					//this.qSubject = response[index].thema;
 				}
+				else if (index == "zeitstempel") columnHeaders.innerHTML = "Datum-Erstellung";
+				else if (index == "id") continue;
+				else if (index == "anzfragen") continue;
+				else if (index == "schueleranzahl")
+				{
+					columnHeaders.innerHTML = "Schüleranzahl";
+					//this.className = questionnaire[index];
+				}
+				else if (index == "klassenname")
+				{
+					columnHeaders.innerHTML = "Klasse";
+					//this.className = questionnaire[index];
+				}
+				else if (index == "fachname")
+				{
+					//this.subject = questionnaire[index];
+					columnHeaders.innerHTML = "Fach";
+				}
+				else if (index == "bewertungsumme") columnHeaders.innerHTML = "Punkte";
+				else columnHeaders.innerHTML = index;
+	
+				columnHeaders.style.backgroundColor = "#191f51"; // Marineblau
+				columnHeaders.style.color = "white";
+				columnHeaders.style.fontWeight = "bold";
+				columnHeaders.style.fontSize = "small";
+				columnHeaders.style.height = "25px";
 
-				// Fragebogen einblenden
-				var timestamp = Math.floor(Date.now());
-				let interval = setInterval(()=>{
-					let tempTimestamp = Math.floor(Date.now());			
-					studentsQuestionnaireContainer.style.opacity = ((tempTimestamp - timestamp) / 1000).toString();
-					studentsQuestionnaireContainer.style.visibility = "visible";
-					if(((tempTimestamp - timestamp) / 1000) >= 1) clearInterval(interval);
-				},50);
+				rowHeaders.appendChild(columnHeaders);
+					
+				let columnData = document.createElement("td");
+				columnData.style.fontWeight = "bold";
+				columnData.style.fontSize = "small";
+				columnData.style.height = "25px";
+	
+				if (index == "zeitstempel")
+				{
+					let timestamp = response.returnvalue[index].split(" ");
+					columnData.innerHTML = timestamp[0];
+				}
+				else columnData.innerHTML = response.returnvalue[index];
+	
+				rowData.appendChild(columnData);			
+			}
+			questionnaireTable.appendChild(rowHeaders);
+			questionnaireTable.appendChild(rowData);
+
+								// Container für die Kategorien und Fragen
+								let questionsContainer = document.createElement("div");
+								questionsContainer.style.width = "100%";
+								questionsContainer.style.overflowY = "scroll";
+								questionsContainer.style.scrollbarWidth = "none";
+								questionsContainer.style.height = studentsQuestionnaireContainer.getBoundingClientRect().height + "px";
+
+
+								studentsQuestionnaireContainer.appendChild(questionsContainer);
+
+								// Kategorien mit den Fragen hinzufügen
+								for (let element in response)
+								{
+									for (let dim2 in response[element])
+									{
+										if(response[element][dim2][0].fragestring != undefined && response[element][dim2][0].fragekategorie != undefined)
+										{
+											// Kategorie-Header hinzufügen, Zusammengesetzte Id aus Fragebogen-Id und Kategorie-Id
+											let tempCategoryId = "expanded_questionnaire_category_" + response[element][dim2][0].fragekategorie;
+											let tempCategory = document.getElementById(tempCategoryId);
+
+											if (tempCategory == undefined) 
+											{
+												tempCategory = document.createElement("div");
+												tempCategory.id = tempCategoryId;
+												tempCategory.style.backgroundColor = "#191f51"; // Marineblau
+												console.log(this.menuBarColor);
+												tempCategory.style.color = "white";
+												tempCategory.style.fontSize = "16px";
+												tempCategory.innerHTML = response[element][dim2][0].fragekategorie;
+
+												let tempCategoryAfterSpacer = document.createElement("div");
+												tempCategoryAfterSpacer.style.height = "5px";
+												tempCategoryAfterSpacer.style.backgroundColor = "white";
+												tempCategory.appendChild(tempCategoryAfterSpacer);
+											}	
+											// Frage hinzufügen
+											let tempQuestion = document.createElement("div");
+											tempQuestion.style.backgroundColor = "white";
+											tempQuestion.style.color = "black";
+											tempQuestion.style.fontSize = "16px";
+											tempQuestion.style.height = "22px";
+											// Zusammengesetzte Id aus Fragebogen-Id und Frage-Id
+											tempQuestion.id = "expanded_questionnaire_question_" + response[element][dim2][0].frageid;
+											tempQuestion.innerHTML = response[element][dim2][0].fragestring;
+											tempCategory.appendChild(tempQuestion);
+
+											questionsContainer.appendChild(tempCategory);
+										}
+									}
+								}
+
+								//studentsQuestionnaireContainer.appendChild(questionsContainer);
+
+								// Fragebogen einblenden
+								var timestamp = Math.floor(Date.now());
+								let interval = setInterval(()=>{
+									let tempTimestamp = Math.floor(Date.now());			
+									studentsQuestionnaireContainer.style.opacity = ((tempTimestamp - timestamp) / 1000).toString();
+									studentsQuestionnaireContainer.style.visibility = "visible";
+									if(((tempTimestamp - timestamp) / 1000) >= 0.9) clearInterval(interval);
+								},25);
 								//=======================================================================================
 							}
 							else
