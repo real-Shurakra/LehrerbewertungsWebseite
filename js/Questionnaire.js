@@ -133,7 +133,7 @@ export default class Questionnaire
 				columnHeaders.className = "questionnaireHeader";
 	
 				// Änderung der Header-Bezeichnungen
-				if (index == "thema") 
+				if (index == "name") 
 				{
 					columnHeaders.innerHTML = "Thema";
 					this.qSubject = questionnaire[index];
@@ -144,7 +144,7 @@ export default class Questionnaire
 				else if (index == "schueleranzahl")
 				{
 					columnHeaders.innerHTML = "Schüleranzahl";
-					this.className = questionnaire[index];
+					this.amountStudents = questionnaire[index];
 				}
 				else if (index == "klassenname")
 				{

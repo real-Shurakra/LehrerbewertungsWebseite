@@ -224,14 +224,16 @@ export default class Gui
 
 					if(allInput.length == 0)
 					{	
-						element.style.backgroundColor = originalBackgroundColor;
-						element.style.color = color;
-						element.style.height = originalHeight;
-						element.style.borderStyle = "none";
-		
-						if (document.getElementById( domIds[i] ) != null) document.getElementById( domIds[i] ).innerHTML = "";
-						
+						setTimeout(()=>{
+							element.style.backgroundColor = originalBackgroundColor;
+							element.style.color = color;
+							element.style.height = originalHeight;
+							element.style.borderStyle = "none";
+			
+							if (document.getElementById( domIds[i] ) != null) document.getElementById( domIds[i] ).textContent = "";
+						},200);	
 					}
+					
 				});					
 			}
 

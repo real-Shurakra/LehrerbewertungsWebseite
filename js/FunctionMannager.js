@@ -1,6 +1,7 @@
 // Klasse FunctionMannager
 
 import Questionnaire from "./Questionnaire.js";
+import QuestionnaireStudents from "./QuestionnaireStudents.js";
 
 export default class FunctionMannager
 {
@@ -411,6 +412,10 @@ export default class FunctionMannager
 							{
 								console.log("Der Fragebogen wurde geladen. . .");
 
+								let questionnaireStudents = new QuestionnaireStudents(response);
+
+								/*
+
 								let loginAreaStudents = document.getElementById("login_area_student");
 								loginAreaStudents.innerHTL = "";
 
@@ -476,9 +481,9 @@ export default class FunctionMannager
 					columnHeaders.innerHTML = "Schüleranzahl";
 					//this.className = questionnaire[index];
 				}
-				else if (index == "klassenname")
+				else if (index == "klassename")
 				{
-					columnHeaders.innerHTML = "Klasse";
+					columnHeaders.innerHTML = "Klassenname";
 					//this.className = questionnaire[index];
 				}
 				else if (index == "fachname")
@@ -577,6 +582,7 @@ export default class FunctionMannager
 									if(((tempTimestamp - timestamp) / 1000) >= 0.9) clearInterval(interval);
 								},25);
 								//=======================================================================================
+								*/
 							}
 							else
 							{
@@ -1164,6 +1170,8 @@ export default class FunctionMannager
 
 				// Wird nach Filter-Feldern modifiziert
 				response = JSON.parse(xhttp.responseText);
+				console.log("SortQuestinnairesWithFilters");
+				console.log(response);
 
 				for (let questionnaire in response)
 				{				
