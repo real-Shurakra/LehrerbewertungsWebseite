@@ -143,7 +143,7 @@ export default class QuestionnaireStudents{
                 if(response[element][dim2][0].fragestring != undefined && response[element][dim2][0].fragekategorie != undefined)
                 {
                     // Kategorie-Header hinzufügen, Zusammengesetzte Id aus Fragebogen-Id und Kategorie-Id
-                    let tempCategoryId = "expanded_questionnaire_category_" + response[element][dim2][0].fragekategorie;
+                    let tempCategoryId = "students_questionnaire_category_" + response[element][dim2][0].fragekategorie;
                     let tempCategory = document.getElementById(tempCategoryId);
 
                     if (tempCategory == undefined) 
@@ -185,11 +185,17 @@ export default class QuestionnaireStudents{
                     tempQuestion.style.padding = "10px";
                     tempQuestion.style.verticalAlign = "center";
                     // Zusammengesetzte Id aus Fragebogen-Id und Frage-Id
-                    tempQuestion.id = "expanded_questionnaire_question_" + response[element][dim2][0].frageid;
+                    tempQuestion.id = "students_questionnaire_question_" + response[element][dim2].frageid;
                     console.log(tempQuestion.id);
-                    tempQuestion.innerHTML = response[element][dim2][0].fragestring;
 
-                    let tempCategory = document.getElementById("expanded_questionnaire_category_" + response[element][dim2][0].fragekategorie);
+                    // --------------------------------------------------------------------------
+                    // Tabelle erstellen und dem Div hinzufügen, Tabelle enthält die Frage sowie den Bereich um die Antwort zu geben
+                    // tempQuestion.innerHTML = response[element][dim2][0].fragestring;
+                    this.createFormTable(tempQuestion, response[element][dim2].frageid, response[element][dim2][0].fragestring);
+
+                    // --------------------------------------------------------------------------
+
+                    let tempCategory = document.getElementById("students_questionnaire_category_" + response[element][dim2][0].fragekategorie);
                     tempCategory.appendChild(tempQuestion);
                 }
             }
@@ -203,5 +209,85 @@ export default class QuestionnaireStudents{
             studentsQuestionnaireContainer.style.visibility = "visible";
             if(((tempTimestamp - timestamp) / 1000) >= 0.9) clearInterval(interval);
         },25);
+    }
+
+    createFormTable(motherDiv, questionId, question)
+    {
+        // Tabelle für Frage und Antwortmöglichkeiten
+        let formTable = document.createElement("table");
+        formTable.style.width = "100%";
+        motherDiv.appendChild(formTable);
+
+        let formTableRow = document.createElement("tr");
+        formTable.appendChild(formTableRow);
+        formTableRow.style.width = "100%";
+        formTableRow.style.height = "100%";
+        
+        // Spalte für Frage
+        let formTableColumQuestion = document.createElement("td");
+        formTableRow.appendChild(formTableColumQuestion);
+        formTableColumQuestion.innerHTML = question;
+        formTableColumQuestion.style.width = "70%";
+        formTableColumQuestion.style.fontSize = "22px";
+
+        // Spalte für Antwortauswahl
+        let formTableColumnAnswerSelection = document.createElement("td");
+        formTableRow.appendChild(formTableColumnAnswerSelection);
+        formTableColumnAnswerSelection.style.width = "30%";
+
+    // -------------------------------------------------------------------------
+
+        // Tabelle für Antwortmöglichkeiten
+        let tableAnswerSelection = document.createElement("table");
+        tableAnswerSelection.style.width = "100%";
+        tableAnswerSelection.style.maxHeight = "40px";
+        tableAnswerSelection.style.borderCollapse = "collapse";
+        tableAnswerSelection.style.borderStyle = "solid";
+        tableAnswerSelection.style.borderWidth = "1px";
+
+        let rowAnswerSelection = document.createElement("tr");
+
+        let AnswerValues = [];
+        AnswerValues[0] = [];
+        AnswerValues[0][0] = "+ +";
+        AnswerValues[0][1] = 2;
+
+        AnswerValues[1] = [];
+        AnswerValues[1][0] = "+";
+        AnswerValues[1][1] = 1;
+
+        AnswerValues[2] = [];
+        AnswerValues[2][0] = "o";
+        AnswerValues[2][1] = 0;
+
+        AnswerValues[3] = [];
+        AnswerValues[3][0] = "-";
+        AnswerValues[3][1] = -1;
+
+        AnswerValues[4] = [];
+        AnswerValues[4][0] = "- -";
+        AnswerValues[4][1] = -2;
+
+        for(let i = 0; i < AnswerValues.length; i++)
+        {
+            let tempColumn = document.createElement("td");
+            tempColumn.style.width = "1%";
+            if (i != 2) tempColumn.style.fontSize = "x-large";
+            else tempColumn.style.fontSize = "large";
+            tempColumn.style.textAlign = "center";
+            tempColumn.style.fontWeight = "medium";
+            tempColumn.style.borderStyle = "solid";
+            tempColumn.style.borderWidth = "1px";
+            tempColumn.style.cursor = "pointer";
+            tempColumn.style.backgroundColor = "#ededed";//"#9eb3c7";
+            tempColumn.id = questionId + "_" + AnswerValues[i][1];
+            tempColumn.innerHTML = AnswerValues[i][0];;
+
+            rowAnswerSelection.appendChild(tempColumn);
+        }
+        tableAnswerSelection.appendChild(rowAnswerSelection);
+
+        // Tabelle zu Spalte für Antwortauswahl in Muttertabelle hinzufügen
+        formTableColumnAnswerSelection.appendChild(tableAnswerSelection);
     }
 }
