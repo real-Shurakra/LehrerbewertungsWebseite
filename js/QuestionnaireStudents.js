@@ -4,6 +4,7 @@ export default class QuestionnaireStudents{
 
     constructor(questionnaire)
     {
+        this.answers = [];
         this.ShowQuestionnaire(questionnaire);
     }
 
@@ -53,7 +54,7 @@ export default class QuestionnaireStudents{
         introductionArea.style.paddingLeft = "10px";
         introductionArea.style.paddingRight = "10px";
         introductionArea.style.fontFamily = "calibri";
-        {
+        { // REM: Zurzeit kein Begrüßungstext in Datei
             let xhttp = new XMLHttpRequest()
             xhttp.open("POST", "./html/introtext.htm", false);
             xhttp.send();
@@ -131,7 +132,7 @@ export default class QuestionnaireStudents{
         questionsContainer.style.width = "100%";
         questionsContainer.style.overflowY = "auto";
         questionsContainer.style.scrollbarWidth = "none";
-        questionsContainer.style.height = "95%"; // Grund für das Ermöglichen des Scrollens bis um Ende
+        questionsContainer.style.height = "91%"; // Grund für das Ermöglichen des Scrollens bis um Ende
 
         studentsQuestionnaireContainer.appendChild(questionsContainer);
 
@@ -153,7 +154,7 @@ export default class QuestionnaireStudents{
 
                         let tempCategoryTitle = document.createElement("div");
                         //tempCategoryTitle.style.height = "25px";
-                        tempCategoryTitle.style.padding = "5px";
+                        tempCategoryTitle.style.padding = "1px";
                         tempCategoryTitle.style.backgroundColor = "white";
                         tempCategoryTitle.style.backgroundColor = "#191f51"; // Marineblau
                         tempCategoryTitle.style.color = "white";
@@ -163,13 +164,73 @@ export default class QuestionnaireStudents{
                         questionsContainer.appendChild(tempCategory);
 
                         let fillerDiv = document.createElement("div");
-                        fillerDiv.style.height = "10px";
+                        fillerDiv.style.height = "2px";
 
                         tempCategory.appendChild(fillerDiv);
                     }	
                 }
             }
         }
+
+        // Bereich für Verbesserungsvorschlag -------------------------------------------------
+        let tempImprovementId = "students_questionnaire_improvement_suggestions";
+        let tempImprovement = document.createElement("div");
+
+        tempImprovement.id = tempImprovementId;
+
+        let title = document.createElement("div");
+        title.style.padding = "1px";
+        title.style.backgroundColor = "#191f51"; // Marineblau
+        title.style.color = "white";
+        title.innerHTML = "Verbesserungsvorschläge";
+        tempImprovement.appendChild(title);
+
+        questionsContainer.appendChild(tempImprovement);
+
+        let fillerDiv = document.createElement("div");
+        fillerDiv.style.height = "10px";
+        tempImprovement.appendChild(fillerDiv);
+
+        let suggestionInputContainer = document.createElement("div");
+        tempImprovement.appendChild(suggestionInputContainer);
+        let suggestionInput = document.createElement("textarea");
+        suggestionInput.rows = "rows";
+        suggestionInput.cols = "cols";
+        suggestionInput.style.width = "99%";
+        suggestionInput.style.height = "100px";
+        suggestionInput.style.fontSize = "x-large";
+        suggestionInput.style.fontFamily = "calibri";
+        suggestionInput.style.padding = "5px";
+        suggestionInput.style.resize = "none";
+        suggestionInputContainer.appendChild(suggestionInput);
+
+        let fillerDiv2 = document.createElement("div");
+        fillerDiv2.style.height = "5px";
+        tempImprovement.appendChild(fillerDiv2);
+
+        // Bereich mit Button zum Absenden ------------------------------------------------
+        let sendButtonId = "students_questionnaire_send_button";
+        let sendButton = document.createElement("div");
+        sendButton.style.textAlign = "center";
+
+        sendButton.id = sendButtonId;
+
+        let button = document.createElement("button");
+        button.style.padding = "1px";
+        button.style.height = "30px";
+        button.style.width = "200px";
+        button.style.fontFamily = "calibri";
+        button.style.fontSize = "large";
+        button.innerHTML = "Absenden";
+        sendButton.appendChild(button);
+
+        questionsContainer.appendChild(sendButton);
+
+        let fillerDiv3 = document.createElement("div");
+        fillerDiv3.style.height = "5px";
+        sendButton.appendChild(fillerDiv3);
+
+        //--------------------------------------------------------------------------------
 
         // Fragen den Kategorien hinzufügen
         for (let element in response)
@@ -201,6 +262,14 @@ export default class QuestionnaireStudents{
             }
          }
 
+         // Bereich für Verbesserungsvorschläge
+
+
+
+
+         console.log("The Answers");
+         console.log(this.answers);
+
         // Fragebogen einblenden
         var timestamp = Math.floor(Date.now());
         let interval = setInterval(()=>{
@@ -229,6 +298,7 @@ export default class QuestionnaireStudents{
         formTableColumQuestion.innerHTML = question;
         formTableColumQuestion.style.width = "70%";
         formTableColumQuestion.style.fontSize = "22px";
+        //formTableColumQuestion.style.backgroundColor = "#ededed";
 
         // Spalte für Antwortauswahl
         let formTableColumnAnswerSelection = document.createElement("td");
@@ -241,8 +311,8 @@ export default class QuestionnaireStudents{
         let tableAnswerSelection = document.createElement("table");
         tableAnswerSelection.style.width = "100%";
         tableAnswerSelection.style.maxHeight = "40px";
-        tableAnswerSelection.style.borderCollapse = "collapse";
-        tableAnswerSelection.style.borderStyle = "solid";
+        //tableAnswerSelection.style.borderCollapse = "collapse";
+        tableAnswerSelection.style.borderStyle = "none";
         tableAnswerSelection.style.borderWidth = "1px";
 
         let rowAnswerSelection = document.createElement("tr");
@@ -250,44 +320,90 @@ export default class QuestionnaireStudents{
         let AnswerValues = [];
         AnswerValues[0] = [];
         AnswerValues[0][0] = "+ +";
-        AnswerValues[0][1] = 2;
+        AnswerValues[0][1] = "2";
+        AnswerValues[0][2] = "#84d4b7"; //Slightly desaturated cyan - lime green
 
         AnswerValues[1] = [];
         AnswerValues[1][0] = "+";
-        AnswerValues[1][1] = 1;
+        AnswerValues[1][1] = "1";
+        AnswerValues[1][2] = "#c5e384"; //yellow-green
 
         AnswerValues[2] = [];
         AnswerValues[2][0] = "o";
-        AnswerValues[2][1] = 0;
-
+        AnswerValues[2][1] = "0";
+        AnswerValues[2][2] =  "#d3d3d3"; //light gray
         AnswerValues[3] = [];
         AnswerValues[3][0] = "-";
-        AnswerValues[3][1] = -1;
+        AnswerValues[3][1] = "-1";
+        AnswerValues[3][2] = "#f8b878"; //mellow-apricot
 
         AnswerValues[4] = [];
         AnswerValues[4][0] = "- -";
-        AnswerValues[4][1] = -2;
+        AnswerValues[4][1] = "-2";
+        AnswerValues[4][2] = "#e2725b"; //terra cotta
+
+        let switchesTempColumns = [];
+        let tempColumns = [];
 
         for(let i = 0; i < AnswerValues.length; i++)
         {
-            let tempColumn = document.createElement("td");
-            tempColumn.style.width = "1%";
-            if (i != 2) tempColumn.style.fontSize = "x-large";
-            else tempColumn.style.fontSize = "large";
-            tempColumn.style.textAlign = "center";
-            tempColumn.style.fontWeight = "medium";
-            tempColumn.style.borderStyle = "solid";
-            tempColumn.style.borderWidth = "1px";
-            tempColumn.style.cursor = "pointer";
-            tempColumn.style.backgroundColor = "#ededed";//"#9eb3c7";
-            tempColumn.id = questionId + "_" + AnswerValues[i][1];
-            tempColumn.innerHTML = AnswerValues[i][0];;
+            tempColumns[i] = document.createElement("td");
+            tempColumns[i].style.width = "1%";
+            if (i != 2) tempColumns[i].style.fontSize = "x-large";
+            else tempColumns[i].style.fontSize = "large";
+            tempColumns[i].style.textAlign = "center";
+            tempColumns[i].style.fontWeight = "medium";
+            tempColumns[i].style.borderStyle = "none";
+            tempColumns[i].style.borderWidth = "1px";
+            tempColumns[i].style.cursor = "pointer";
+            tempColumns[i].style.color = "#191f51"; // Marineblau
+            tempColumns[i].style.backgroundColor = "#ededed";//"#9eb3c7";
+            tempColumns[i].id = questionId + "_" + AnswerValues[i][1];
+            tempColumns[i].innerHTML = AnswerValues[i][0];
 
-            rowAnswerSelection.appendChild(tempColumn);
+            switchesTempColumns[i] = false;
+            //let value = questionId.split("_")
+            let index = questionId.toString();
+            this.answers[index] = AnswerValues[2][1];
+
+            tempColumns[i].addEventListener("mouseenter", (event)=>{
+                event.target.style.backgroundColor = AnswerValues[i][2];
+            });
+            tempColumns[i].addEventListener("mouseleave", (event)=>{
+                if (!switchesTempColumns[i]) event.target.style.backgroundColor = "#ededed";
+            });
+            tempColumns[i].addEventListener("mousedown", (event)=>{
+                if (!switchesTempColumns[i])
+                {
+                    switchesTempColumns[i] = true;
+                    for(let j = 0; j < switchesTempColumns.length; j++)
+                    {
+                        if(i != j)
+                        {
+                            switchesTempColumns[j] = false;
+                            tempColumns[j].style.backgroundColor = "#ededed";                         
+                        }
+                    }
+
+                    // Setzen des Wertes für die Frage
+                    let valueScore = event.target.id.split("_");
+                    let index = valueScore[0];
+                    let score = valueScore[1];
+                    this.answers[index] = score;
+                    //console.log("answersOnMousedown:");
+                    //console.log(this.answers[index]);
+                }
+            });
+
+            rowAnswerSelection.appendChild(tempColumns[i]);
         }
         tableAnswerSelection.appendChild(rowAnswerSelection);
 
-        // Tabelle zu Spalte für Antwortauswahl in Muttertabelle hinzufügen
+        // Initalwerte für Switch "o" setzen
+        switchesTempColumns[2] = true;
+        tempColumns[2].style.backgroundColor = "#d3d3d3";
+
+        // Tabelle zu Spalte für Antwortauswahl in der Muttertabelle hinzufügen
         formTableColumnAnswerSelection.appendChild(tableAnswerSelection);
     }
 }
