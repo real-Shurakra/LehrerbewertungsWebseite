@@ -473,6 +473,12 @@ class FragenVerwaltung {
         $sqlquary_insertRate = 'INSERT INTO bewertungen(id, frageid, bogenid, bewertung) VALUES ';
         $temp_sqlquary_insertRate = '';
         foreach ($rates as $rate) {
+            if ($rate['bewertung'] < -2 || $rate['bewertung'] > 2){
+                return array(
+                    'returncode'=>-2,
+                    'returnvalue'=>main::toDE('<strong>Bewertung fehlerhaft</strong><br>Ihre Antwort ist nicht zulässig.')
+                );
+            } 
             $temp_sqlquary_insertRate .= "(DEFAULT," . $rate['frageid'] . "," . $rate['bogenid'] . "," . $rate['bewertung'] . "),";
         }
         $sqlquary_insertRate .= rtrim($temp_sqlquary_insertRate, ',');
