@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Erstellungszeit: 28. Jul 2021 um 10:48
+-- Erstellungszeit: 29. Jul 2021 um 21:25
 -- Server-Version: 10.4.8-MariaDB
 -- PHP-Version: 7.2.24
 
@@ -705,8 +705,14 @@ CREATE TABLE `getbewertungen` (
 --
 CREATE TABLE `getfbfragen` (
 `frage` varchar(255)
-,`id` bigint(20) unsigned
+,`kategorie` varchar(255)
+,`frageid` bigint(20) unsigned
 ,`bogenid` bigint(20) unsigned
+,`bewertung` decimal(9,4)
+,`zeitstempel` timestamp
+,`thema` varchar(255)
+,`klassename` varchar(32)
+,`fachname` varchar(32)
 );
 
 -- --------------------------------------------------------
@@ -839,7 +845,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `getfbfragen`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getfbfragen`  AS  select `fragen`.`frage` AS `frage`,`fragen`.`id` AS `id`,`nm_frage_fragebogen`.`bogenid` AS `bogenid` from (`nm_frage_fragebogen` left join `fragen` on(`nm_frage_fragebogen`.`frageid` = `fragen`.`id`)) ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getfbfragen`  AS  select `lehrerbewertungsdatenbank2`.`fragen`.`frage` AS `frage`,`lehrerbewertungsdatenbank2`.`fragen`.`kategorie` AS `kategorie`,`lehrerbewertungsdatenbank2`.`fragen`.`id` AS `frageid`,`lehrerbewertungsdatenbank2`.`nm_frage_fragebogen`.`bogenid` AS `bogenid`,avg(`lehrerbewertungsdatenbank2`.`bewertungen`.`bewertung`) AS `bewertung`,`lehrerbewertungsdatenbank2`.`fragebogen`.`zeitstempel` AS `zeitstempel`,`lehrerbewertungsdatenbank2`.`fragebogen`.`name` AS `thema`,`lehrerbewertungsdatenbank2`.`fragebogen`.`klassename` AS `klassename`,`lehrerbewertungsdatenbank2`.`fach`.`name` AS `fachname` from ((((`lehrerbewertungsdatenbank2`.`nm_frage_fragebogen` left join `lehrerbewertungsdatenbank2`.`fragen` on(`lehrerbewertungsdatenbank2`.`nm_frage_fragebogen`.`frageid` = `lehrerbewertungsdatenbank2`.`fragen`.`id`)) left join `lehrerbewertungsdatenbank2`.`bewertungen` on(`lehrerbewertungsdatenbank2`.`fragen`.`id` = `lehrerbewertungsdatenbank2`.`bewertungen`.`frageid`)) left join `lehrerbewertungsdatenbank2`.`fragebogen` on(`lehrerbewertungsdatenbank2`.`nm_frage_fragebogen`.`bogenid` = `lehrerbewertungsdatenbank2`.`fragebogen`.`id`)) left join `lehrerbewertungsdatenbank2`.`fach` on(`lehrerbewertungsdatenbank2`.`fragebogen`.`fachid` = `lehrerbewertungsdatenbank2`.`fach`.`id`)) group by `lehrerbewertungsdatenbank2`.`fragen`.`frage`,`lehrerbewertungsdatenbank2`.`fragen`.`kategorie`,`lehrerbewertungsdatenbank2`.`fragen`.`id`,`lehrerbewertungsdatenbank2`.`nm_frage_fragebogen`.`bogenid`,`lehrerbewertungsdatenbank2`.`fragebogen`.`zeitstempel`,`lehrerbewertungsdatenbank2`.`fragebogen`.`name`,`lehrerbewertungsdatenbank2`.`fragebogen`.`klassename`,`lehrerbewertungsdatenbank2`.`fach`.`name` ;
 
 -- --------------------------------------------------------
 
