@@ -673,7 +673,7 @@ if (isset($_REQUEST['mode']) == false){
     //////////////////////////////////////////  DEBUG  /////////////////////////////////////////////
     session_unset();
     $_SESSION['usermail']       = 'temp.dump@hotmail.com';
-    $_REQUEST['mode']           = 'insertkritik';
+    $_REQUEST['mode']           = 'getFbFragen';
     $_REQUEST['frage']          = 'Tafelbilder und Folien sind gut lesbar.';
     $_REQUEST['mail']           = 'temp.dump@hotmail.com';
     $_REQUEST['passwort']       = 'Admin';
@@ -687,7 +687,7 @@ if (isset($_REQUEST['mode']) == false){
     $_REQUEST['rate']           = array(array('frageid'=>'7','bogenid'=>'112','bewertung'=>2),array('frageid'=>'35','bogenid'=>'112','bewertung'=>1));
     $_REQUEST['codehash']       = '00-48-40-00';
     $_REQUEST['kritik']         = 'Alles Gefixt! Garkein Problem!';
-    $_REQUEST['frageId']        = '1';
+    $_REQUEST['frageId']        = '124';
     $_REQUEST['neuFrage']       = array('frage' => 'Der Unterricht ist gut vorbereitet und sorgfaltig geplant.','lehrerId' => 'NULL','kategorie' => 'Unterricht');
     //////////////////////////////////////////  DEBUG END  /////////////////////////////////////////
 }
