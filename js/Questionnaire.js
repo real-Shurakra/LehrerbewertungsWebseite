@@ -263,6 +263,8 @@ export default class Questionnaire
 		xhttp.onreadystatechange = ()=>{
 			if ( xhttp.readyState == 4 && xhttp.status == 200 )
 			{
+				console.log("showQuestions:");
+				console.log(xhttp.responseText);
 				let response = JSON.parse(xhttp.responseText);
 
 				for (let element in response)
