@@ -86,7 +86,8 @@ export default class Gui
 			{
 				containerPictoriusLogoHeader.innerHTML = xhttp.responseText;
 				headerSvg = xhttp.responseText;
-				
+				//headerSvg.style.strokeWidth = "0px";
+
 				this.initHorizontalMenu();
 				
 				// Event listener werden den Menübuttons hinzugefügt sobald der Hintergrund und die SVG geladen sind
@@ -152,7 +153,8 @@ export default class Gui
 		this.containerVerticalMenuBar = document.getElementById("container_vertical_menu");
 		this.containerVerticalMenuBar.style.width = this.verticalMenuBarWidth + "px";
 		this.containerVerticalMenuBar.style.height = (window.innerHeight - this.verticalMenuBarHeight - this.logoBackgroundRectangleHeight).toString() + "px";
-		this.containerVerticalMenuBar.style.top = this.logoBackgroundRectangleHeight + this.verticalMenuBarHeight + 6 + "px";
+		this.containerVerticalMenuBar.style.top = this.logoBackgroundRectangleHeight + this.verticalMenuBarHeight + "px";
+		this.containerVerticalMenuBar.style.left = "2px";
 		
 		//this.containerVerticalMenuBar.style.backgroundColor = this.menuBarColor;
 		//this.containerVerticalMenuBar.style.opacity = "90%";
@@ -165,8 +167,8 @@ export default class Gui
 		let horizontalMenuBarHeight = document.getElementById("headerHorizontalMenuBar").getBoundingClientRect().height;
 		let verticalMenuBarWidth = document.getElementById("headerVerticalMenuBar").getBoundingClientRect().width;
 		let containerPages = document.getElementById("container_pages");
-		containerPages.style.top = horizontalMenuBarHeight + 8 + "px";
-		containerPages.style.left = verticalMenuBarWidth + 8 + "px";
+		containerPages.style.top = horizontalMenuBarHeight + 2 + "px";
+		containerPages.style.left = verticalMenuBarWidth + 2 + "px";
 		containerPages.style.width = (window.innerWidth - verticalMenuBarWidth).toString() + "px";
 		containerPages.style.height = (window.innerHeight - horizontalMenuBarHeight).toString() + "px";
 		containerPages.style.backgroundColor = "white";
@@ -222,14 +224,16 @@ export default class Gui
 
 					if(allInput.length == 0)
 					{	
-						element.style.backgroundColor = originalBackgroundColor;
-						element.style.color = color;
-						element.style.height = originalHeight;
-						element.style.borderStyle = "none";
-		
-						if (document.getElementById( domIds[i] ) != null) document.getElementById( domIds[i] ).innerHTML = "";
-						
+						setTimeout(()=>{
+							element.style.backgroundColor = originalBackgroundColor;
+							element.style.color = color;
+							element.style.height = originalHeight;
+							element.style.borderStyle = "none";
+			
+							if (document.getElementById( domIds[i] ) != null) document.getElementById( domIds[i] ).textContent = "";
+						},200);	
 					}
+					
 				});					
 			}
 

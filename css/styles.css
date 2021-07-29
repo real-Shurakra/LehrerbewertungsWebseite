@@ -10,7 +10,8 @@
 
 body
 {
-	font-family: Sans-Serif;
+	font-family: calibri;
+	font-size: large;
 }
 
 .button:hover
@@ -49,6 +50,10 @@ body
 
 #container_pictorius_logo_header
 {
+	top:2px;
+	left:2px;
+	border-collapse: collapse;
+	border-style: none;
 	position: fixed;
 }
 
@@ -60,8 +65,10 @@ body
 
 #container_pictorius_foto
 {
+	top:2px;
+	left:2px;
 	position: fixed;
-	z-index: -1;
+	z-index: -5;
 	min-width: 100%;
 }
 
@@ -87,10 +94,35 @@ body
 
 }
 
+svg {
+    stroke: transparent;
+    stroke-width: 0px;
+}
+
 #container_horizontal_menu
 {
 	position: relative;
 	color: white;
+}
+
+#students_questionnaire_container
+{
+	overflow-y: hidden;
+	position: absolute;
+	/*display: inline-block;*/
+	background-color: white;
+	z-index: 1;
+}
+
+.tempTdQuestionnaire
+{
+	/*
+	border-color: "#ffffff";
+	border-width: 2px;
+	border-top: dashed;
+	border-right: none;
+	border-left: none;
+	border-bottom: none;*/
 }
 
 .area_border

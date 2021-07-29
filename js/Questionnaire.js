@@ -118,7 +118,6 @@ export default class Questionnaire
 			codesTag.style.fontSize = "10px";
 			codesTag.style.fontWeight = "bold";
 			codesTag.addEventListener("click", (event)=>{
-				console.log(this.codes);
 				window.open("./html/codes.htm?fbId=" + this.id + "&qSubject=" + this.qSubject + "&subject=" + this.subject + "&className=" + this.className); 
 				event.stopPropagation();
 			});
@@ -142,13 +141,15 @@ export default class Questionnaire
 				else if (index == "zeitstempel") columnHeaders.innerHTML = "Datum";
 				else if (index == "id") continue;
 				else if (index == "anzfragen") continue;
-				else if (index == "schueleranzahl") continue;
-				else if (index == "klassenname") 
+				else if (index == "schueleranzahl")
+				{
+					columnHeaders.innerHTML = "Schüleranzahl";
+					this.amountStudents = questionnaire[index];
+				}
+				else if (index == "klassenname")
 				{
 					columnHeaders.innerHTML = "Klasse";
 					this.className = questionnaire[index];
-					console.log("className");
-					console.log(this.className);
 				}
 				else if (index == "fach")
 				{
@@ -235,26 +236,11 @@ export default class Questionnaire
 					div.appendChild(questionContainer);
 					
 					questionnaireList.appendChild(div);
-					
-					
 				}
 			};
 			xhttp.open("POST", path, true);
 			xhttp.send(formDataCodes);
 		}
-	}
-
-	Request(path, formData) // Synchroner Request wird nicht mehr genutzt
-	{
-		let response;
-		let xhttp = new XMLHttpRequest();
-		xhttp.open("POST", path, false);
-		xhttp.send(formData);
-		response = xhttp.responseText;
-
-		//if (response.indexOf("{") != 0) return response;
-		//if (response.length > 100 && response != null) return JSON.parse(response);
-		return response;
 	}
 
 	HideQuestions(questionnaireId)
@@ -279,46 +265,49 @@ export default class Questionnaire
 			{
 				let response = JSON.parse(xhttp.responseText);
 
-				for(let i = 0; i < response.returnvalue.length; i++)
+				for (let element in response)
 				{
-					// Kategorie-Header hinzufügen, Zusammengesetzte Id aus Fragebogen-Id und Kategorie-Id
-					let tempCategoryId = "expanded_questionnaire_" + questionnaireId + "_category_" + response.returnvalue[i][0].fragekategorie;
-					let tempCategory = document.getElementById(tempCategoryId);
-					//console.log(tempCategory);
-					if (tempCategory == undefined) 
+					for (let dim2 in response[element])
 					{
-						let tempCategoryBeforeSpacer = document.createElement("div");
-						tempCategoryBeforeSpacer.style.height = "5px";
-						tempCategoryBeforeSpacer.style.backgroundColor = "white";
-						document.getElementById(questionnaireId + "_question_container").appendChild(tempCategoryBeforeSpacer)
+						if(response[element][dim2][0].fragestring != undefined && response[element][dim2][0].fragekategorie != undefined)
+						{
+							// Kategorie-Header hinzufügen, Zusammengesetzte Id aus Fragebogen-Id und Kategorie-Id
+							let tempCategoryId = questionnaireId + "_expanded_questionnaire_category_" + response[element][dim2][0].fragekategorie;
+							let tempCategory = document.getElementById(tempCategoryId);
 
+							if (tempCategory == undefined) 
+							{
+								let tempCategoryBeforeSpacer = document.createElement("div");
+								tempCategoryBeforeSpacer.style.height = "5px";
+								tempCategoryBeforeSpacer.style.backgroundColor = "white";
+								document.getElementById(questionnaireId + "_question_container").appendChild(tempCategoryBeforeSpacer);
 
-						tempCategory = document.createElement("div");
-						tempCategory.id = tempCategoryId;
-						tempCategory.style.backgroundColor = this.menuBarColor;
-						tempCategory.style.color = "white";
-						tempCategory.style.fontSize = "16px";
-						//tempCategory.style.height = "12px";
-						tempCategory.innerHTML = response.returnvalue[i][0].fragekategorie;
-						//document.getElementById(questionnaireId).appendChild(tempCategory);
+								tempCategory = document.createElement("div");
+								tempCategory.id = tempCategoryId;
+								tempCategory.style.backgroundColor = "#191f51"; // Marineblau
+								tempCategory.style.color = "white";
+								tempCategory.style.fontSize = "16px";
+								tempCategory.innerHTML = response[element][dim2][0].fragekategorie;
 
-						let tempCategoryAfterSpacer = document.createElement("div");
-						tempCategoryAfterSpacer.style.height = "5px";
-						tempCategoryAfterSpacer.style.backgroundColor = "white";
-						tempCategory.appendChild(tempCategoryAfterSpacer);
+								let tempCategoryAfterSpacer = document.createElement("div");
+								tempCategoryAfterSpacer.style.height = "5px";
+								tempCategoryAfterSpacer.style.backgroundColor = "white";
+								tempCategory.appendChild(tempCategoryAfterSpacer);
+							}	
+							// Frage hinzufügen
+							let tempQuestion = document.createElement("div");
+							tempQuestion.style.backgroundColor = "white";
+							tempQuestion.style.color = "black";
+							tempQuestion.style.fontSize = "16px";
+							tempQuestion.style.height = "22px";
+							// Zusammengesetzte Id aus Fragebogen-Id und Frage-Id
+							tempQuestion.id = questionnaireId + "_expanded_questionnaire_question_" + response[element][dim2][0].frageid;
+							tempQuestion.innerHTML = response[element][dim2][0].fragestring;
+							tempCategory.appendChild(tempQuestion);
+
+							document.getElementById(questionnaireId + "_question_container").appendChild(tempCategory);
+						}
 					}
-					// Frage hinzufügen
-					let tempQuestion = document.createElement("div");
-					tempQuestion.style.backgroundColor = "white";
-					tempQuestion.style.color = "black";
-					tempQuestion.style.fontSize = "16px";
-					tempQuestion.style.height = "22px";
-					// Zusammengesetzte Id aus Fragebogen-Id und Frage-Id
-					tempQuestion.id = "expanded_questionnaire_" + questionnaireId + "_question_" + response.returnvalue[i].frageid;
-					tempQuestion.innerHTML = response.returnvalue[i][0].fragestring;
-					tempCategory.appendChild(tempQuestion);
-					
-					document.getElementById(questionnaireId + "_question_container").appendChild(tempCategory);
 				}
 			}
 		};

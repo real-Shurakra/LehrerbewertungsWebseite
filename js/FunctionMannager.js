@@ -1,6 +1,7 @@
 // Klasse FunctionMannager
 
 import Questionnaire from "./Questionnaire.js";
+import QuestionnaireStudents from "./QuestionnaireStudents.js";
 
 export default class FunctionMannager
 {
@@ -11,156 +12,10 @@ export default class FunctionMannager
 		this.menuBarColor = undefined;
 		this.menuOpacity = undefined;
 		this.OverviewPageQuestionnaires = [];
+		this.questionnaireCategoriesTableList = [];
+		this.allAdded = false;
 	}
 
-	SortQuestionnairesWithFilters()
-	{
-		let path = "./php/main.php?mode=getFragebogens";
-		let response;
-		let xhttp = new XMLHttpRequest();
-		
-		xhttp.onreadystatechange = ()=>{
-			if ( xhttp.readyState == 4 && xhttp.status == 200 )
-			{
-
-				let questionnaireListContainer = document.getElementById("questionnaire_list_container");
-				questionnaireListContainer.style.width = "99%";
-				questionnaireListContainer.style.margin = "auto";
-				
-				// Leeren des Divs mit den Fragebögen
-				var questionnaireList = document.getElementById("questionnaire_list");
-				if (questionnaireList != undefined) questionnaireList.remove();
-				questionnaireList = document.createElement("div");
-				questionnaireList.id = "questionnaire_list";
-
-				//questionnaireList.innerHTML = "";
-
-				// Wird nach Filter-Feldern modifiziert
-				response = JSON.parse(xhttp.responseText);
-
-				for (let questionnaire in response)
-				{				
-					// Filter KLasse gesetzt
-					if(document.getElementById("questionnaire_filter_classes").value != "keine" && response[questionnaire] != undefined)
-					{
-						if (!response[questionnaire]["klassenname"].includes(document.getElementById("questionnaire_filter_classes").value))
-						{
-							response[questionnaire] = undefined;
-						}
-					}
-
-					// Filter Fach gesetzt
-					if (document.getElementById("questionnaire_filter_subjects").value != "keins" && response[questionnaire] != undefined)
-					{
-						if (!response[questionnaire]["fach"].includes(document.getElementById("questionnaire_filter_subjects").value))
-						{
-							response[questionnaire] = undefined;
-						}
-					}
-
-					// Filter Thema-Suche gesetzt (gesuchtes Theme eingegeben)
-					if (document.getElementById("questionnaire_filter_qSubject").value != "" && response[questionnaire] != undefined)
-					{
-						if (!response[questionnaire]["name"].includes(document.getElementById("questionnaire_filter_qSubject").value))
-						{
-							response[questionnaire] = undefined;
-						}
-					}
-
-					// Nur Filter "von" gesetzt
-					if (document.getElementById("questionnaire_filter_from").value != "" && response[questionnaire] != undefined)
-					{
-						let tempDate = document.getElementById("questionnaire_filter_from").value.split("-");
-
-						tempDate = this.toTimestamp(tempDate[0], tempDate[1], tempDate[2]);
-
-						if(document.getElementById("questionnaire_filter_to").value == "")
-						{
-							// Nur Datum des Fragebogens berücksichtigen
-							let tempQuestionnaireTimestamp = response[questionnaire]["zeitstempel"].split(" ");
-							tempQuestionnaireTimestamp = tempQuestionnaireTimestamp[0];
-							tempQuestionnaireTimestamp = tempQuestionnaireTimestamp.split("-");
-							tempQuestionnaireTimestamp = this.toTimestamp(tempQuestionnaireTimestamp[0], tempQuestionnaireTimestamp[1], tempQuestionnaireTimestamp[2]);
-
-							// Wenn das Erstellungsdatum des Bogens kleiner ist als das eingestellte Datum wird der Bogen auf undefined gesetzt (aus Response-Array gelöscht)
-							if (tempQuestionnaireTimestamp < tempDate) response[questionnaire] = undefined;
-						}
-					}
-
-					// Nur Filter "bis" gesetzt
-					if (document.getElementById("questionnaire_filter_to").value != "" && response[questionnaire] != undefined)
-					{
-						let tempDate = document.getElementById("questionnaire_filter_to").value.split("-");
-
-						tempDate = this.toTimestamp(tempDate[0], tempDate[1], tempDate[2]);
-
-						if(document.getElementById("questionnaire_filter_from").value == "")
-						{
-							// Nur Datum des Fragebogens berücksichtigen
-							let tempQuestionnaireTimestamp = response[questionnaire]["zeitstempel"].split(" ");
-							tempQuestionnaireTimestamp = tempQuestionnaireTimestamp[0];
-							tempQuestionnaireTimestamp = tempQuestionnaireTimestamp.split("-");
-							tempQuestionnaireTimestamp = this.toTimestamp(tempQuestionnaireTimestamp[0], tempQuestionnaireTimestamp[1], tempQuestionnaireTimestamp[2]);
-
-							// Wenn das Erstellungsdatum des Bogens größer ist als das eingestellte Datum wird der Bogen auf undefined gesetzt (aus Response-Array gelöscht)
-							if (tempQuestionnaireTimestamp > tempDate) response[questionnaire] = undefined;
-						}
-					}
-
-					// Filter "von" und "bis" gesetzt
-					if (document.getElementById("questionnaire_filter_from").value != "" && document.getElementById("questionnaire_filter_to").value != "" && response[questionnaire] != undefined)
-					{
-						let tempDateFrom = document.getElementById("questionnaire_filter_from").value.split("-");
-						tempDateFrom = this.toTimestamp(tempDateFrom[0], tempDateFrom[1], tempDateFrom[2]);
-
-						let tempDateTo = document.getElementById("questionnaire_filter_to").value.split("-");
-						tempDateTo = this.toTimestamp(tempDateTo[0], tempDateTo[1], tempDateTo[2]);
-
-						// Nur Datum des Fragebogens berücksichtigen
-						let tempQuestionnaireTimestamp = response[questionnaire]["zeitstempel"].split(" ");
-						tempQuestionnaireTimestamp = tempQuestionnaireTimestamp[0];
-						tempQuestionnaireTimestamp = tempQuestionnaireTimestamp.split("-");
-						tempQuestionnaireTimestamp = this.toTimestamp(tempQuestionnaireTimestamp[0], tempQuestionnaireTimestamp[1], tempQuestionnaireTimestamp[2]);
-
-						// Wenn das Erstellungsdatum des Bogens kleiner ist als das eingestellte Datum wird der Bogen auf undefined gesetzt (aus Response-Array gelöscht)
-						if (tempQuestionnaireTimestamp < tempDateFrom || tempQuestionnaireTimestamp > tempDateTo) response[questionnaire] = undefined;
-					}
-
-
-				}
-
-				
-				
-
-
-				// Leeren des Divs mit den Fragebögen
-				// var questionnaireList = document.getElementById("questionnaire_list");
-				// questionnaireList.innerHTML = "";
-
-				// Gefilterte Bögen anzeigen
-				for (let questionnaire in response)
-				{
-					if(response != undefined && response[questionnaire] != undefined)
-					{
-						let tempQuestionnaire = new Questionnaire(response[questionnaire], questionnaireList);
-						tempQuestionnaire.menuBarColor = this.menuBarColor;
-						this.OverviewPageQuestionnaires.push(tempQuestionnaire);
-					}
-				}
-				console.log(this.OverviewPageQuestionnaires);
-				
-				questionnaireListContainer.appendChild(questionnaireList);
-				
-
-				// response zurücksetzen
-				// response = undefined;
-			}
-		};
-		xhttp.open("POST", path, true);
-		xhttp.send();
-
-						
-	}
 	
 	Uebersicht_page_0()
 	{
@@ -486,44 +341,253 @@ export default class FunctionMannager
 	
 	login_area_student()
 	{
-		let inputCodeStudent = document.getElementsByClassName("input_student");
-
-		let counter = 0;
-		for(let element in inputCodesStudent)
-		{
-			if(inputCodesStudend[element].value.length < 2) break;
-			else formData.append("nr" + counter.toString,);
-		}
-
-		var inputFieldTeacherPassword = document.getElementById("input_teacher_password");
-		var buttonTeacherLogin = document.getElementById("login_teacher_area");
-		var response;
+		let inputFieldsStudents = document.querySelectorAll(".input_student");
 		
-		if ( inputFieldTeacherEmail != undefined && inputFieldTeacherPassword != undefined && buttonTeacherLogin != undefined )
-		{
-			buttonTeacherLogin.addEventListener("mousedown", ()=>{
-				let formData = new FormData();
-				formData.append( 'mail', inputFieldTeacherEmail.value );
-				formData.append( 'passwort', inputFieldTeacherPassword.value );
-				
-				let path = "./php/main.php?mode=loginUser";
-				let dummyCategoriesResponse;
+		let inputs = [];
+
+		NodeList.prototype.forEach.call(inputFieldsStudents, function (el) {
+			//console.log(el);
+			el.addEventListener("input", (event)=>{
+				inputs[event.target.id] = event.target.value;
+				//console.log(inputs[event.target.id]);
+			});
+		})
+
+		var buttonStudentOpenQuestionnaire = document.getElementById("open_questionnaire");
+		
+		buttonStudentOpenQuestionnaire.addEventListener("click", (event)=>{
+
+			// Seite daran hindern neu zu laden
+			event.preventDefault();
+
+			let questionnaireContainer = document.getElementById("students_questionnaire_container");
+			questionnaireContainer.style.height = window.innerHeight - 125 + "px";
+			questionnaireContainer.style.width = window.innerWidth - 500 + "px";
+			questionnaireContainer.style.borderStyle = "solid";
+			questionnaireContainer.style.borderColor = "#191f51"; // Marineblau
+			questionnaireContainer.style.borderWidth = "1px";
+			questionnaireContainer.style.top = "75px";
+			questionnaireContainer.style.left = "275px";
+			questionnaireContainer.style.padding = "10px";
+			questionnaireContainer.style.opacity = "93%";
+
+			if ( inputs["nr0"] != undefined && inputs["nr1"] != undefined && inputs["nr2"] != undefined && inputs["nr3"] )
+			{
+				let path = "./php/main.php?mode=getFbFragenFromCode";
+				let response;
 				let xhttp = new XMLHttpRequest();
-				
+				let formData = new FormData();
+
+				let fullCodeString = "";
+				let counter = 0;
+				for(let element in inputs)
+				{
+					if(inputs[element].length < 2)
+					{
+						event.stopPropagation();
+						break;
+					}
+					else
+					{
+						if( counter > 0 ) fullCodeString += "-" + inputs[element];
+						else
+						{
+							fullCodeString += inputs[element];
+							counter++;
+						}
+					}
+				}
+				formData.append("codehash",fullCodeString);
+	
 				xhttp.onreadystatechange = ()=>{
 					if ( xhttp.readyState == 4 && xhttp.status == 200 )
 					{
-						var responseRow = xhttp.responseText;
-
+						response = xhttp.responseText;
 						try
 						{
-							response = JSON.parse( responseRow );
+							response = JSON.parse( response );
+							console.log(response);
 
 							if( response['returncode'] == 0 && response['returnvalue'] )
 							{
-								window.open("./verwaltung.php", "_self");
+								console.log("Der Fragebogen wurde geladen. . .");
+
+								let questionnaireStudents = new QuestionnaireStudents(response);
+
+								/*
+
+								let loginAreaStudents = document.getElementById("login_area_student");
+								loginAreaStudents.innerHTL = "";
+
+								let horizontalMenuButtonStudents = document.getElementById("horizontal_menu_button_students");
+								
+								horizontalMenuButtonStudents.style.backgroundColor = "#191f51"; // Marineblau
+								horizontalMenuButtonStudents.style.color = "white";
+								horizontalMenuButtonStudents.style.height = "47px";
+								horizontalMenuButtonStudents.style.borderStyle = "none";
+								horizontalMenuButtonStudents.style.width = "500px";
+
+								// TODO: In eigene Klasse auslagern
+								//=======================================================================================
+								let studentsQuestionnaireContainer = document.getElementById("students_questionnaire_container");
+								studentsQuestionnaireContainer.style.opacity = "0.0";
+								studentsQuestionnaireContainer.style.visibility = "hidden";
+
+								// Input Values leeren
+								let inputFieldsStudents = document.querySelectorAll(".input_student");			
+								NodeList.prototype.forEach.call(inputFieldsStudents, function (el) {
+									el.value = "";
+								})
+
+			// Container für Bogendaten-Tabelle
+			let containerQuestionnaireTable = document.createElement("div");
+			containerQuestionnaireTable.style.borderStyle = "solid";
+			containerQuestionnaireTable.style.borderWidth = "1px";
+
+			// Tabelle für Bogendaten
+			let questionnaireTable = document.createElement("table");
+			questionnaireTable.style.borderCollapse = "collapse";
+			questionnaireTable.style.width = "100%";
+
+			containerQuestionnaireTable.appendChild(questionnaireTable);
+			studentsQuestionnaireContainer.appendChild(containerQuestionnaireTable);
+
+			let rowHeaders = document.createElement("tr");
+			//rowHeaders.style.borderLeft = "solid";
+			//rowHeaders.style.borderBottom = "spolid";
+			//rowHeaders.style.borderRight = "solid";
+
+			let rowData = document.createElement("tr");
+			
+			// Bogen-Header hinzufügen
+			for (let index in response.returnvalue)
+			{
+				console.log(response.returnvalue[index]);
+				let columnHeaders = document.createElement("td");
+				columnHeaders.className = "questionnaireHeader";
+	
+				if (!(typeof response.returnvalue[index] === 'string')) continue;
+				// Änderung der Header-Bezeichnungen
+				if (index == "thema") 
+				{
+					columnHeaders.innerHTML = "Thema";
+					//this.qSubject = response[index].thema;
+				}
+				else if (index == "zeitstempel") columnHeaders.innerHTML = "Datum-Erstellung";
+				else if (index == "id") continue;
+				else if (index == "anzfragen") continue;
+				else if (index == "schueleranzahl")
+				{
+					columnHeaders.innerHTML = "Schüleranzahl";
+					//this.className = questionnaire[index];
+				}
+				else if (index == "klassename")
+				{
+					columnHeaders.innerHTML = "Klassenname";
+					//this.className = questionnaire[index];
+				}
+				else if (index == "fachname")
+				{
+					//this.subject = questionnaire[index];
+					columnHeaders.innerHTML = "Fach";
+				}
+				else if (index == "bewertungsumme") columnHeaders.innerHTML = "Punkte";
+				else columnHeaders.innerHTML = index;
+	
+				columnHeaders.style.backgroundColor = "#191f51"; // Marineblau
+				columnHeaders.style.color = "white";
+				columnHeaders.style.fontWeight = "bold";
+				columnHeaders.style.fontSize = "small";
+				columnHeaders.style.height = "25px";
+
+				rowHeaders.appendChild(columnHeaders);
+					
+				let columnData = document.createElement("td");
+				columnData.style.fontWeight = "bold";
+				columnData.style.fontSize = "small";
+				columnData.style.height = "25px";
+	
+				if (index == "zeitstempel")
+				{
+					let timestamp = response.returnvalue[index].split(" ");
+					columnData.innerHTML = timestamp[0];
+				}
+				else columnData.innerHTML = response.returnvalue[index];
+	
+				rowData.appendChild(columnData);			
+			}
+			questionnaireTable.appendChild(rowHeaders);
+			questionnaireTable.appendChild(rowData);
+
+								// Container für die Kategorien und Fragen
+								let questionsContainer = document.createElement("div");
+								questionsContainer.style.width = "100%";
+								questionsContainer.style.overflowY = "scroll";
+								questionsContainer.style.scrollbarWidth = "none";
+								questionsContainer.style.height = studentsQuestionnaireContainer.getBoundingClientRect().height + "px";
+
+
+								studentsQuestionnaireContainer.appendChild(questionsContainer);
+
+								// Kategorien mit den Fragen hinzufügen
+								for (let element in response)
+								{
+									for (let dim2 in response[element])
+									{
+										if(response[element][dim2][0].fragestring != undefined && response[element][dim2][0].fragekategorie != undefined)
+										{
+											// Kategorie-Header hinzufügen, Zusammengesetzte Id aus Fragebogen-Id und Kategorie-Id
+											let tempCategoryId = "expanded_questionnaire_category_" + response[element][dim2][0].fragekategorie;
+											let tempCategory = document.getElementById(tempCategoryId);
+
+											if (tempCategory == undefined) 
+											{
+												tempCategory = document.createElement("div");
+												tempCategory.id = tempCategoryId;
+												tempCategory.style.backgroundColor = "#191f51"; // Marineblau
+												console.log(this.menuBarColor);
+												tempCategory.style.color = "white";
+												tempCategory.style.fontSize = "16px";
+												tempCategory.innerHTML = response[element][dim2][0].fragekategorie;
+
+												let tempCategoryAfterSpacer = document.createElement("div");
+												tempCategoryAfterSpacer.style.height = "5px";
+												tempCategoryAfterSpacer.style.backgroundColor = "white";
+												tempCategory.appendChild(tempCategoryAfterSpacer);
+											}	
+											// Frage hinzufügen
+											let tempQuestion = document.createElement("div");
+											tempQuestion.style.backgroundColor = "white";
+											tempQuestion.style.color = "black";
+											tempQuestion.style.fontSize = "16px";
+											tempQuestion.style.height = "22px";
+											// Zusammengesetzte Id aus Fragebogen-Id und Frage-Id
+											tempQuestion.id = "expanded_questionnaire_question_" + response[element][dim2][0].frageid;
+											tempQuestion.innerHTML = response[element][dim2][0].fragestring;
+											tempCategory.appendChild(tempQuestion);
+
+											questionsContainer.appendChild(tempCategory);
+										}
+									}
+								}
+
+								//studentsQuestionnaireContainer.appendChild(questionsContainer);
+
+								// Fragebogen einblenden
+								var timestamp = Math.floor(Date.now());
+								let interval = setInterval(()=>{
+									let tempTimestamp = Math.floor(Date.now());			
+									studentsQuestionnaireContainer.style.opacity = ((tempTimestamp - timestamp) / 1000).toString();
+									studentsQuestionnaireContainer.style.visibility = "visible";
+									if(((tempTimestamp - timestamp) / 1000) >= 0.9) clearInterval(interval);
+								},25);
+								//=======================================================================================
+								*/
 							}
-							
+							else
+							{
+								console.log("Der Code wurde entweder falsch eingegeben, oder für diesen Fragebogen gibt es keine gültigen Codes mehr.");
+							}
 						}
 						catch( error )
 						{
@@ -532,10 +596,13 @@ export default class FunctionMannager
 						}
 					}
 				};
-				xhttp.open("POST", path, true);
-				xhttp.send( formData );	
-			});
-		}		
+				xhttp.open("POST", path, false);
+				xhttp.send( formData );
+				//event.stopPropagation();
+			}	
+		});
+
+			
 	}
 
 	login_areas_check_for_input()
@@ -663,6 +730,9 @@ export default class FunctionMannager
 				
 		
 				let questionnaireCategoriesTableList = this.getAllAddedQuestions();
+				console.log("addedQuestions");
+				console.log(questionnaireCategoriesTableList);
+
 				var questionnaireQuestions = [];
 				questionnaireQuestions["fragen"] = [];
 				
@@ -715,11 +785,12 @@ export default class FunctionMannager
 								{
 									//window.open("./verwaltung.php", "_self");
 									document.getElementById("messageCreateQuestionnaire").innerHTML = response['returnvalue'];
+									
 								}
 								//document.getElementById("messageCreateQuestionnaire").innerHTML = response['returnvalue'];
 						
 								// TODO: Methode zum nachladen der Bögen auf die Übersicht Page hier aufrufen
-								this.SortQuestionnairesWithFilters();
+								//this.SortQuestionnairesWithFilters();
 							}
 							catch( error )
 							{
@@ -729,7 +800,8 @@ export default class FunctionMannager
 						}
 					};
 					xhttp.open("POST", path, true);
-					xhttp.send( formData );	
+					xhttp.send( formData );
+					this.removeAllAddedQuestions();
 					
 				}
 			});			
@@ -771,9 +843,25 @@ export default class FunctionMannager
 
 	getAllAddedQuestions()
 	{
-		let questionnaireCategoriesTableList = [];
-		questionnaireCategoriesTableList = document.getElementById("questionnaire_categories_table").getElementsByTagName("table");
-		return questionnaireCategoriesTableList;
+		console.log("getAllAddedQuestions");
+		console.log(this.questionnaireCategoriesTableList);
+		//this.questionnaireCategoriesTableList = [];
+		this.questionnaireCategoriesTableList = document.querySelectorAll(".addedQuestion");//document.getElementsByClassName("addedQuestion");
+		return this.questionnaireCategoriesTableList;
+	}
+
+	removeAllAddedQuestions()
+	{
+		Array.prototype.forEach.call(this.questionnaireCategoriesTableList, function (el) {
+			el.remove();
+		})
+
+		// Einfärben der bereits hinzugefügten Fragen im Dropdown
+		let addQuestionDropdownList = document.getElementById("add_question_dropdown").childNodes;
+		for (let i = 0; i < addQuestionDropdownList.length; i++)
+		{
+			this.changeSelectedOptionBackgroundColor(addQuestionDropdownList[i]);
+		}
 	}
 
 	replaceAllUmlauts(string, reverse)
@@ -923,7 +1011,7 @@ export default class FunctionMannager
 				let addQuestionDropdownList = document.getElementById("add_question_dropdown").childNodes;
 				for (let i = 0; i < addQuestionDropdownList.length; i++)
 				{
-				this.changeSelectedOptionBackgroundColor(addQuestionDropdownList[i]);
+					this.changeSelectedOptionBackgroundColor(addQuestionDropdownList[i]);
 				}
 				
 				
@@ -950,11 +1038,14 @@ export default class FunctionMannager
 					let subTable = document.createElement( "table" );
 					subTable.style.width = "100%";
 					subTable.id = tempValue + "_addedQuestion";
+
+					subTable.className = "addedQuestion";
+
 					let subTableRow = document.createElement( "tr" );
 					
 					let subTableQuestion = document.createElement( "td" );
 					subTableQuestion.id = tempId;
-					subTableQuestion.className ="addedQuestion";
+					//subTableQuestion.className ="addedQuestion";
 					subTableQuestion.style.width = "95%";
 
 					subTableQuestion.innerHTML = tempValue;
@@ -1017,6 +1108,9 @@ export default class FunctionMannager
 						let subTable = document.createElement( "table" );
 						subTable.style.width = "100%";
 						subTable.id = tempValue + "_addedQuestion";
+
+						subTable.className = "addedQuestion";
+
 						let subTableRow = document.createElement( "tr" );
 					
 						let subTableQuestion = document.createElement( "td" );
@@ -1050,6 +1144,141 @@ export default class FunctionMannager
 			}
 			xhttp.open("POST", path, true);
 			xhttp.send();
+	}
+
+
+	SortQuestionnairesWithFilters()
+	{
+		let path = "./php/main.php?mode=getFragebogens";
+		let response;
+		let xhttp = new XMLHttpRequest();
+		
+		xhttp.onreadystatechange = ()=>{
+			if ( xhttp.readyState == 4 && xhttp.status == 200 )
+			{
+				let questionnaireListContainer = document.getElementById("questionnaire_list_container");
+				questionnaireListContainer.style.width = "99%";
+				questionnaireListContainer.style.margin = "auto";
+				
+				// Leeren des Divs mit den Fragebögen
+				var questionnaireList = document.getElementById("questionnaire_list");
+				if (questionnaireList != undefined) questionnaireList.remove();
+				questionnaireList = document.createElement("div");
+				questionnaireList.id = "questionnaire_list";
+
+				//questionnaireList.innerHTML = "";
+
+				// Wird nach Filter-Feldern modifiziert
+				response = JSON.parse(xhttp.responseText);
+				console.log("SortQuestinnairesWithFilters");
+				console.log(response);
+
+				for (let questionnaire in response)
+				{				
+					// Filter KLasse gesetzt
+					if(document.getElementById("questionnaire_filter_classes").value != "keine" && response[questionnaire] != undefined)
+					{
+						if (!response[questionnaire]["klassenname"].includes(document.getElementById("questionnaire_filter_classes").value))
+						{
+							response[questionnaire] = undefined;
+						}
+					}
+
+					// Filter Fach gesetzt
+					if (document.getElementById("questionnaire_filter_subjects").value != "keins" && response[questionnaire] != undefined)
+					{
+						if (!response[questionnaire]["fach"].includes(document.getElementById("questionnaire_filter_subjects").value))
+						{
+							response[questionnaire] = undefined;
+						}
+					}
+
+					// Filter Thema-Suche gesetzt (gesuchtes Theme eingegeben)
+					if (document.getElementById("questionnaire_filter_qSubject").value != "" && response[questionnaire] != undefined)
+					{
+						if (!response[questionnaire]["name"].includes(document.getElementById("questionnaire_filter_qSubject").value))
+						{
+							response[questionnaire] = undefined;
+						}
+					}
+
+					// Nur Filter "von" gesetzt
+					if (document.getElementById("questionnaire_filter_from").value != "" && response[questionnaire] != undefined)
+					{
+						let tempDate = document.getElementById("questionnaire_filter_from").value.split("-");
+
+						tempDate = this.toTimestamp(tempDate[0], tempDate[1], tempDate[2]);
+
+						if(document.getElementById("questionnaire_filter_to").value == "")
+						{
+							// Nur Datum des Fragebogens berücksichtigen
+							let tempQuestionnaireTimestamp = response[questionnaire]["zeitstempel"].split(" ");
+							tempQuestionnaireTimestamp = tempQuestionnaireTimestamp[0];
+							tempQuestionnaireTimestamp = tempQuestionnaireTimestamp.split("-");
+							tempQuestionnaireTimestamp = this.toTimestamp(tempQuestionnaireTimestamp[0], tempQuestionnaireTimestamp[1], tempQuestionnaireTimestamp[2]);
+
+							// Wenn das Erstellungsdatum des Bogens kleiner ist als das eingestellte Datum wird der Bogen auf undefined gesetzt (aus Response-Array gelöscht)
+							if (tempQuestionnaireTimestamp < tempDate) response[questionnaire] = undefined;
+						}
+					}
+
+					// Nur Filter "bis" gesetzt
+					if (document.getElementById("questionnaire_filter_to").value != "" && response[questionnaire] != undefined)
+					{
+						let tempDate = document.getElementById("questionnaire_filter_to").value.split("-");
+
+						tempDate = this.toTimestamp(tempDate[0], tempDate[1], tempDate[2]);
+
+						if(document.getElementById("questionnaire_filter_from").value == "")
+						{
+							// Nur Datum des Fragebogens berücksichtigen
+							let tempQuestionnaireTimestamp = response[questionnaire]["zeitstempel"].split(" ");
+							tempQuestionnaireTimestamp = tempQuestionnaireTimestamp[0];
+							tempQuestionnaireTimestamp = tempQuestionnaireTimestamp.split("-");
+							tempQuestionnaireTimestamp = this.toTimestamp(tempQuestionnaireTimestamp[0], tempQuestionnaireTimestamp[1], tempQuestionnaireTimestamp[2]);
+
+							// Wenn das Erstellungsdatum des Bogens größer ist als das eingestellte Datum wird der Bogen auf undefined gesetzt (aus Response-Array gelöscht)
+							if (tempQuestionnaireTimestamp > tempDate) response[questionnaire] = undefined;
+						}
+					}
+
+					// Filter "von" und "bis" gesetzt
+					if (document.getElementById("questionnaire_filter_from").value != "" && document.getElementById("questionnaire_filter_to").value != "" && response[questionnaire] != undefined)
+					{
+						let tempDateFrom = document.getElementById("questionnaire_filter_from").value.split("-");
+						tempDateFrom = this.toTimestamp(tempDateFrom[0], tempDateFrom[1], tempDateFrom[2]);
+
+						let tempDateTo = document.getElementById("questionnaire_filter_to").value.split("-");
+						tempDateTo = this.toTimestamp(tempDateTo[0], tempDateTo[1], tempDateTo[2]);
+
+						// Nur Datum des Fragebogens berücksichtigen
+						let tempQuestionnaireTimestamp = response[questionnaire]["zeitstempel"].split(" ");
+						tempQuestionnaireTimestamp = tempQuestionnaireTimestamp[0];
+						tempQuestionnaireTimestamp = tempQuestionnaireTimestamp.split("-");
+						tempQuestionnaireTimestamp = this.toTimestamp(tempQuestionnaireTimestamp[0], tempQuestionnaireTimestamp[1], tempQuestionnaireTimestamp[2]);
+
+						// Wenn das Erstellungsdatum des Bogens kleiner ist als das eingestellte Datum wird der Bogen auf undefined gesetzt (aus Response-Array gelöscht)
+						if (tempQuestionnaireTimestamp < tempDateFrom || tempQuestionnaireTimestamp > tempDateTo) response[questionnaire] = undefined;
+					}
+				}
+
+				// Gefilterte Bögen anzeigen
+				for (let questionnaire in response)
+				{
+					if(response != undefined && response[questionnaire] != undefined)
+					{
+						let tempQuestionnaire = new Questionnaire(response[questionnaire], questionnaireList);
+						tempQuestionnaire.menuBarColor = this.menuBarColor;
+						this.OverviewPageQuestionnaires.push(tempQuestionnaire);
+					}
+				}
+				console.log(this.OverviewPageQuestionnaires);
+				
+				questionnaireListContainer.appendChild(questionnaireList);
+			}
+		};
+		xhttp.open("POST", path, true);
+		xhttp.send();		
 	}
 
 	toTimestamp(year,month,day)
