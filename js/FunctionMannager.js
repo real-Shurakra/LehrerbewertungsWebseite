@@ -53,6 +53,9 @@ export default class FunctionMannager
 			dropdownSubjects.appendChild(tempOption);
 		}
 
+
+
+
 		// Resettet alle Suchfilter und zeigt ALLE Bögen bei Page-Aufruf an
 		// this.SortQuestionnairesWithFilters();
 	}
@@ -119,7 +122,21 @@ export default class FunctionMannager
 			this.SortQuestionnairesWithFilters();
 		});
 
+		/*
+		// Größe von questionnaire_selection_area anpassen
+		let questionnaireSelectArea = document.getElementById("questionnaire_select_area");
+		let containerPages = document.getElementById("container_pages");
+		questionnaireSelectArea.style.height = containerPages.getBoundingClientRect().height - 160 + "px";
+		questionnaireSelectArea.style.width = containerPages.getBoundingClientRect().width - 160 + "px";
+		console.log("questionnaireSelectArea:");
+		console.log(questionnaireSelectArea.style);
+		*/
+
+		this.resizeElement("questionnaire_select_area");
+
 		this.SortQuestionnairesWithFilters();
+
+
 	}
 
 	Request(path, formData) // zurzeit nicht genutzt
@@ -341,6 +358,76 @@ export default class FunctionMannager
 	
 	login_area_student()
 	{
+		// Begrenzung der Codeeingabe des Schülerbereiches auf Zahlen und zwei Ziffern
+    	if (document.getElementById("input_area_students") != undefined);
+    	{
+        	var elements = document.getElementsByClassName("input_student");
+        	if (elements.length != 0)
+        	{
+            	for(let i = 0; i < elements.length; i++)
+            	{
+					// Event-Listener für normalen Input
+                	elements[i].addEventListener("input", ()=>{
+
+                        let inputField = document.getElementById(elements[i].id);
+
+                        let inputVal = inputField.value
+                        var patt = /^[0-9]+$/;
+                        if(patt.test(inputVal))
+                        {
+                            document.getElementById(elements[i].id).value = inputVal;
+                        }
+                        else
+                        {
+                            var txt = inputVal.slice(0, -1);
+                            document.getElementById(elements[i].id).value = txt;
+                        }
+
+                        // Automatisches Auswählen des nächsten Eingabefeldes, sobald das Aktuelle ausgefüllt ist
+                        if(inputVal.length == 2)
+                        {
+                            let nextNumber = parseInt(inputField.id.substr(2, 1)) + 1;
+                            let nextElement = document.getElementById("nr" + nextNumber);
+                            if (nextElement != undefined)
+                            {
+                                nextElement.focus();
+                                nextElement.value = "";
+                            }
+                        }
+                	})
+
+					// Event-Listener für Backspace und DEL-Taste
+					elements[i].addEventListener("keydown", (event)=>{
+
+						var key = event.keyCode || event.charCode;
+
+						// Auf Backspace oder DEL-Taste prüfen
+						if( key == 8 || key == 46 )
+						{
+							let inputField = document.getElementById(elements[i].id);
+
+							let inputVal = inputField.value
+
+							// Automatisches Auswählen des vorherigen Eingabefeldes, sobald das Aktuelle geleert ist
+							let previousNumber = parseInt(inputField.id.substr(2, 1)) - 1;
+							let previousElement = document.getElementById("nr" + previousNumber);
+							//var previousElementValue = previousElement.Value;
+							if (previousElement != undefined)
+							{
+								if(inputVal.length == 0)
+								{
+									inputField.value = "";
+									previousElement.focus();
+									event.preventDefault();
+								}
+							}
+						}
+                	})
+
+            	}
+       		}   
+    	}
+
 		let inputFieldsStudents = document.querySelectorAll(".input_student");
 		
 		let inputs = [];
@@ -349,7 +436,13 @@ export default class FunctionMannager
 			//console.log(el);
 			el.addEventListener("input", (event)=>{
 				inputs[event.target.id] = event.target.value;
-				//console.log(inputs[event.target.id]);
+
+				// Textfarbe von allen Code-Inputfeldern wieder auf Default-Wert zurücksetzen
+				let inputFieldsStudents = document.querySelectorAll(".input_student");
+				NodeList.prototype.forEach.call(inputFieldsStudents, function (el) {
+					el.style.color = "";
+				})
+				
 			});
 		})
 
@@ -359,17 +452,6 @@ export default class FunctionMannager
 
 			// Seite daran hindern neu zu laden
 			event.preventDefault();
-
-			let questionnaireContainer = document.getElementById("students_questionnaire_container");
-			questionnaireContainer.style.height = window.innerHeight - 125 + "px";
-			questionnaireContainer.style.width = window.innerWidth - 500 + "px";
-			questionnaireContainer.style.borderStyle = "solid";
-			questionnaireContainer.style.borderColor = "#191f51"; // Marineblau
-			questionnaireContainer.style.borderWidth = "1px";
-			questionnaireContainer.style.top = "75px";
-			questionnaireContainer.style.left = "275px";
-			questionnaireContainer.style.padding = "10px";
-			questionnaireContainer.style.opacity = "93%";
 
 			if ( inputs["nr0"] != undefined && inputs["nr1"] != undefined && inputs["nr2"] != undefined && inputs["nr3"] )
 			{
@@ -413,180 +495,93 @@ export default class FunctionMannager
 								console.log("Der Fragebogen wurde geladen. . .");
 
 								let questionnaireStudents = new QuestionnaireStudents(response);
-
-								/*
-
-								let loginAreaStudents = document.getElementById("login_area_student");
-								loginAreaStudents.innerHTL = "";
-
-								let horizontalMenuButtonStudents = document.getElementById("horizontal_menu_button_students");
-								
-								horizontalMenuButtonStudents.style.backgroundColor = "#191f51"; // Marineblau
-								horizontalMenuButtonStudents.style.color = "white";
-								horizontalMenuButtonStudents.style.height = "47px";
-								horizontalMenuButtonStudents.style.borderStyle = "none";
-								horizontalMenuButtonStudents.style.width = "500px";
-
-								// TODO: In eigene Klasse auslagern
-								//=======================================================================================
-								let studentsQuestionnaireContainer = document.getElementById("students_questionnaire_container");
-								studentsQuestionnaireContainer.style.opacity = "0.0";
-								studentsQuestionnaireContainer.style.visibility = "hidden";
-
-								// Input Values leeren
-								let inputFieldsStudents = document.querySelectorAll(".input_student");			
-								NodeList.prototype.forEach.call(inputFieldsStudents, function (el) {
-									el.value = "";
-								})
-
-			// Container für Bogendaten-Tabelle
-			let containerQuestionnaireTable = document.createElement("div");
-			containerQuestionnaireTable.style.borderStyle = "solid";
-			containerQuestionnaireTable.style.borderWidth = "1px";
-
-			// Tabelle für Bogendaten
-			let questionnaireTable = document.createElement("table");
-			questionnaireTable.style.borderCollapse = "collapse";
-			questionnaireTable.style.width = "100%";
-
-			containerQuestionnaireTable.appendChild(questionnaireTable);
-			studentsQuestionnaireContainer.appendChild(containerQuestionnaireTable);
-
-			let rowHeaders = document.createElement("tr");
-			//rowHeaders.style.borderLeft = "solid";
-			//rowHeaders.style.borderBottom = "spolid";
-			//rowHeaders.style.borderRight = "solid";
-
-			let rowData = document.createElement("tr");
-			
-			// Bogen-Header hinzufügen
-			for (let index in response.returnvalue)
-			{
-				console.log(response.returnvalue[index]);
-				let columnHeaders = document.createElement("td");
-				columnHeaders.className = "questionnaireHeader";
-	
-				if (!(typeof response.returnvalue[index] === 'string')) continue;
-				// Änderung der Header-Bezeichnungen
-				if (index == "thema") 
-				{
-					columnHeaders.innerHTML = "Thema";
-					//this.qSubject = response[index].thema;
-				}
-				else if (index == "zeitstempel") columnHeaders.innerHTML = "Datum-Erstellung";
-				else if (index == "id") continue;
-				else if (index == "anzfragen") continue;
-				else if (index == "schueleranzahl")
-				{
-					columnHeaders.innerHTML = "Schüleranzahl";
-					//this.className = questionnaire[index];
-				}
-				else if (index == "klassename")
-				{
-					columnHeaders.innerHTML = "Klassenname";
-					//this.className = questionnaire[index];
-				}
-				else if (index == "fachname")
-				{
-					//this.subject = questionnaire[index];
-					columnHeaders.innerHTML = "Fach";
-				}
-				else if (index == "bewertungsumme") columnHeaders.innerHTML = "Punkte";
-				else columnHeaders.innerHTML = index;
-	
-				columnHeaders.style.backgroundColor = "#191f51"; // Marineblau
-				columnHeaders.style.color = "white";
-				columnHeaders.style.fontWeight = "bold";
-				columnHeaders.style.fontSize = "small";
-				columnHeaders.style.height = "25px";
-
-				rowHeaders.appendChild(columnHeaders);
-					
-				let columnData = document.createElement("td");
-				columnData.style.fontWeight = "bold";
-				columnData.style.fontSize = "small";
-				columnData.style.height = "25px";
-	
-				if (index == "zeitstempel")
-				{
-					let timestamp = response.returnvalue[index].split(" ");
-					columnData.innerHTML = timestamp[0];
-				}
-				else columnData.innerHTML = response.returnvalue[index];
-	
-				rowData.appendChild(columnData);			
-			}
-			questionnaireTable.appendChild(rowHeaders);
-			questionnaireTable.appendChild(rowData);
-
-								// Container für die Kategorien und Fragen
-								let questionsContainer = document.createElement("div");
-								questionsContainer.style.width = "100%";
-								questionsContainer.style.overflowY = "scroll";
-								questionsContainer.style.scrollbarWidth = "none";
-								questionsContainer.style.height = studentsQuestionnaireContainer.getBoundingClientRect().height + "px";
-
-
-								studentsQuestionnaireContainer.appendChild(questionsContainer);
-
-								// Kategorien mit den Fragen hinzufügen
-								for (let element in response)
-								{
-									for (let dim2 in response[element])
-									{
-										if(response[element][dim2][0].fragestring != undefined && response[element][dim2][0].fragekategorie != undefined)
-										{
-											// Kategorie-Header hinzufügen, Zusammengesetzte Id aus Fragebogen-Id und Kategorie-Id
-											let tempCategoryId = "expanded_questionnaire_category_" + response[element][dim2][0].fragekategorie;
-											let tempCategory = document.getElementById(tempCategoryId);
-
-											if (tempCategory == undefined) 
-											{
-												tempCategory = document.createElement("div");
-												tempCategory.id = tempCategoryId;
-												tempCategory.style.backgroundColor = "#191f51"; // Marineblau
-												console.log(this.menuBarColor);
-												tempCategory.style.color = "white";
-												tempCategory.style.fontSize = "16px";
-												tempCategory.innerHTML = response[element][dim2][0].fragekategorie;
-
-												let tempCategoryAfterSpacer = document.createElement("div");
-												tempCategoryAfterSpacer.style.height = "5px";
-												tempCategoryAfterSpacer.style.backgroundColor = "white";
-												tempCategory.appendChild(tempCategoryAfterSpacer);
-											}	
-											// Frage hinzufügen
-											let tempQuestion = document.createElement("div");
-											tempQuestion.style.backgroundColor = "white";
-											tempQuestion.style.color = "black";
-											tempQuestion.style.fontSize = "16px";
-											tempQuestion.style.height = "22px";
-											// Zusammengesetzte Id aus Fragebogen-Id und Frage-Id
-											tempQuestion.id = "expanded_questionnaire_question_" + response[element][dim2][0].frageid;
-											tempQuestion.innerHTML = response[element][dim2][0].fragestring;
-											tempCategory.appendChild(tempQuestion);
-
-											questionsContainer.appendChild(tempCategory);
-										}
-									}
-								}
-
-								//studentsQuestionnaireContainer.appendChild(questionsContainer);
-
-								// Fragebogen einblenden
-								var timestamp = Math.floor(Date.now());
-								let interval = setInterval(()=>{
-									let tempTimestamp = Math.floor(Date.now());			
-									studentsQuestionnaireContainer.style.opacity = ((tempTimestamp - timestamp) / 1000).toString();
-									studentsQuestionnaireContainer.style.visibility = "visible";
-									if(((tempTimestamp - timestamp) / 1000) >= 0.9) clearInterval(interval);
-								},25);
-								//=======================================================================================
-								*/
 							}
 							else
 							{
 								console.log("Der Code wurde entweder falsch eingegeben, oder für diesen Fragebogen gibt es keine gültigen Codes mehr.");
+
+								// notification hier einfügen
+								let notificationId = "wrong_code_notification";
+								let tooltipContainer = document.getElementById(notificationId);
+								if (tooltipContainer != undefined) tooltipContainer.remove();
+
+								tooltipContainer = document.createElement("div");
+								/*
+								tooltipContainer.addEventListener("mouseenter", (event)=>{
+									event.target.remove();
+								});
+								*/
+
+								tooltipContainer.id = "wrong_code_notification";
+								tooltipContainer.style.visibility = "hidden";
+								tooltipContainer.style.position = "absolute";
+								tooltipContainer.style.left = "4%";
+								tooltipContainer.style.zIndex = 10;
+								let tooltipContainerWidth = 280;
+								tooltipContainer.style.width = tooltipContainerWidth + "px";
+								tooltipContainer.style.height = tooltipContainerWidth / 3 + "px";
+								tooltipContainer.style.backgroundImage = "url(\"./html/tooltip_large.png\")";
+								tooltipContainer.style.backgroundSize = "100% 100%";
+								tooltipContainer.style.backgroundRepeat = "no-repeat";
+								tooltipContainer.style.backgroundPosition = "top left";
+
+								document.body.appendChild(tooltipContainer);
+								let tooltipTable = document.createElement("table");
+								tooltipTable.style.borderCollapse = "collapse";
+								tooltipTable.style.width = "100%";
+								tooltipTable.style.height = "100%";
+								tooltipContainer.appendChild(tooltipTable);
+								let tooltipRow = document.createElement("tr");
+								tooltipTable.appendChild(tooltipRow);
+
+								let toolTipElementIds = ["filler","notification_text"];
+								
+								for(let i = 0; i < toolTipElementIds.length; i++)
+								{
+									let tempColumn = document.createElement("td");
+
+									tempColumn.id = toolTipElementIds[i];
+
+									if(toolTipElementIds[i] != "filler")
+									{
+										tempColumn.style.textAlign = "left";
+										tempColumn.style.fontFamily = "calibri";
+										tempColumn.style.verticalAlign = "middle";
+										tempColumn.style.fontWeight = "medium";
+										//tempColumn.style.color = "red";
+										tempColumn.style.padding = "auto";
+										//tempColumn.innerText = "Der eingegebene Code ist ungültig!";
+										tempColumn.style.width = "75%";
+
+										let text1 = document.createElement("span");
+										text1.style.fontFamily = "calibri";
+										text1.innerText = "Der eingegebene Code ist ";
+										tempColumn.appendChild(text1);
+
+										let text2 = document.createElement("span");
+										text2.style.fontFamily = "calibri";
+										text2.innerText = "ungültig!";
+										text2.style.color = "#e47069"; //soft red
+										tempColumn.appendChild(text2);
+									}
+									else
+									{
+										tempColumn.style.width = "25%";
+									}
+									tempColumn.style.height = "100%";
+
+									console.log(tempColumn);
+
+									tooltipRow.appendChild(tempColumn);
+								}
+
+								NodeList.prototype.forEach.call(inputFieldsStudents, function (el) {
+									// Falsch eingegebene Code rot einfärben
+									el.style.color = "#e47069"; // soft red
+								})
+
+								this.fadeElementIn(tooltipContainer, 0.97);
+								setTimeout(()=>{ this.fadeElementOut(tooltipContainer); }, 5000);
 							}
 						}
 						catch( error )
@@ -705,6 +700,9 @@ export default class FunctionMannager
 			xhttp.open("POST", path, true);
 			xhttp.send();		
 		}
+
+		// HIER!!!
+		this.resizeElement("create_questionnaire_area");
 	}
 	
 	Fragebogen_erstellen_page_event_0() // Event-Listener für den Button zum Veröffentlichen eines Fragebogens
@@ -1285,6 +1283,49 @@ export default class FunctionMannager
 	{
 		var datum = new Date(Date.UTC(year,month-1,day,0,0,0));
 		return datum.getTime()/1000;
+	}
+
+	fadeElementIn(element, finalOpacity)
+    {
+        // Element einblenden
+        var timestamp = Math.floor(Date.now());
+        let interval = setInterval(()=>{
+        let tempTimestamp = Math.floor(Date.now());			
+        element.style.opacity = ((tempTimestamp - timestamp) / 1000).toString();
+        element.style.visibility = "visible";
+        if(((tempTimestamp - timestamp) / 1000) >= finalOpacity) clearInterval(interval);
+        },25);
+    }
+
+	fadeElementOut(element)
+    {
+        // Element ausblenden und entfernen
+		let opacity = element.style.opacity;
+        var timestamp = Math.floor(Date.now());
+        let interval = setInterval(()=>{
+        let tempTimestamp = Math.floor(Date.now());			
+        element.style.opacity = opacity - ((tempTimestamp - timestamp) / 1000).toString();
+        if(element.style.opacity < 0)
+		{
+			element.remove();
+			clearInterval(interval);
+		}
+        },25);
+    }
+
+	resizeElement(areaId)
+	{
+		// Größe von questionnaire_selection_area anpassen
+		let containerPages = document.getElementById("container_pages");
+		let area = document.getElementById(areaId);
+
+		if (areaId == "questionnaire_select_area") area.style.height = containerPages.getBoundingClientRect().height - 160 + "px";
+		if (areaId == "create_questionnaire_area") area.style.height = containerPages.getBoundingClientRect().height - 370 + "px";
+		
+		//area.style.width = containerPages.getBoundingClientRect().width - 155 + "px";
+
+		console.log("area " + area.id + ":");
+		console.log(area.style);
 	}
 
 

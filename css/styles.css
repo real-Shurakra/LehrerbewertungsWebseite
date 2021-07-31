@@ -153,8 +153,14 @@ svg {
 
 .input_student
 {
-	font-family: monospace;
+	font-family: calibri;
+	font-size: large;
+	text-align: center;
 	width: 18px;
+	border-style: none;
+	background-color: #ededed;
+	height: 23px;
+	width: 23px;
 }
 
 .verticalMenuButton
@@ -179,12 +185,12 @@ svg {
 #Uebersicht_page
 {
 	visibility: visible;
-	overflow-y:auto;
+	/*overflow-y:auto;'/
 }
 
 #Fragebogen_erstellen_page
 {
-	overflow-y:auto;
+	/*overflow-y:auto;*/
 }
 
 #add_question_dropdown
