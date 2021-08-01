@@ -453,7 +453,8 @@ export default class FunctionMannager
 			// Seite daran hindern neu zu laden
 			event.preventDefault();
 
-			if ( inputs["nr0"] != undefined && inputs["nr1"] != undefined && inputs["nr2"] != undefined && inputs["nr3"] )
+			// Prüfen ob in allen Code-Eingabefelder definiert sind
+			if ( inputs["nr0"] != undefined && inputs["nr1"] != undefined && inputs["nr2"] != undefined && inputs["nr3"] != undefined )
 			{
 				let path = "./php/main.php?mode=getFbFragenFromCode";
 				let response;
@@ -500,88 +501,23 @@ export default class FunctionMannager
 							{
 								console.log("Der Code wurde entweder falsch eingegeben, oder für diesen Fragebogen gibt es keine gültigen Codes mehr.");
 
-								// notification hier einfügen
+								// Benachrichtigung über falsch eingegebenen Code vorbereiten
 								let notificationId = "wrong_code_notification";
 								let tooltipContainer = document.getElementById(notificationId);
 								if (tooltipContainer != undefined) tooltipContainer.remove();
-
 								tooltipContainer = document.createElement("div");
-								/*
-								tooltipContainer.addEventListener("mouseenter", (event)=>{
-									event.target.remove();
-								});
-								*/
+								this.createNotificationInvalidCode(tooltipContainer);
 
-								tooltipContainer.id = "wrong_code_notification";
-								tooltipContainer.style.visibility = "hidden";
-								tooltipContainer.style.position = "absolute";
-								tooltipContainer.style.left = "4%";
-								tooltipContainer.style.zIndex = 10;
-								let tooltipContainerWidth = 280;
-								tooltipContainer.style.width = tooltipContainerWidth + "px";
-								tooltipContainer.style.height = tooltipContainerWidth / 3 + "px";
-								tooltipContainer.style.backgroundImage = "url(\"./html/tooltip_large.png\")";
-								tooltipContainer.style.backgroundSize = "100% 100%";
-								tooltipContainer.style.backgroundRepeat = "no-repeat";
-								tooltipContainer.style.backgroundPosition = "top left";
+								// Benachrichtigung über falsch eingegebenen Code einblenden
+								this.fadeElementIn(tooltipContainer, 0.97);
+								// Nach 5 Sek. wieder ausblenden
+								setTimeout(()=>{ this.fadeElementOut(tooltipContainer); }, 5000);
 
-								document.body.appendChild(tooltipContainer);
-								let tooltipTable = document.createElement("table");
-								tooltipTable.style.borderCollapse = "collapse";
-								tooltipTable.style.width = "100%";
-								tooltipTable.style.height = "100%";
-								tooltipContainer.appendChild(tooltipTable);
-								let tooltipRow = document.createElement("tr");
-								tooltipTable.appendChild(tooltipRow);
-
-								let toolTipElementIds = ["filler","notification_text"];
-								
-								for(let i = 0; i < toolTipElementIds.length; i++)
-								{
-									let tempColumn = document.createElement("td");
-
-									tempColumn.id = toolTipElementIds[i];
-
-									if(toolTipElementIds[i] != "filler")
-									{
-										tempColumn.style.textAlign = "left";
-										tempColumn.style.fontFamily = "calibri";
-										tempColumn.style.verticalAlign = "middle";
-										tempColumn.style.fontWeight = "medium";
-										//tempColumn.style.color = "red";
-										tempColumn.style.padding = "auto";
-										//tempColumn.innerText = "Der eingegebene Code ist ungültig!";
-										tempColumn.style.width = "75%";
-
-										let text1 = document.createElement("span");
-										text1.style.fontFamily = "calibri";
-										text1.innerText = "Der eingegebene Code ist ";
-										tempColumn.appendChild(text1);
-
-										let text2 = document.createElement("span");
-										text2.style.fontFamily = "calibri";
-										text2.innerText = "ungültig!";
-										text2.style.color = "#e47069"; //soft red
-										tempColumn.appendChild(text2);
-									}
-									else
-									{
-										tempColumn.style.width = "25%";
-									}
-									tempColumn.style.height = "100%";
-
-									console.log(tempColumn);
-
-									tooltipRow.appendChild(tempColumn);
-								}
-
+								// Falsch eingegebenen Code in allen Eingabefeldern rot einfärben
 								NodeList.prototype.forEach.call(inputFieldsStudents, function (el) {
-									// Falsch eingegebene Code rot einfärben
 									el.style.color = "#e47069"; // soft red
 								})
 
-								this.fadeElementIn(tooltipContainer, 0.97);
-								setTimeout(()=>{ this.fadeElementOut(tooltipContainer); }, 5000);
 							}
 						}
 						catch( error )
@@ -749,11 +685,12 @@ export default class FunctionMannager
 					if (tempQuestionId != undefined) questionnaireQuestions.push(tempQuestionId);
 				}
 				
-				//console.log(questionnaireQuestions);
+				console.log("questionnaireQuestions:");
+				console.log(questionnaireQuestions);
 				
 				//console.log(questionnaireQuestions);
 				
-				if ( questionnaireClassDropdown != undefined && questionnaireStudentsAmount != undefined && questionnaireUniqueName != undefined )
+				if ( questionnaireClassDropdown != undefined && questionnaireStudentsAmount != undefined && questionnaireUniqueName != undefined && questionnaireQuestions.length > 0)
 				{
 					// console.log(questionnaireClassDropdown + " " + questionnaireStudentsAmount + " " + questionnaireUniqueName + " " + questionnaireSubject);
 					
@@ -774,34 +711,71 @@ export default class FunctionMannager
 						if ( xhttp.readyState == 4 && xhttp.status == 200 )
 						{
 							var responseRow = xhttp.responseText;
-							// console.log(responseRow);
 							try
 							{
 								response = JSON.parse( responseRow );
+								console.log("Fragebogen erfolgreich angelegt Response:");
+								console.log(response);
 	
-								if( response['returncode'] == 0 && response['returnvalue'] )
+								if( response['retruncode'] == 0 )
 								{
-									//window.open("./verwaltung.php", "_self");
-									document.getElementById("messageCreateQuestionnaire").innerHTML = response['returnvalue'];
+									//document.getElementById("messageCreateQuestionnaire").innerHTML = response['returnvalue'];
+
+									// TODO: Methode zum nachladen der Bögen auf die Übersicht Page hier aufrufen
+									// REM: Funktioniert noch nicht wie gewünscht
+									this.SortQuestionnairesWithFilters();
+
+									console.log("Fragebogen erfolgreich angelegt Response:");
+									console.log(response);
+
+									console.log("Der Fragebogen wurde angelegt und ist nun in der Übersicht verfügbar!");
+
+									// Benachrichtigung über erfolgreich angelegten Fragebogen
+									let notificationId = "successfull_created_notification";
+									let tooltipContainer = document.getElementById(notificationId);
+									if (tooltipContainer != undefined) tooltipContainer.remove();
+									tooltipContainer = document.createElement("div");
+									let target = document.getElementById("publish_questionnaire");
+									this.createNotificationCreationSuccessfull(tooltipContainer, target);
 									
+									// Benachrichtigung über erfolgreich angelegten Fragebogen einblenden
+									this.fadeElementIn(tooltipContainer, 0.97);
+									// Nach 5 Sek. wieder ausblenden
+									setTimeout(()=>{ this.fadeElementOut(tooltipContainer); }, 5000);
 								}
-								//document.getElementById("messageCreateQuestionnaire").innerHTML = response['returnvalue'];
-						
-								// TODO: Methode zum nachladen der Bögen auf die Übersicht Page hier aufrufen
-								//this.SortQuestionnairesWithFilters();
 							}
 							catch( error )
 							{
 								console.log( error );
-								console.log( response );
+								console.log( responseRow );
 							}
 						}
 					};
 					xhttp.open("POST", path, true);
 					xhttp.send( formData );
 					this.removeAllAddedQuestions();
-					
 				}
+				
+				// Prüfung ob mindestens eine Frage für den Fragebogen ausgewählt wurde
+				// HIER 01_08_2021
+				if(questionnaireQuestions.length < 1)
+				{
+					console.log("Für den Bogen wurden keine Fragen ausgewählt. Ein Fragebogen muss zur Veröffentlichung mindestens eine Frage enthalten");
+
+					// Benachrichtigung über Mindestanzahl der zur Erstellung des Fragebogens benötigten Fragen
+					let notificationId = "min_question_amount_notification";
+					let tooltipContainer = document.getElementById(notificationId);
+					if (tooltipContainer != undefined) tooltipContainer.remove();
+					tooltipContainer = document.createElement("div");
+					let target = document.getElementById("publish_questionnaire");
+					this.createNotificationMinQuestionAmountForCreation(tooltipContainer, target);
+					
+					// Benachrichtigung über falsch eingegebenen Code einblenden
+					this.fadeElementIn(tooltipContainer, 0.97);
+					// Nach 5 Sek. wieder ausblenden
+					setTimeout(()=>{ this.fadeElementOut(tooltipContainer); }, 5000);
+				}
+
 			});			
 		}
 
@@ -1326,6 +1300,226 @@ export default class FunctionMannager
 
 		console.log("area " + area.id + ":");
 		console.log(area.style);
+	}
+
+	createNotificationInvalidCode(tooltipContainer)
+	{
+		tooltipContainer.id = "wrong_code_notification";
+		tooltipContainer.style.visibility = "hidden";
+		tooltipContainer.style.position = "absolute";
+		tooltipContainer.style.left = "4%";
+		tooltipContainer.style.zIndex = 10;
+		let tooltipContainerWidth = 280;
+		tooltipContainer.style.width = tooltipContainerWidth + "px";
+		tooltipContainer.style.height = tooltipContainerWidth / 3 + "px";
+		tooltipContainer.style.backgroundImage = "url(\"./html/tooltip_large.png\")";
+		tooltipContainer.style.backgroundSize = "100% 100%";
+		tooltipContainer.style.backgroundRepeat = "no-repeat";
+		tooltipContainer.style.backgroundPosition = "top left";
+
+		document.body.appendChild(tooltipContainer);
+		let tooltipTable = document.createElement("table");
+		tooltipTable.style.borderCollapse = "collapse";
+		tooltipTable.style.width = "100%";
+		tooltipTable.style.height = "100%";
+		tooltipContainer.appendChild(tooltipTable);
+		let tooltipRow = document.createElement("tr");
+		tooltipTable.appendChild(tooltipRow);
+
+		let toolTipElementIds = ["filler","notification_text"];
+								
+		for(let i = 0; i < toolTipElementIds.length; i++)
+		{
+			let tempColumn = document.createElement("td");
+
+			tempColumn.id = toolTipElementIds[i];
+
+			if(toolTipElementIds[i] != "filler")
+			{
+				tempColumn.style.textAlign = "left";
+				tempColumn.style.fontFamily = "calibri";
+				tempColumn.style.verticalAlign = "middle";
+				tempColumn.style.fontWeight = "medium";
+				//tempColumn.style.color = "red";
+				tempColumn.style.padding = "auto";
+				//tempColumn.innerText = "Der eingegebene Code ist ungültig!";
+				tempColumn.style.width = "75%";
+
+				let text1 = document.createElement("span");
+				text1.style.fontFamily = "calibri";
+				text1.innerText = "Der eingegebene Code ist ";
+				tempColumn.appendChild(text1);
+
+				let text2 = document.createElement("span");
+				text2.style.fontFamily = "calibri";
+				text2.innerText = "ungültig!";
+				text2.style.color = "#e47069"; //soft red
+				tempColumn.appendChild(text2);
+			}
+			else
+			{
+				tempColumn.style.width = "25%";
+			}
+			tempColumn.style.height = "100%";
+
+			console.log(tempColumn);
+
+			tooltipRow.appendChild(tempColumn);
+		}
+	}
+
+	createNotificationMinQuestionAmountForCreation(tooltipContainer, target)
+	{
+		tooltipContainer.id = "min_question_amount_notification";
+		tooltipContainer.style.visibility = "hidden";
+		tooltipContainer.style.position = "absolute";
+		let tooltipContainerWidth = 280;
+		tooltipContainer.style.width = tooltipContainerWidth + "px";
+		tooltipContainer.style.height = tooltipContainerWidth / 3 + "px";
+
+		tooltipContainer.style.top = target.getBoundingClientRect().top + - parseInt(tooltipContainer.style.height) + 10 + "px";
+		tooltipContainer.style.left = target.getBoundingClientRect().left + - parseInt(tooltipContainer.style.width) + "px";
+
+		tooltipContainer.style.zIndex = 10;
+
+		tooltipContainer.style.backgroundImage = "url(\"./html/Tooltip_arrow_pointing_right_bottom.png\")";
+		//tooltipContainer.style.transform = "scaleY(-1)";
+		tooltipContainer.style.backgroundSize = "100% 100%";
+		tooltipContainer.style.backgroundRepeat = "no-repeat";
+		tooltipContainer.style.backgroundPosition = "top left";
+
+		document.body.appendChild(tooltipContainer);
+		let tooltipTable = document.createElement("table");
+		tooltipTable.style.borderCollapse = "collapse";
+		tooltipTable.style.width = "100%";
+		tooltipTable.style.height = "100%";
+		tooltipContainer.appendChild(tooltipTable);
+		let tooltipRow = document.createElement("tr");
+		tooltipTable.appendChild(tooltipRow);
+
+		let toolTipElementIds = ["notification_text","filler"];
+								
+		for(let i = 0; i < toolTipElementIds.length; i++)
+		{
+			let tempColumn = document.createElement("td");
+
+			tempColumn.id = toolTipElementIds[i];
+
+			if(toolTipElementIds[i] != "filler")
+			{
+				tempColumn.style.textAlign = "left";
+				tempColumn.style.fontFamily = "calibri";
+				tempColumn.style.fontSize = "large";
+				tempColumn.style.verticalAlign = "middle";
+				tempColumn.style.fontWeight = "medium";
+				//tempColumn.style.color = "red";
+				tempColumn.style.paddingBottom = "10px";
+				tempColumn.style.paddingLeft = "30px";
+				//tempColumn.innerText = "Der eingegebene Code ist ungültig!";
+				tempColumn.style.width = "75%";
+
+				let text1 = document.createElement("span");
+				text1.style.fontFamily = "calibri";
+				text1.innerText = "Der Fragebogen muss mindestens eine Frage enthalten!";
+				tempColumn.appendChild(text1);
+
+				/*
+				let text2 = document.createElement("span");
+				text2.style.fontFamily = "calibri";
+				text2.innerText = "ungültig!";
+				text2.style.color = "#e47069"; //soft red
+				tempColumn.appendChild(text2);
+				*/
+			}
+			else
+			{
+				tempColumn.style.width = "25%";
+			}
+			tempColumn.style.height = "100%";
+
+			console.log(tempColumn);
+
+			tooltipRow.appendChild(tempColumn);
+		}
+	}
+
+	createNotificationCreationSuccessfull(tooltipContainer, target)
+	{
+		tooltipContainer.id = "successfull_created_notification";
+		tooltipContainer.style.visibility = "hidden";
+		tooltipContainer.style.position = "absolute";
+		let tooltipContainerWidth = 280;
+		tooltipContainer.style.width = tooltipContainerWidth + "px";
+		tooltipContainer.style.height = tooltipContainerWidth / 3 + "px";
+
+		tooltipContainer.style.top = target.getBoundingClientRect().top + - parseInt(tooltipContainer.style.height) + 10 + "px";
+		tooltipContainer.style.left = target.getBoundingClientRect().left + - parseInt(tooltipContainer.style.width) + "px";
+
+		tooltipContainer.style.zIndex = 10;
+
+		tooltipContainer.style.backgroundImage = "url(\"./html/Tooltip_arrow_pointing_right_bottom.png\")";
+		//tooltipContainer.style.transform = "scaleY(-1)";
+		tooltipContainer.style.backgroundSize = "100% 100%";
+		tooltipContainer.style.backgroundRepeat = "no-repeat";
+		tooltipContainer.style.backgroundPosition = "top left";
+
+		document.body.appendChild(tooltipContainer);
+		let tooltipTable = document.createElement("table");
+		tooltipTable.style.borderCollapse = "collapse";
+		tooltipTable.style.width = "100%";
+		tooltipTable.style.height = "100%";
+		tooltipContainer.appendChild(tooltipTable);
+		let tooltipRow = document.createElement("tr");
+		tooltipTable.appendChild(tooltipRow);
+
+		let toolTipElementIds = ["notification_text","filler"];
+								
+		for(let i = 0; i < toolTipElementIds.length; i++)
+		{
+			let tempColumn = document.createElement("td");
+
+			tempColumn.id = toolTipElementIds[i];
+
+			if(toolTipElementIds[i] != "filler")
+			{
+				tempColumn.style.textAlign = "left";
+				tempColumn.style.fontFamily = "calibri";
+				tempColumn.style.fontSize = "large";
+				tempColumn.style.verticalAlign = "middle";
+				tempColumn.style.fontWeight = "medium";
+				//tempColumn.style.color = "red";
+				tempColumn.style.paddingBottom = "10px";
+				tempColumn.style.paddingLeft = "30px";
+				//tempColumn.innerText = "Der eingegebene Code ist ungültig!";
+				tempColumn.style.width = "75%";
+
+				let text1 = document.createElement("span");
+				text1.style.fontFamily = "calibri";
+				text1.innerText = "Der Fragebogen ist nun in der ";
+				tempColumn.appendChild(text1);
+				
+				let text2 = document.createElement("span");
+				text2.style.fontFamily = "calibri";
+				text2.innerText = "Übersicht ";
+				text2.style.color = "green"; //TODO: Hex für Mint-Grün einfügen
+				tempColumn.appendChild(text2);
+
+				let text3 = document.createElement("span");
+				text3.style.fontFamily = "calibri";
+				text3.innerText = "verfügbar";
+				tempColumn.appendChild(text3);
+				
+			}
+			else
+			{
+				tempColumn.style.width = "25%";
+			}
+			tempColumn.style.height = "100%";
+
+			console.log(tempColumn);
+
+			tooltipRow.appendChild(tempColumn);
+		}
 	}
 
 

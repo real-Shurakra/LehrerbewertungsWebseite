@@ -55,6 +55,6 @@
 
 		
 		<!-- Fragebogen-Container -->
-		<div id="students_questionnaire_container" style="opacity:0;"></div>
+		<!-- <div id="students_questionnaire_container" style="opacity:0;"></div> -->
 	</body>
 </html>
