@@ -440,7 +440,8 @@ class FragenVerwaltung {
                                                  'zeitstempel'      =>  $sqlquery_GetFbFragen_Result_Data[$i]['zeitstempel'],
                                                  'thema'            =>  $sqlquery_GetFbFragen_Result_Data[$i]['thema'],
                                                  'klassename'       =>  $sqlquery_GetFbFragen_Result_Data[$i]['klassename'],
-                                                 'fachname'         =>  $sqlquery_GetFbFragen_Result_Data[$i]['fachname']
+                                                 'fachname'         =>  $sqlquery_GetFbFragen_Result_Data[$i]['fachname'],
+                                                 'bogenid'          =>  $sqlquery_GetFbFragen_Result_Data[$i]['bogenid']
                                                 )
                                           )
                           );
@@ -449,6 +450,7 @@ class FragenVerwaltung {
             $antwort['thema']            =  $sqlquery_GetFbFragen_Result_Data[0]['thema'];
             $antwort['klassename']       =  $sqlquery_GetFbFragen_Result_Data[0]['klassename'];
             $antwort['fachname']         =  $sqlquery_GetFbFragen_Result_Data[0]['fachname'];
+            $antwort['bogenid']          =  $sqlquery_GetFbFragen_Result_Data[0]['bogenid'];
             return array(
                 'returncode'=>0,
                 'returnvalue'=>$antwort
@@ -682,7 +684,7 @@ if (isset($_REQUEST['mode']) == false){
     $_REQUEST['anzahl']         = '1';
     $_REQUEST['klasse']         = 'ITB1-19';
     $_REQUEST['fach']           = 'ITS';
-    $_REQUEST['fbId']           = '112';
+    $_REQUEST['fbId']           = '124';
     $_REQUEST['fragen']         = array('Die Beurteilungskriterien sind nachvollziehbar.', 'Die Unterrichtsinhalte sind praxisbezogen.');
     $_REQUEST['rate']           = array(array('frageid'=>'7','bogenid'=>'112','bewertung'=>2),array('frageid'=>'35','bogenid'=>'112','bewertung'=>1));
     $_REQUEST['codehash']       = '00-48-40-00';
