@@ -2,10 +2,11 @@
 
 export default class QuestionnaireStudents{
 
-    constructor(questionnaire)
+    constructor(questionnaire, codehash)
     {
         this.answers = [];
         this.questionnaireId = undefined;
+        this.codehash = codehash;
         this.ShowQuestionnaire(questionnaire);
     }
 
@@ -290,7 +291,7 @@ export default class QuestionnaireStudents{
                 console.log("requestArray_rate:");
 
                 console.log("stringified:");
-                rate = JSON.stringify(rate);
+                //rate = JSON.stringify(rate);
                 console.log(rate);
 
                 //rate = JSON.parse(rate);
@@ -301,6 +302,8 @@ export default class QuestionnaireStudents{
                 let xhttp = new XMLHttpRequest()
                 let response = undefined;
                 let formData = new FormData();
+                console.log("codehash:");
+                console.log(this.codehash);
                 formData.append("codehash", this.codehash);
                 formData.append("rate", rate);
 
