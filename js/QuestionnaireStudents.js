@@ -312,9 +312,9 @@ export default class QuestionnaireStudents{
                 rate = JSON.stringify(rate);
                 console.log(rate);
 
-                rate = JSON.parse(rate);
-                console.log("parsed:");
-                console.log(rate);
+                //rate = JSON.parse(rate);
+                //console.log("parsed:");
+                //console.log(rate);
 
                 // Request an insertRate
                 let xhttp = new XMLHttpRequest()
