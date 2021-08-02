@@ -251,16 +251,39 @@ export default class QuestionnaireStudents{
                 //array('rate' : array('frageid' : string(FrageID), 'bogenid' : string(FragebogenID), 'bewertung' : int(FrageBewertung),  (...)) string('codehash' : )
     
                 let rate = "{";
-                let counter = 1;
+                let counter = 0;
+                // anzahl der Fragen ermitteln
+                let answersLength = 0;
                 for(let answer in this.answers)
                 {
-                    let tempQuestionAnswer = {};
-                    tempQuestionAnswer["bogenid"] = this.questionnaireId;
-                    tempQuestionAnswer["frageid"] = answer;
-                    tempQuestionAnswer["bewertung"] = this.answers[answer];
+                    if (this.answers[answer]!= null)
+                    {
+                        answersLength++;
+                    }
+                }
+                console.log("answersLength");
+                console.log(answersLength);
+
+                for(let answer in this.answers)
+                {
+                    if (this.answers[answer]!= null)
+                    {
+                        let tempQuestionAnswer = {};
+                        tempQuestionAnswer["bogenid"] = this.questionnaireId;
+                        tempQuestionAnswer["frageid"] = answer;
+                        tempQuestionAnswer["bewertung"] = this.answers[answer];
+        
+                        rate += JSON.stringify(tempQuestionAnswer);
     
-                    rate += JSON.stringify(tempQuestionAnswer);
-                    if (counter < this.answers.length -1) rate += ",";
+                        console.log(counter);
+                        console.log(counter < answersLength -1)
+    
+                        if (counter < answersLength -1 )
+                        {
+                            rate += ",";
+                            counter++;
+                        } 
+                    }  
                 }
                 rate += "}";
                 
