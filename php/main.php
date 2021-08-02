@@ -470,6 +470,7 @@ class FragenVerwaltung {
 
     public static function insertRate($rates, $codehash) {
         global $link;
+        $rates = json_decode($rates, true);
         $sqlquery_CheckValidation = "SELECT bewertung FROM codes WHERE codehash='" . $codehash . "'";
         if (mysqli_fetch_array(mysqli_query($link, $sqlquery_CheckValidation))['bewertung'] !== '0'){
             return array(
@@ -675,7 +676,7 @@ if (isset($_REQUEST['mode']) == false){
     //////////////////////////////////////////  DEBUG  /////////////////////////////////////////////
     session_unset();
     $_SESSION['usermail']       = 'temp.dump@hotmail.com';
-    $_REQUEST['mode']           = 'getFbFragen';
+    $_REQUEST['mode']           = 'insertRate';
     $_REQUEST['frage']          = 'Tafelbilder und Folien sind gut lesbar.';
     $_REQUEST['mail']           = 'temp.dump@hotmail.com';
     $_REQUEST['passwort']       = 'Admin';
@@ -686,7 +687,7 @@ if (isset($_REQUEST['mode']) == false){
     $_REQUEST['fach']           = 'ITS';
     $_REQUEST['fbId']           = '124';
     $_REQUEST['fragen']         = array('Die Beurteilungskriterien sind nachvollziehbar.', 'Die Unterrichtsinhalte sind praxisbezogen.');
-    $_REQUEST['rate']           = array(array('frageid'=>'7','bogenid'=>'112','bewertung'=>2),array('frageid'=>'35','bogenid'=>'112','bewertung'=>1));
+    $_REQUEST['rate']           = json_encode(array(array('frageid'=>'7','bogenid'=>'112','bewertung'=>2),array('frageid'=>'35','bogenid'=>'112','bewertung'=>1)));
     $_REQUEST['codehash']       = '00-48-40-00';
     $_REQUEST['kritik']         = 'Alles Gefixt! Garkein Problem!';
     $_REQUEST['frageId']        = '124';
