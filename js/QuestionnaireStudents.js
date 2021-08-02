@@ -250,20 +250,52 @@ export default class QuestionnaireStudents{
             button.addEventListener("mousedown", ()=>{
                 //array('rate' : array('frageid' : string(FrageID), 'bogenid' : string(FragebogenID), 'bewertung' : int(FrageBewertung),  (...)) string('codehash' : )
     
-                let kritik = [];
-                kritik["rate"] = [];
+                let rate = "{";
+                let counter = 1;
                 for(let answer in this.answers)
                 {
-                    let tempQuestionAnswer = [];
+                    let tempQuestionAnswer = {};
                     tempQuestionAnswer["bogenid"] = this.questionnaireId;
                     tempQuestionAnswer["frageid"] = answer;
                     tempQuestionAnswer["bewertung"] = this.answers[answer];
     
-                    kritik["rate"].push(tempQuestionAnswer);
+                    rate += JSON.stringify(tempQuestionAnswer);
+                    if (counter < this.answers.length -1) rate += ",";
                 }
+                rate += "}";
                 
-                console.log("requestArray_kritik:");
-                console.log(kritik);
+                console.log("requestArray_rate:");
+                console.log(rate);
+
+                // Request an insertRate
+                let xhttp = new XMLHttpRequest()
+                let response = undefined;
+                let formData = new FormData();
+                formData.append("codehash", this.codehash);
+                formData.append("rate", rate);
+
+                let path = "./php/main.php?mode=insertRate";
+
+                xhttp.open("POST", path, true);
+
+                xhttp.onreadystatechange = ()=>{
+					if ( xhttp.readyState == 4 && xhttp.status == 200 )
+					{
+						response = xhttp.responseText;
+                        console.log("response_insertRate");
+                        console.log(response);
+						try
+						{
+
+                        }
+                        catch(error)
+                        {
+
+                        }
+                    }
+                }
+                xhttp.send(formData);
+
             });
     
             questionsContainer.appendChild(sendButton);
