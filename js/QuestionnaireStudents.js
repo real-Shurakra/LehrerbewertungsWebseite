@@ -251,7 +251,6 @@ export default class QuestionnaireStudents{
             button.addEventListener("mousedown", ()=>{
                 //array('rate' : array('frageid' : string(FrageID), 'bogenid' : string(FragebogenID), 'bewertung' : int(FrageBewertung),  (...)) string('codehash' : )
     
-                let rate = "{";
                 let counter = 0;
                 // anzahl der Fragen ermitteln
                 let answersLength = 0;
@@ -265,6 +264,8 @@ export default class QuestionnaireStudents{
                 console.log("answersLength");
                 console.log(answersLength);
 
+                /*
+                let rate = "{\"rates\"\:{";
                 for(let answer in this.answers)
                 {
                     if (this.answers[answer]!= null)
@@ -287,14 +288,31 @@ export default class QuestionnaireStudents{
                     }  
                 }
                 rate += "}";
+                */
+
+                let rate = {};
+                rate["rates"] = {};
+                for(let answer in this.answers)
+                {
+                    if (this.answers[answer]!= null)
+                    {
+                        let tempQuestionAnswer = {};
+                        tempQuestionAnswer["bogenid"] = this.questionnaireId;
+                        tempQuestionAnswer["frageid"] = answer;
+                        tempQuestionAnswer["bewertung"] = this.answers[answer];
+        
+                        rate["rates"][counter] = tempQuestionAnswer;
+                        counter++;
+                    }  
+                }
                 
                 console.log("requestArray_rate:");
 
                 console.log("stringified:");
-                //rate = JSON.stringify(rate);
+                rate = JSON.stringify(rate);
                 console.log(rate);
 
-                //rate = JSON.parse(rate);
+                rate = JSON.parse(rate);
                 console.log("parsed:");
                 console.log(rate);
 
