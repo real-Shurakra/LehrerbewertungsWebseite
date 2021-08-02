@@ -288,6 +288,13 @@ export default class QuestionnaireStudents{
                 rate += "}";
                 
                 console.log("requestArray_rate:");
+
+                console.log("stringified:");
+                rate = JSON.stringify(rate);
+                console.log(rate);
+
+                //rate = JSON.parse(rate);
+                console.log("parsed:");
                 console.log(rate);
 
                 // Request an insertRate
