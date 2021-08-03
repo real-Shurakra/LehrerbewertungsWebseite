@@ -264,32 +264,6 @@ export default class QuestionnaireStudents{
                 console.log("answersLength");
                 console.log(answersLength);
 
-                /*
-                let rate = "{\"rates\"\:{";
-                for(let answer in this.answers)
-                {
-                    if (this.answers[answer]!= null)
-                    {
-                        let tempQuestionAnswer = {};
-                        tempQuestionAnswer["bogenid"] = this.questionnaireId;
-                        tempQuestionAnswer["frageid"] = answer;
-                        tempQuestionAnswer["bewertung"] = this.answers[answer];
-        
-                        rate += JSON.stringify(tempQuestionAnswer);
-    
-                        console.log(counter);
-                        console.log(counter < answersLength -1)
-    
-                        if (counter < answersLength -1 )
-                        {
-                            rate += ",";
-                            counter++;
-                        } 
-                    }  
-                }
-                rate += "}";
-                */
-
                 let rate = {};
                 rate["rates"] = {};
                 for(let answer in this.answers)
@@ -309,6 +283,8 @@ export default class QuestionnaireStudents{
                 console.log("requestArray_rate:");
 
                 console.log("stringified:");
+                rate = JSON.stringify(rate);
+                console.log(rate);
                 rate = JSON.stringify(rate);
                 console.log(rate);
 
@@ -337,6 +313,38 @@ export default class QuestionnaireStudents{
                         console.log(response);
 						try
 						{
+                            // Request an insertKritik
+                            let xhttp2 = new XMLHttpRequest()
+                            let response2 = undefined;
+                            let formData2 = new FormData();
+                            console.log("codehash:");
+                            console.log(this.codehash);
+                            formData2.append("codehash", this.codehash);
+                            formData2.append("fbId", this.questionnaireId);
+                            formData2.append("kritik", suggestionInput.value)
+ 
+                            let path2 = "./php/main.php?mode=insertkritik";
+ 
+                             xhttp2.open("POST", path2, true);
+ 
+                             xhttp2.onreadystatechange = ()=>{
+                                if ( xhttp.readyState == 4 && xhttp.status == 200 )
+                                {
+                                    response2 = xhttp2.responseText;
+                                    console.log("response_insertKritik");
+                                    console.log(response2);
+                                    try
+                                    {
+                                        //TODO: Tooltip für erfolgreich abgegebene Antworten anzeigen und Ausfüll-Bogen schließen
+                                        //TODO: entsprechenden Code aus Datenbank löschen
+                                    }
+                                    catch(error)
+                                    {
+ 
+                                    }
+                                }
+                            }
+                            xhttp2.send(formData2);
 
                         }
                         catch(error)
@@ -346,7 +354,7 @@ export default class QuestionnaireStudents{
                     }
                 }
                 xhttp.send(formData);
-
+ 
             });
     
             questionsContainer.appendChild(sendButton);

@@ -1,0 +1,72 @@
+in dim3 
+bogenid 148 true
+in dim3 
+frageid 3 true
+in dim3 
+bewertung 2 true
+in dim3 
+bogenid 148 true
+in dim3 
+frageid 4 true
+in dim3 
+bewertung 2 true
+in dim3 
+bogenid 148 true
+in dim3 
+frageid 5 true
+in dim3 
+bewertung 2 true
+in dim3 
+bogenid 148 true
+in dim3 
+frageid 14 true
+in dim3 
+bewertung 2 true
+in dim3 
+bogenid 148 true
+in dim3 
+frageid 15 true
+in dim3 
+bewertung 2 true
+in dim3 
+bogenid 148 true
+in dim3 
+frageid 26 true
+in dim3 
+bewertung 2 true
+in dim3 
+bogenid 148 true
+in dim3 
+frageid 27 true
+in dim3 
+bewertung 2 true
+in dim3 
+bogenid 148 true
+in dim3 
+frageid 28 true
+in dim3 
+bewertung 2 true
+in dim3 
+bogenid 148 true
+in dim3 
+frageid 31 true
+in dim3 
+bewertung 2 true
+in dim3 
+bogenid 148 true
+in dim3 
+frageid 36 true
+in dim3 
+bewertung 2 true
+in dim3 
+bogenid 148 true
+in dim3 
+frageid 38 true
+in dim3 
+bewertung 2 true
+in dim3 
+bogenid 148 true
+in dim3 
+frageid 129 true
+in dim3 
+bewertung 2 true

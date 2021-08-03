@@ -131,12 +131,24 @@ export default class Questionnaire
 				//console.log(response[questionnaire][index]);
 				let columnHeaders = document.createElement("td");
 				columnHeaders.className = "questionnaireHeader";
+
+				let columnData = document.createElement("td");
 	
 				// Änderung der Header-Bezeichnungen
 				if (index == "name") 
 				{
 					columnHeaders.innerHTML = "Thema";
 					this.qSubject = questionnaire[index];
+
+					// Breite der Spalten für Bogen-Thema
+
+					// Header
+					columnHeaders.style.width = "400px";
+					columnHeaders.style.paddingLeft = "5px";
+
+					// Daten
+					columnData.style.width = "400px";
+					columnData.style.paddingLeft = "5px";
 				}
 				else if (index == "zeitstempel") columnHeaders.innerHTML = "Datum";
 				else if (index == "id") continue;
@@ -156,7 +168,10 @@ export default class Questionnaire
 					this.subject = questionnaire[index];
 					columnHeaders.innerHTML = "Fach";
 				}
-				else if (index == "bewertungsumme") columnHeaders.innerHTML = "Punkte";
+				else if (index == "bewertungsumme") 
+				{
+					columnHeaders.innerHTML = "Punkte";
+				}
 				else columnHeaders.innerHTML = index;
 	
 				columnHeaders.style.backgroundColor = this.unhighlightedColor;
@@ -165,12 +180,31 @@ export default class Questionnaire
 				columnHeaders.style.color = this.menuBarColor;
 				rowHeaders.appendChild(columnHeaders);
 					
-				let columnData = document.createElement("td");
+				//let columnData = document.createElement("td");
 	
 				if (index == "zeitstempel")
 				{
 					let timestamp = questionnaire[index].split(" ");
 					columnData.innerHTML = timestamp[0];
+				}
+				else if(index == "bewertungsumme")
+				{
+					let columnId = questionnaire.id + "_bewertungsssumme";
+					columnData.id = columnId;
+					//getQuestionsAmount(questionnaireId, currentAmount, columnId)
+					
+					setTimeout(()=>{
+						let interval = setInterval(()=>{
+							this.computeAnswerValue( this.id, questionnaire[index], columnId);
+							let dataContent = document.getElementById(columnId).innerHTML;
+							console.log(dataContent.innerHTML);
+							if (dataContent != undefined)
+							{
+								clearInterval(interval);
+							}
+						}, 100)
+					}, 100)
+
 				}
 				else columnData.innerHTML = questionnaire[index];
 	
@@ -250,6 +284,41 @@ export default class Questionnaire
 		document.getElementById(questionnaireId + "_question_container").innerHTML = "";
 	}
 
+
+	computeAnswerValue(questionnaireId, currentAmount, columnId)
+	{
+		console.log(questionnaireId + " / " + currentAmount + " / " + columnId);
+		let xhttp = new XMLHttpRequest()
+		let path = "./php/main.php?mode=getFbFragen";
+
+		let formData = new FormData();
+		formData.append("fbId", questionnaireId);
+
+		xhttp.open("POST", path, true);
+		xhttp.onreadystatechange = ()=>{
+			if ( xhttp.readyState == 4 && xhttp.status == 200 )
+			{
+				let response = JSON.parse(xhttp.responseText);
+				
+				let questionsAmount = 0;
+				for (let element in response.returnvalue)
+				{
+					for (let dim2 in response.returnvalue[element])
+					{
+						if (dim2.includes("frageid")) questionsAmount++;
+					}
+				}
+				console.log("Anzahl Fragen:")
+				console.log(questionsAmount);
+
+				let tempColumn = document.getElementById(columnId);
+				if (tempColumn != undefined) tempColumn.innerHTML = currentAmount + " / " + questionsAmount * this.amountStudents * 2;
+
+			}
+		}
+		xhttp.send(formData);
+	}
+
 	ShowQuestions(questionnaireId)
 	{
 		let xhttp = new XMLHttpRequest()
@@ -263,18 +332,18 @@ export default class Questionnaire
 		xhttp.onreadystatechange = ()=>{
 			if ( xhttp.readyState == 4 && xhttp.status == 200 )
 			{
-				console.log("showQuestions:");
-				console.log(xhttp.responseText);
 				let response = JSON.parse(xhttp.responseText);
-
-				for (let element in response)
+				console.log("showQuestions:");
+				console.log(response);
+				
+				for (let element in response.returnvalue)
 				{
-					for (let dim2 in response[element])
+					for (let dim2 in response.returnvalue[element])
 					{
-						if(response[element][dim2][0].fragestring != undefined && response[element][dim2][0].fragekategorie != undefined)
+						if(response.returnvalue[element][dim2].fragestring != undefined && response.returnvalue[element][dim2].fragekategorie != undefined)
 						{
 							// Kategorie-Header hinzufügen, Zusammengesetzte Id aus Fragebogen-Id und Kategorie-Id
-							let tempCategoryId = questionnaireId + "_expanded_questionnaire_category_" + response[element][dim2][0].fragekategorie;
+							let tempCategoryId = questionnaireId + "_expanded_questionnaire_category_" + response.returnvalue[element][dim2].fragekategorie;
 							let tempCategory = document.getElementById(tempCategoryId);
 
 							if (tempCategory == undefined) 
@@ -289,23 +358,53 @@ export default class Questionnaire
 								tempCategory.style.backgroundColor = "#191f51"; // Marineblau
 								tempCategory.style.color = "white";
 								tempCategory.style.fontSize = "16px";
-								tempCategory.innerHTML = response[element][dim2][0].fragekategorie;
+								tempCategory.innerHTML = response.returnvalue[element][dim2].fragekategorie;
 
 								let tempCategoryAfterSpacer = document.createElement("div");
 								tempCategoryAfterSpacer.style.height = "5px";
 								tempCategoryAfterSpacer.style.backgroundColor = "white";
 								tempCategory.appendChild(tempCategoryAfterSpacer);
-							}	
-							// Frage hinzufügen
-							let tempQuestion = document.createElement("div");
-							tempQuestion.style.backgroundColor = "white";
-							tempQuestion.style.color = "black";
-							tempQuestion.style.fontSize = "16px";
-							tempQuestion.style.height = "22px";
+							}
+
+							// Frage-Tabelle hinzufügen
+							let tempQuestionContainer = document.createElement("div");
+							tempQuestionContainer.style.backgroundColor = "white";
+							tempQuestionContainer.id = questionnaireId + "_expanded_questionnaire_question_" + response.returnvalue[element][dim2].frageid;
+							tempCategory.appendChild(tempQuestionContainer);
+
+							let tempQuestionTable = document.createElement("table");
+							tempQuestionContainer.appendChild(tempQuestionTable);
+
+							let tempQuestionTableRow = document.createElement("tr");
+							tempQuestionTable.appendChild(tempQuestionTableRow);
+
+							// Frage
+							let tempQuestionTableColumn1 = document.createElement("td");
+							tempQuestionTableRow.appendChild(tempQuestionTableColumn1);
+							tempQuestionTableColumn1.id = questionnaireId + "_expanded_questionnaire_question_" + response.returnvalue[element][dim2].frageid + "_text";
+							tempQuestionTableColumn1.style.width = "1%";
+							tempQuestionTableColumn1.style.backgroundColor = "white";
+							tempQuestionTableColumn1.style.color = "black";
+							tempQuestionTableColumn1.style.fontSize = "16px";
+							tempQuestionTableColumn1.style.height = "22px";
 							// Zusammengesetzte Id aus Fragebogen-Id und Frage-Id
-							tempQuestion.id = questionnaireId + "_expanded_questionnaire_question_" + response[element][dim2][0].frageid;
-							tempQuestion.innerHTML = response[element][dim2][0].fragestring;
-							tempCategory.appendChild(tempQuestion);
+							tempQuestionTableColumn1.innerHTML = response.returnvalue[element][dim2].fragestring;
+
+							// Erreichte Punkte
+							let tempQuestionTableColumn2 = document.createElement("td");
+							tempQuestionTableRow.appendChild(tempQuestionTableColumn2);
+							tempQuestionTableColumn2.id = questionnaireId + "_expanded_questionnaire_question_" + response.returnvalue[element][dim2].frageid + "_Answer_value";
+							tempQuestionTableColumn2.style.width = "1%";
+							tempQuestionTableColumn2.style.backgroundColor = "white";
+							tempQuestionTableColumn2.style.color = "black";
+							tempQuestionTableColumn2.style.fontSize = "16px";
+							tempQuestionTableColumn2.style.height = "22px";
+							tempQuestionTableColumn2.style.textAlign = "right";
+							tempQuestionTableColumn2.style.paddingRight = "50px";
+							// Zusammengesetzte Id aus Fragebogen-Id und Frage-Id
+							let tempValue = Number(response.returnvalue[element][dim2].fragebewertung);
+							tempQuestionTableColumn2.innerHTML = tempValue.toFixed(2) + " / " + this.amountStudents * 2;
+							
 
 							document.getElementById(questionnaireId + "_question_container").appendChild(tempCategory);
 						}

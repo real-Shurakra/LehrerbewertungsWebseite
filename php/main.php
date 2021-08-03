@@ -470,7 +470,10 @@ class FragenVerwaltung {
 
     public static function insertRate($rates, $codehash) {
         global $link;
+
         $rates = json_decode($rates, true);
+        $rates = json_decode($rates, true);
+
         $sqlquery_CheckValidation = "SELECT bewertung FROM codes WHERE codehash='" . $codehash . "'";
         if (mysqli_fetch_array(mysqli_query($link, $sqlquery_CheckValidation))['bewertung'] !== '0'){
             return array(
@@ -481,15 +484,52 @@ class FragenVerwaltung {
         else{mysqli_query($link, "UPDATE codes SET bewertung=1 WHERE codehash='" . $codehash . "'");}
         $sqlquary_insertRate = 'INSERT INTO bewertungen(id, frageid, bogenid, bewertung) VALUES ';
         $temp_sqlquary_insertRate = '';
-        foreach ($rates as $rate) {
-            if ($rate['bewertung'] < -2 || $rate['bewertung'] > 2){
-                return array(
-                    'returncode'=>-2,
-                    'returnvalue'=>main::toDE('<strong>Bewertung fehlerhaft</strong><br>Ihre Antwort ist nicht zulässig.')
-                );
-            } 
-            $temp_sqlquary_insertRate .= "(DEFAULT," . $rate['frageid'] . "," . $rate['bogenid'] . "," . $rate['bewertung'] . "),";
+
+        // Debugging
+        $fp = fopen('../logs/vardump.txt', 'w');
+        foreach ($rates as $key => $value) {
+                
+            foreach($value as $key2 => $value2)
+            {
+                $bewertung = 0;
+                $bogenid = 0;
+                $frageid = 0;
+                foreach($value2 as $key3 => $value3)
+                {
+                    // Debugging
+                    fwrite($fp, "in dim3 \n");
+
+                    if($key3=="bewertung")
+                    {
+                        $bewertung = $value3;
+                        //Debugging
+                        fwrite($fp, strval($key3) . " " . strval($value3) . " true\n");
+                    }
+                    if($key3=="bogenid")
+                    {
+                        $bogenid = $value3;
+                        //Debugging
+                        fwrite($fp, strval($key3) . " " . strval($value3) . " true\n");
+                    }
+                    if($key3=="frageid") 
+                    {
+                        $frageid = $value3;
+                        //Debugging
+                        fwrite($fp, strval($key3) . " " . strval($value3) . " true\n");
+                    }
+                }
+                if ((int)$bewertung < -2 || (int)$bewertung > 2){
+                    return array(
+                        'returncode'=>-2,
+                        'returnvalue'=>main::toDE('<strong>Bewertung fehlerhaft</strong><br>Ihre Antwort ist nicht zulässig.')
+                    );
+                } 
+                $temp_sqlquary_insertRate .= "(DEFAULT," . $frageid . "," . $bogenid . "," . $bewertung . "),";
+            }
         }
+        //Debugging
+        fclose($fp);
+
         $sqlquary_insertRate .= rtrim($temp_sqlquary_insertRate, ',');
         if (mysqli_query($link, $sqlquary_insertRate)) {
             return array(
