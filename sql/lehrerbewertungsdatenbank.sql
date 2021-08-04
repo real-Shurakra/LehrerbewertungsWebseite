@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Erstellungszeit: 29. Jul 2021 um 21:25
+-- Erstellungszeit: 04. Aug 2021 um 13:31
 -- Server-Version: 10.4.8-MariaDB
 -- PHP-Version: 7.2.24
 
@@ -21,6 +21,8 @@ SET time_zone = "+00:00";
 --
 -- Datenbank: `lehrerbewertungsdatenbank`
 --
+CREATE DATABASE IF NOT EXISTS `lehrerbewertungsdatenbank` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+USE `lehrerbewertungsdatenbank`;
 
 -- --------------------------------------------------------
 
@@ -708,7 +710,7 @@ CREATE TABLE `getfbfragen` (
 ,`kategorie` varchar(255)
 ,`frageid` bigint(20) unsigned
 ,`bogenid` bigint(20) unsigned
-,`bewertung` decimal(9,4)
+,`bewertung` decimal(27,0)
 ,`zeitstempel` timestamp
 ,`thema` varchar(255)
 ,`klassename` varchar(32)
@@ -845,7 +847,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `getfbfragen`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getfbfragen`  AS  select `lehrerbewertungsdatenbank`.`fragen`.`frage` AS `frage`,`lehrerbewertungsdatenbank`.`fragen`.`kategorie` AS `kategorie`,`lehrerbewertungsdatenbank`.`fragen`.`id` AS `frageid`,`lehrerbewertungsdatenbank`.`nm_frage_fragebogen`.`bogenid` AS `bogenid`,avg(`lehrerbewertungsdatenbank`.`bewertungen`.`bewertung`) AS `bewertung`,`lehrerbewertungsdatenbank`.`fragebogen`.`zeitstempel` AS `zeitstempel`,`lehrerbewertungsdatenbank`.`fragebogen`.`name` AS `thema`,`lehrerbewertungsdatenbank`.`fragebogen`.`klassename` AS `klassename`,`lehrerbewertungsdatenbank`.`fach`.`name` AS `fachname` from ((((`lehrerbewertungsdatenbank`.`nm_frage_fragebogen` left join `lehrerbewertungsdatenbank`.`fragen` on(`lehrerbewertungsdatenbank`.`nm_frage_fragebogen`.`frageid` = `lehrerbewertungsdatenbank`.`fragen`.`id`)) left join `lehrerbewertungsdatenbank`.`bewertungen` on(`lehrerbewertungsdatenbank`.`fragen`.`id` = `lehrerbewertungsdatenbank`.`bewertungen`.`frageid`)) left join `lehrerbewertungsdatenbank`.`fragebogen` on(`lehrerbewertungsdatenbank`.`nm_frage_fragebogen`.`bogenid` = `lehrerbewertungsdatenbank`.`fragebogen`.`id`)) left join `lehrerbewertungsdatenbank`.`fach` on(`lehrerbewertungsdatenbank`.`fragebogen`.`fachid` = `lehrerbewertungsdatenbank`.`fach`.`id`)) group by `lehrerbewertungsdatenbank`.`fragen`.`frage`,`lehrerbewertungsdatenbank`.`fragen`.`kategorie`,`lehrerbewertungsdatenbank`.`fragen`.`id`,`lehrerbewertungsdatenbank`.`nm_frage_fragebogen`.`bogenid`,`lehrerbewertungsdatenbank`.`fragebogen`.`zeitstempel`,`lehrerbewertungsdatenbank`.`fragebogen`.`name`,`lehrerbewertungsdatenbank`.`fragebogen`.`klassename`,`lehrerbewertungsdatenbank`.`fach`.`name` ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getfbfragen`  AS  select `fragen`.`frage` AS `frage`,`fragen`.`kategorie` AS `kategorie`,`fragen`.`id` AS `frageid`,`nm_frage_fragebogen`.`bogenid` AS `bogenid`,sum(`bewertungen`.`bewertung`) AS `bewertung`,`fragebogen`.`zeitstempel` AS `zeitstempel`,`fragebogen`.`name` AS `thema`,`fragebogen`.`klassename` AS `klassename`,`fach`.`name` AS `fachname` from ((((`nm_frage_fragebogen` left join `fragen` on(`nm_frage_fragebogen`.`frageid` = `fragen`.`id`)) left join `bewertungen` on(`fragen`.`id` = `bewertungen`.`frageid`)) left join `fragebogen` on(`nm_frage_fragebogen`.`bogenid` = `fragebogen`.`id`)) left join `fach` on(`fragebogen`.`fachid` = `fach`.`id`)) group by `fragen`.`frage`,`fragen`.`kategorie`,`fragen`.`id`,`nm_frage_fragebogen`.`bogenid`,`fragebogen`.`zeitstempel`,`fragebogen`.`name`,`fragebogen`.`klassename`,`fach`.`name` ;
 
 -- --------------------------------------------------------
 

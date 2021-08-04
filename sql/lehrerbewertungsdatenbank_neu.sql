@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Erstellungszeit: 03. Aug 2021 um 16:34
+-- Erstellungszeit: 04. Aug 2021 um 13:32
 -- Server-Version: 10.4.8-MariaDB
 -- PHP-Version: 7.2.24
 
@@ -132,7 +132,24 @@ INSERT INTO `fragen` (`id`, `frage`, `lehrerid`, `kategorie`) VALUES
 (35, 'Die Beurteilungskriterien sind nachvollziehbar.', NULL, 'Leistungsbewertung'),
 (36, 'Die Schüler erhalten ausreichend Gelegenheit, sich im Rahmen der sonstigen Mitarbeit zu engagieren.', NULL, 'Leistungsbewertung'),
 (37, 'Die sonstige Mitarbeit fließt angemessen in die Gesamtnote ein.', NULL, 'Leistungsbewertung'),
-(38, 'Die Beurteilung ist gerecht, weil alle Schüler gleich behandelt werden.', NULL, 'Leistungsbewertung');
+(38, 'Die Beurteilung ist gerecht, weil alle Schüler gleich behandelt werden.', NULL, 'Leistungsbewertung'),
+(112, 'Herr KrÃ¶ger sieht aus wie jemand der Katzen mag.', 1, 'Lehrer'),
+(113, 'Test', 1, 'Unterricht'),
+(114, 'TEST_2', NULL, 'Unterricht'),
+(115, 'Kaschwivbel', 1, 'Unterricht'),
+(116, 'asfdasfs', 1, 'Unterricht'),
+(117, 'sd', 1, 'Unterricht'),
+(118, 'sdfgsdfgdsg', 1, 'Unterricht'),
+(119, 'Kabogadibogadi', 1, 'Unterricht'),
+(120, 'blubb', 1, 'Unterricht'),
+(121, 'blubb2', 1, 'Unterricht'),
+(122, 'blubb3', 1, 'Unterricht'),
+(123, 'blubb4', 1, 'Unterricht'),
+(124, 'asdfasdfasfsd', 1, 'Unterricht'),
+(125, 'asfdasdfasfads', 1, 'Unterricht'),
+(126, 'sfgsdfgdgdggggggggggggggggggggggggggg', 1, 'Unterricht'),
+(127, 'Testfrage', 1, 'Lehrer'),
+(128, 'asdfsa', 1, 'Unterricht');
 
 -- --------------------------------------------------------
 
@@ -157,7 +174,7 @@ CREATE TABLE `getfbfragen` (
 ,`kategorie` varchar(255)
 ,`frageid` bigint(20) unsigned
 ,`bogenid` bigint(20) unsigned
-,`bewertung` decimal(9,4)
+,`bewertung` decimal(27,0)
 ,`zeitstempel` timestamp
 ,`thema` varchar(255)
 ,`klassename` varchar(32)
@@ -223,7 +240,7 @@ CREATE TABLE `lehrer` (
 --
 
 INSERT INTO `lehrer` (`id`, `mail`, `vorname`, `nachname`, `passwort`, `isroot`) VALUES
-(1, 'Admin', 'Admin', 'Admin', 'fc5a8d28daaff41f992dd78286e7c7eb58953f138bc67f5f622a7fea035745be97f1ee603aafeabf3a54fad97ba6b8eb2211e5d1635139b38c3ac189d8d8685e', 1);
+(1, 'temp.dump@hotmail.com', 'Admin', 'Admin', 'fc5a8d28daaff41f992dd78286e7c7eb58953f138bc67f5f622a7fea035745be97f1ee603aafeabf3a54fad97ba6b8eb2211e5d1635139b38c3ac189d8d8685e', 1);
 
 -- --------------------------------------------------------
 
@@ -276,7 +293,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `getfbfragen`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getfbfragen`  AS  select `fragen`.`frage` AS `frage`,`fragen`.`kategorie` AS `kategorie`,`fragen`.`id` AS `frageid`,`nm_frage_fragebogen`.`bogenid` AS `bogenid`,avg(`bewertungen`.`bewertung`) AS `bewertung`,`fragebogen`.`zeitstempel` AS `zeitstempel`,`fragebogen`.`name` AS `thema`,`fragebogen`.`klassename` AS `klassename`,`fach`.`name` AS `fachname` from ((((`nm_frage_fragebogen` left join `fragen` on(`nm_frage_fragebogen`.`frageid` = `fragen`.`id`)) left join `bewertungen` on(`fragen`.`id` = `bewertungen`.`frageid`)) left join `fragebogen` on(`nm_frage_fragebogen`.`bogenid` = `fragebogen`.`id`)) left join `fach` on(`fragebogen`.`fachid` = `fach`.`id`)) group by `fragen`.`frage`,`fragen`.`kategorie`,`fragen`.`id`,`nm_frage_fragebogen`.`bogenid`,`fragebogen`.`zeitstempel`,`fragebogen`.`name`,`fragebogen`.`klassename`,`fach`.`name` ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getfbfragen`  AS  select `fragen`.`frage` AS `frage`,`fragen`.`kategorie` AS `kategorie`,`fragen`.`id` AS `frageid`,`nm_frage_fragebogen`.`bogenid` AS `bogenid`,sum(`bewertungen`.`bewertung`) AS `bewertung`,`fragebogen`.`zeitstempel` AS `zeitstempel`,`fragebogen`.`name` AS `thema`,`fragebogen`.`klassename` AS `klassename`,`fach`.`name` AS `fachname` from ((((`nm_frage_fragebogen` left join `fragen` on(`nm_frage_fragebogen`.`frageid` = `fragen`.`id`)) left join `bewertungen` on(`fragen`.`id` = `bewertungen`.`frageid`)) left join `fragebogen` on(`nm_frage_fragebogen`.`bogenid` = `fragebogen`.`id`)) left join `fach` on(`fragebogen`.`fachid` = `fach`.`id`)) group by `fragen`.`frage`,`fragen`.`kategorie`,`fragen`.`id`,`nm_frage_fragebogen`.`bogenid`,`fragebogen`.`zeitstempel`,`fragebogen`.`name`,`fragebogen`.`klassename`,`fach`.`name` ;
 
 -- --------------------------------------------------------
 
