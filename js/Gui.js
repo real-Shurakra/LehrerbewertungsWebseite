@@ -22,8 +22,8 @@ export default class Gui
 		this.addHTMLHorizontalMenuInputFields = ["input_teacher_email", "input_password_teacher", "input_student_code"];
 		this.verticalMenuButtons = [];
 		
-		this.pages = ["Uebersicht", "Fragebogen_erstellen", "Fragen_verwalten", "Klassen_verwalten"];
-		this.pagesNames = ["./html/uebersicht.htm", "./html/fragebogen_erstellen.htm", "./html/fragen_verwalten.htm", "./html/klassen_verwalten.htm"];
+		this.pages = ["Uebersicht", "Fragebogen_erstellen", "Fragen_verwalten"];
+		this.pagesNames = ["./html/uebersicht.htm", "./html/fragebogen_erstellen.htm", "./html/fragen_verwalten.htm"];
 		
 		this.functionKeys = [];
 		

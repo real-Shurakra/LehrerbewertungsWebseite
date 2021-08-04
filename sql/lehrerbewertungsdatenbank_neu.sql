@@ -132,24 +132,7 @@ INSERT INTO `fragen` (`id`, `frage`, `lehrerid`, `kategorie`) VALUES
 (35, 'Die Beurteilungskriterien sind nachvollziehbar.', NULL, 'Leistungsbewertung'),
 (36, 'Die Schüler erhalten ausreichend Gelegenheit, sich im Rahmen der sonstigen Mitarbeit zu engagieren.', NULL, 'Leistungsbewertung'),
 (37, 'Die sonstige Mitarbeit fließt angemessen in die Gesamtnote ein.', NULL, 'Leistungsbewertung'),
-(38, 'Die Beurteilung ist gerecht, weil alle Schüler gleich behandelt werden.', NULL, 'Leistungsbewertung'),
-(112, 'Herr KrÃ¶ger sieht aus wie jemand der Katzen mag.', 1, 'Lehrer'),
-(113, 'Test', 1, 'Unterricht'),
-(114, 'TEST_2', NULL, 'Unterricht'),
-(115, 'Kaschwivbel', 1, 'Unterricht'),
-(116, 'asfdasfs', 1, 'Unterricht'),
-(117, 'sd', 1, 'Unterricht'),
-(118, 'sdfgsdfgdsg', 1, 'Unterricht'),
-(119, 'Kabogadibogadi', 1, 'Unterricht'),
-(120, 'blubb', 1, 'Unterricht'),
-(121, 'blubb2', 1, 'Unterricht'),
-(122, 'blubb3', 1, 'Unterricht'),
-(123, 'blubb4', 1, 'Unterricht'),
-(124, 'asdfasdfasfsd', 1, 'Unterricht'),
-(125, 'asfdasdfasfads', 1, 'Unterricht'),
-(126, 'sfgsdfgdgdggggggggggggggggggggggggggg', 1, 'Unterricht'),
-(127, 'Testfrage', 1, 'Lehrer'),
-(128, 'asdfsa', 1, 'Unterricht');
+(38, 'Die Beurteilung ist gerecht, weil alle Schüler gleich behandelt werden.', NULL, 'Leistungsbewertung');
 
 -- --------------------------------------------------------
 

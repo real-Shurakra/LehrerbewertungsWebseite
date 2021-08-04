@@ -335,6 +335,11 @@ export default class Questionnaire
 				let response = JSON.parse(xhttp.responseText);
 				console.log("showQuestions:");
 				console.log(response);
+
+				let tempCategoryBeforeSpacer = document.createElement("div");
+				tempCategoryBeforeSpacer.style.height = "15px";
+				tempCategoryBeforeSpacer.style.backgroundColor = "white";
+				document.getElementById(questionnaireId + "_question_container").appendChild(tempCategoryBeforeSpacer);
 				
 				for (let element in response.returnvalue)
 				{
@@ -348,11 +353,6 @@ export default class Questionnaire
 
 							if (tempCategory == undefined) 
 							{
-								let tempCategoryBeforeSpacer = document.createElement("div");
-								tempCategoryBeforeSpacer.style.height = "5px";
-								tempCategoryBeforeSpacer.style.backgroundColor = "white";
-								document.getElementById(questionnaireId + "_question_container").appendChild(tempCategoryBeforeSpacer);
-
 								tempCategory = document.createElement("div");
 								tempCategory.id = tempCategoryId;
 								tempCategory.style.backgroundColor = "#191f51"; // Marineblau
@@ -369,6 +369,7 @@ export default class Questionnaire
 							// Frage-Tabelle hinzufügen
 							let tempQuestionContainer = document.createElement("div");
 							tempQuestionContainer.style.backgroundColor = "white";
+							tempQuestionContainer.style.padding = "5px";
 							tempQuestionContainer.id = questionnaireId + "_expanded_questionnaire_question_" + response.returnvalue[element][dim2].frageid;
 							tempCategory.appendChild(tempQuestionContainer);
 
@@ -410,9 +411,99 @@ export default class Questionnaire
 						}
 					}
 				}
+
+				let tempContainer = document.getElementById(questionnaireId + "_question_container");//.appendChild(tempCategory);
+				this.getKritik(this.id, tempContainer);
 			}
 		};
 		xhttp.open("POST", path, true);
+		xhttp.send(formData);
+	}
+
+	getKritik(questionnaireId, tempContainer)
+	{
+		let xhttp = new XMLHttpRequest()
+		let path = "./php/main.php?mode=getkritik";
+		let response = undefined;
+		let formData = new FormData();
+		formData.append("fbId", questionnaireId);
+
+		xhttp.open("POST", path, true);
+		xhttp.onreadystatechange = ()=>{
+			if ( xhttp.readyState == 4 && xhttp.status == 200 )
+			{
+				console.log(xhttp.responseText);
+				try
+				{
+					let response = JSON.parse(xhttp.responseText);
+					console.log("kritik:");
+					console.log(response);
+
+					if (response.returncode != -1)
+					{
+						let tempSuggestionContainer = document.createElement("div");
+						tempContainer.appendChild(tempSuggestionContainer);
+	
+						let tempSuggestionHeader = document.createElement("div");
+						tempSuggestionHeader.innerHTML = "Verbesserungsvorschläge";
+						//tempSuggestionHeader.style.paddingLeft = "10px";
+						tempSuggestionHeader.style.backgroundColor = "#191f51"; // Marineblau
+						tempSuggestionHeader.style.color = "white";
+						tempSuggestionContainer.appendChild(tempSuggestionHeader);
+	
+						for (let suggestion in response.returnvalue)
+						{
+							let tempSuggestion = document.createElement("div");
+							tempSuggestion.style.paddingTop = "10px";
+							tempSuggestion.style.paddingBottom = "10px";
+							tempSuggestion.style.paddingLeft = "10px";
+	
+							let span1 = document.createElement("span");
+							span1.style.fontWeight = "bold";
+							span1.innerHTML = "Anon: ";
+							tempSuggestion.appendChild(span1);
+	
+							let span2 = document.createElement("span");
+							span2.innerHTML = response.returnvalue[suggestion];
+							tempSuggestion.appendChild(span2);
+	
+							tempSuggestionContainer.appendChild(tempSuggestion);
+						}
+					}
+					else
+					{
+						let tempSuggestionContainer = document.createElement("div");
+						tempContainer.appendChild(tempSuggestionContainer);
+	
+						let tempSuggestionHeader = document.createElement("div");
+						tempSuggestionHeader.innerHTML = "Verbesserungsvorschläge";
+						//tempSuggestionHeader.style.paddingLeft = "10px";
+						tempSuggestionHeader.style.backgroundColor = "#191f51"; // Marineblau
+						tempSuggestionHeader.style.color = "white";
+						tempSuggestionContainer.appendChild(tempSuggestionHeader);
+
+						let tempSuggestion = document.createElement("div");
+						tempSuggestion.style.paddingTop = "10px";
+						tempSuggestion.style.paddingBottom = "10px";
+						tempSuggestion.style.paddingLeft = "10px";
+
+						let span1 = document.createElement("span");
+						span1.style.fontWeight = "bold";
+						span1.innerHTML = "keine";
+						tempSuggestion.appendChild(span1);
+
+						tempSuggestionContainer.appendChild(tempSuggestion);
+					}
+
+
+				}
+				catch(error)
+				{
+					console.log(error);
+				}
+
+			}
+		}
 		xhttp.send(formData);
 	}
 
