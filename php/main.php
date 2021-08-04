@@ -470,10 +470,8 @@ class FragenVerwaltung {
 
     public static function insertRate($rates, $codehash) {
         global $link;
-
         $rates = json_decode($rates, true);
         $rates = json_decode($rates, true);
-
         $sqlquery_CheckValidation = "SELECT bewertung FROM codes WHERE codehash='" . $codehash . "'";
         if (mysqli_fetch_array(mysqli_query($link, $sqlquery_CheckValidation))['bewertung'] !== '0'){
             $antwort = array(
@@ -484,13 +482,8 @@ class FragenVerwaltung {
         else{
             $sqlquary_insertRate = 'INSERT INTO bewertungen(id, frageid, bogenid, bewertung) VALUES ';
             $temp_sqlquary_insertRate = '';
-
-            // Debugging
-            #$fp = fopen('../logs/vardump.txt', 'w');
             foreach ($rates as $key => $value) {
-                    
-                foreach($value as $key2 => $value2)
-                {
+                foreach($value as $key2 => $value2){
                     $bewertung = 0;
                     $bogenid = 0;
                     $frageid = 0;
@@ -511,7 +504,6 @@ class FragenVerwaltung {
                     $temp_sqlquary_insertRate .= "(DEFAULT," . $frageid . "," . $bogenid . "," . $bewertung . "),";
                 }
             }
-
             $sqlquary_insertRate .= rtrim($temp_sqlquary_insertRate, ',');
             if (mysqli_query($link, $sqlquary_insertRate)) {
                 mysqli_query($link, "UPDATE codes SET bewertung=1 WHERE codehash='" . $codehash . "'");
