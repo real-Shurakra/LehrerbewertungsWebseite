@@ -476,73 +476,59 @@ class FragenVerwaltung {
 
         $sqlquery_CheckValidation = "SELECT bewertung FROM codes WHERE codehash='" . $codehash . "'";
         if (mysqli_fetch_array(mysqli_query($link, $sqlquery_CheckValidation))['bewertung'] !== '0'){
-            return array(
+            $antwort = array(
                 'returncode'=>-3,
                 'returnvalue'=>main::toDE('<strong>Bewertung vollständig.</strong><br>Sie haben Ihre Antworten bereits abgeschickt')
             );
         }
-        else{mysqli_query($link, "UPDATE codes SET bewertung=1 WHERE codehash='" . $codehash . "'");}
-        $sqlquary_insertRate = 'INSERT INTO bewertungen(id, frageid, bogenid, bewertung) VALUES ';
-        $temp_sqlquary_insertRate = '';
+        else{
+            $sqlquary_insertRate = 'INSERT INTO bewertungen(id, frageid, bogenid, bewertung) VALUES ';
+            $temp_sqlquary_insertRate = '';
 
-        // Debugging
-        $fp = fopen('../logs/vardump.txt', 'w');
-        foreach ($rates as $key => $value) {
-                
-            foreach($value as $key2 => $value2)
-            {
-                $bewertung = 0;
-                $bogenid = 0;
-                $frageid = 0;
-                foreach($value2 as $key3 => $value3)
+            // Debugging
+            #$fp = fopen('../logs/vardump.txt', 'w');
+            foreach ($rates as $key => $value) {
+                    
+                foreach($value as $key2 => $value2)
                 {
-                    // Debugging
-                    fwrite($fp, "in dim3 \n");
-
-                    if($key3=="bewertung")
-                    {
-                        $bewertung = $value3;
-                        //Debugging
-                        fwrite($fp, strval($key3) . " " . strval($value3) . " true\n");
+                    $bewertung = 0;
+                    $bogenid = 0;
+                    $frageid = 0;
+                    foreach($value2 as $key3 => $value3){
+                        switch ($key3) {
+                            case 'bewertung':$bewertung = $value3;break;
+                            case 'bogenid':$bogenid = $value3;break;
+                            case 'frageid':$frageid = $value3;break;
+                            default:break;
+                        }
                     }
-                    if($key3=="bogenid")
-                    {
-                        $bogenid = $value3;
-                        //Debugging
-                        fwrite($fp, strval($key3) . " " . strval($value3) . " true\n");
-                    }
-                    if($key3=="frageid") 
-                    {
-                        $frageid = $value3;
-                        //Debugging
-                        fwrite($fp, strval($key3) . " " . strval($value3) . " true\n");
-                    }
+                    if ((int)$bewertung < -2 || (int)$bewertung > 2){
+                        return array(
+                            'returncode'=>-2,
+                            'returnvalue'=>main::toDE('<strong>Bewertung fehlerhaft</strong><br>Ihre Antwort ist nicht zulässig.')
+                        );
+                    } 
+                    $temp_sqlquary_insertRate .= "(DEFAULT," . $frageid . "," . $bogenid . "," . $bewertung . "),";
                 }
-                if ((int)$bewertung < -2 || (int)$bewertung > 2){
-                    return array(
-                        'returncode'=>-2,
-                        'returnvalue'=>main::toDE('<strong>Bewertung fehlerhaft</strong><br>Ihre Antwort ist nicht zulässig.')
-                    );
-                } 
-                $temp_sqlquary_insertRate .= "(DEFAULT," . $frageid . "," . $bogenid . "," . $bewertung . "),";
+            }
+
+            $sqlquary_insertRate .= rtrim($temp_sqlquary_insertRate, ',');
+            if (mysqli_query($link, $sqlquary_insertRate)) {
+                mysqli_query($link, "UPDATE codes SET bewertung=1 WHERE codehash='" . $codehash . "'");
+                $antwort = array(
+                    'returncode'=>0,
+                    'returnvalue'=>main::toDE('<strong>Gesendet</strong><br>Ihre Antworten wurden gespeichert.')
+                );
+            }
+            else{
+                $antwort = array(
+                    'returncode'=>1,
+                    'returnvalue'=>main::toDE('<strong>Programmfehler</strong><br>Es ist ein Programmfehler aufgetreten.<br>Bitte wenden Sie sich an Ihren Lehrer')
+                );
             }
         }
-        //Debugging
-        fclose($fp);
-
-        $sqlquary_insertRate .= rtrim($temp_sqlquary_insertRate, ',');
-        if (mysqli_query($link, $sqlquary_insertRate)) {
-            return array(
-                'returncode'=>0,
-                'returnvalue'=>main::toDE('<strong>Gesendet</strong><br>Ihre Antworten wurden gespeichert.')
-            );
-        }
-        else{
-            return array(
-                'returncode'=>1,
-                'returnvalue'=>main::toDE('<strong>Programmfehler</strong><br>Es ist ein Programmfehler aufgetreten.<br>Bitte wenden Sie sich an Ihren Lehrer')
-            );
-        }
+        self::checkanddeleteCode($codehash);
+        return $antwort;
     }
 
     public static function insertkritik($fbId, $kritik, $codehash) {
@@ -556,7 +542,6 @@ class FragenVerwaltung {
             );
         }
         else{
-            mysqli_query($link, "UPDATE codes SET kritik=1 WHERE codehash='" . $codehash . "'");
             if (strlen($kritik) > 65535){
                 $antwort = array(
                     'returncode'=>-3,
@@ -566,6 +551,7 @@ class FragenVerwaltung {
             else{ 
                 $sqlquery_insertKritik = "INSERT INTO `verbesserungen`(`id`, `bogenid`, `vorschlag`) VALUES (DEFAULT," . $fbId . ",'" . $kritik . "')";
                 if (mysqli_query($link, $sqlquery_insertKritik)){
+                    mysqli_query($link, "UPDATE codes SET kritik=1 WHERE codehash='" . $codehash . "'");
                     $antwort = array(
                         'returncode'=>0,
                         'returnvalue'=>main::toDE('<strong>Gesendet</strong><br>Vielen Dank, dass Sie den Fragebogen ausgefüllt haben.<br>Einen schönen Tag.')
