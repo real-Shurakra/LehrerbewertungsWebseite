@@ -1,72 +1,228 @@
 in dim3 
-bogenid 148 true
+bogenid 1 true
+in dim3 
+frageid 1 true
+in dim3 
+bewertung 2 true
+in dim3 
+bogenid 1 true
+in dim3 
+frageid 2 true
+in dim3 
+bewertung 2 true
+in dim3 
+bogenid 1 true
 in dim3 
 frageid 3 true
 in dim3 
 bewertung 2 true
 in dim3 
-bogenid 148 true
+bogenid 1 true
 in dim3 
 frageid 4 true
 in dim3 
 bewertung 2 true
 in dim3 
-bogenid 148 true
+bogenid 1 true
 in dim3 
 frageid 5 true
 in dim3 
 bewertung 2 true
 in dim3 
-bogenid 148 true
+bogenid 1 true
+in dim3 
+frageid 6 true
+in dim3 
+bewertung 2 true
+in dim3 
+bogenid 1 true
+in dim3 
+frageid 7 true
+in dim3 
+bewertung 2 true
+in dim3 
+bogenid 1 true
+in dim3 
+frageid 8 true
+in dim3 
+bewertung 2 true
+in dim3 
+bogenid 1 true
+in dim3 
+frageid 9 true
+in dim3 
+bewertung 2 true
+in dim3 
+bogenid 1 true
+in dim3 
+frageid 10 true
+in dim3 
+bewertung 2 true
+in dim3 
+bogenid 1 true
+in dim3 
+frageid 11 true
+in dim3 
+bewertung 2 true
+in dim3 
+bogenid 1 true
+in dim3 
+frageid 12 true
+in dim3 
+bewertung -1 true
+in dim3 
+bogenid 1 true
+in dim3 
+frageid 13 true
+in dim3 
+bewertung -1 true
+in dim3 
+bogenid 1 true
 in dim3 
 frageid 14 true
 in dim3 
-bewertung 2 true
+bewertung -1 true
 in dim3 
-bogenid 148 true
+bogenid 1 true
 in dim3 
 frageid 15 true
 in dim3 
-bewertung 2 true
+bewertung -1 true
 in dim3 
-bogenid 148 true
+bogenid 1 true
+in dim3 
+frageid 16 true
+in dim3 
+bewertung -1 true
+in dim3 
+bogenid 1 true
+in dim3 
+frageid 17 true
+in dim3 
+bewertung -1 true
+in dim3 
+bogenid 1 true
+in dim3 
+frageid 18 true
+in dim3 
+bewertung -1 true
+in dim3 
+bogenid 1 true
+in dim3 
+frageid 19 true
+in dim3 
+bewertung -1 true
+in dim3 
+bogenid 1 true
+in dim3 
+frageid 20 true
+in dim3 
+bewertung -1 true
+in dim3 
+bogenid 1 true
+in dim3 
+frageid 21 true
+in dim3 
+bewertung -1 true
+in dim3 
+bogenid 1 true
+in dim3 
+frageid 22 true
+in dim3 
+bewertung -1 true
+in dim3 
+bogenid 1 true
+in dim3 
+frageid 23 true
+in dim3 
+bewertung -1 true
+in dim3 
+bogenid 1 true
+in dim3 
+frageid 24 true
+in dim3 
+bewertung -1 true
+in dim3 
+bogenid 1 true
+in dim3 
+frageid 25 true
+in dim3 
+bewertung -2 true
+in dim3 
+bogenid 1 true
 in dim3 
 frageid 26 true
 in dim3 
-bewertung 2 true
+bewertung -2 true
 in dim3 
-bogenid 148 true
+bogenid 1 true
 in dim3 
 frageid 27 true
 in dim3 
-bewertung 2 true
+bewertung -2 true
 in dim3 
-bogenid 148 true
+bogenid 1 true
 in dim3 
 frageid 28 true
 in dim3 
-bewertung 2 true
+bewertung -2 true
 in dim3 
-bogenid 148 true
+bogenid 1 true
+in dim3 
+frageid 29 true
+in dim3 
+bewertung -2 true
+in dim3 
+bogenid 1 true
+in dim3 
+frageid 30 true
+in dim3 
+bewertung -2 true
+in dim3 
+bogenid 1 true
 in dim3 
 frageid 31 true
 in dim3 
-bewertung 2 true
+bewertung 1 true
 in dim3 
-bogenid 148 true
+bogenid 1 true
+in dim3 
+frageid 32 true
+in dim3 
+bewertung 1 true
+in dim3 
+bogenid 1 true
+in dim3 
+frageid 33 true
+in dim3 
+bewertung 1 true
+in dim3 
+bogenid 1 true
+in dim3 
+frageid 34 true
+in dim3 
+bewertung 1 true
+in dim3 
+bogenid 1 true
+in dim3 
+frageid 35 true
+in dim3 
+bewertung 1 true
+in dim3 
+bogenid 1 true
 in dim3 
 frageid 36 true
 in dim3 
-bewertung 2 true
+bewertung 1 true
 in dim3 
-bogenid 148 true
+bogenid 1 true
+in dim3 
+frageid 37 true
+in dim3 
+bewertung 1 true
+in dim3 
+bogenid 1 true
 in dim3 
 frageid 38 true
 in dim3 
-bewertung 2 true
-in dim3 
-bogenid 148 true
-in dim3 
-frageid 129 true
-in dim3 
-bewertung 2 true
+bewertung 1 true

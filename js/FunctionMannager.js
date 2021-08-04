@@ -122,6 +122,12 @@ export default class FunctionMannager
 			this.SortQuestionnairesWithFilters();
 		});
 
+		// Input-Feld für Select "Status"
+		let selectStatus = document.getElementById("questionnaire_filter_status");
+		selectStatus.addEventListener("input", ()=>{
+			this.SortQuestionnairesWithFilters();
+		});
+
 		/*
 		// Größe von questionnaire_selection_area anpassen
 		let questionnaireSelectArea = document.getElementById("questionnaire_select_area");
@@ -1232,6 +1238,20 @@ export default class FunctionMannager
 						// Wenn das Erstellungsdatum des Bogens kleiner ist als das eingestellte Datum wird der Bogen auf undefined gesetzt (aus Response-Array gelöscht)
 						if (tempQuestionnaireTimestamp < tempDateFrom || tempQuestionnaireTimestamp > tempDateTo) response[questionnaire] = undefined;
 					}
+
+					// Filter "Status" gesetzt
+					if(document.getElementById("questionnaire_filter_status").value != "keiner" && response[questionnaire] != undefined)
+					{
+						let tempId = response[questionnaire]["id"];
+						console.log("tempId");
+						console.log(tempId);
+
+						let tempFilterValue = document.getElementById("questionnaire_filter_status").value
+						console.log("tempFilterValue");
+						console.log(tempFilterValue);
+
+						this.filterQuestionnairesByStatus(tempId, tempFilterValue);
+					}
 				}
 
 				// Gefilterte Bögen anzeigen
@@ -1522,5 +1542,51 @@ export default class FunctionMannager
 		}
 	}
 
+	filterQuestionnairesByStatus(questionnaireId, filterStatus)
+	{	
+		// Asynchroner Request
+		let xhttp = new XMLHttpRequest()
+		let path = "./php/main.php?mode=getCodes";
+		
+		let formDataCodes = new FormData();
+		formDataCodes.append("fbId", questionnaireId);
+		
+		xhttp.onreadystatechange = ()=>{
+			if ( xhttp.readyState == 4 && xhttp.status == 200 )
+			{
+				var responseQuestionnaireCodes = JSON.parse(xhttp.responseText);
+		
+				let responseStatus = undefined;
+
+				// Ermitteln des Bogenstatus anhand der Anzahl der verbliebenen Codes
+				if (responseQuestionnaireCodes.retruncode == -1)
+				{
+					responseStatus = "abgeschlossen";
+				}
+				else if (responseQuestionnaireCodes.retruncode == 0)
+				{
+					responseStatus = "offen";
+				}
+
+				setTimeout(()=>{
+					let interval = setInterval(()=>{
+						if (!responseStatus.includes(filterStatus))
+						{
+							let questionnaire = document.getElementById(questionnaireId);
+
+							if (questionnaire != undefined) 
+							{
+								questionnaire.remove();
+								clearInterval(interval);
+							}
+						}
+					},100)
+				},100)
+
+			}
+		};
+		xhttp.open("POST", path, true);
+		xhttp.send(formDataCodes);
+	}
 
 }
