@@ -508,33 +508,39 @@ class FragenVerwaltung {
     public static function insertkritik($fbId, $kritik, $codehash) {
         global $link;
         $sqlquery_CheckValidation = "SELECT kritik FROM codes WHERE codehash='" . $codehash . "'";
-        if (mysqli_fetch_array(mysqli_query($link, $sqlquery_CheckValidation))['kritik'] !== '0'){
-            return array(
+        $sqlquery_CheckValidation_Result = mysqli_fetch_array(mysqli_query($link, $sqlquery_CheckValidation))['kritik'];
+        if ($sqlquery_CheckValidation_Result === '1'){
+            $antwort = array(
                 'returncode'=>-3,
                 'returnvalue'=>main::toDE('<strong>Kritik vollständig.</strong><br>Sie haben Ihre Kritik bereits abgeschickt.')
             );
         }
-        else{mysqli_query($link, "UPDATE codes SET kritik=1 WHERE codehash='" . $codehash . "'");}
-
-        if (strlen($kritik) > 65535){
-            return array(
-                'returncode'=>-3,
-                'returnvalue'=>main::toDE('<strong>strong>Kritik zu lang.</strong><br>Bitte halten Sie sich kurz.')
-            );
-        }
-        $sqlquery_insertKritik = "INSERT INTO `verbesserungen`(`id`, `bogenid`, `vorschlag`) VALUES (DEFAULT," . $fbId . ",'" . $kritik . "')";
-        if (mysqli_query($link, $sqlquery_insertKritik)){
-            return array(
-                'returncode'=>0,
-                'returnvalue'=>main::toDE('<strong>Gesendet</strong><br>Vielen Dank, dass Sie den Fragebogen ausgefüllt haben.<br>Einen schönen Tag.')
-            );
-        }
         else{
-            return array(
-                'returncode'=>1,
-                'returnvalue'=>main::toDE('<strong>Programmfehler</strong><br>Es ist ein Programmfehler aufgetreten.<br>Bitte wenden Sie sich an Ihren Lehrer')
-            );
+            mysqli_query($link, "UPDATE codes SET kritik=1 WHERE codehash='" . $codehash . "'");
+            if (strlen($kritik) > 65535){
+                $antwort = array(
+                    'returncode'=>-3,
+                    'returnvalue'=>main::toDE('<strong>strong>Kritik zu lang.</strong><br>Bitte halten Sie sich kurz.')
+                );
+            }
+            else{ 
+                $sqlquery_insertKritik = "INSERT INTO `verbesserungen`(`id`, `bogenid`, `vorschlag`) VALUES (DEFAULT," . $fbId . ",'" . $kritik . "')";
+                if (mysqli_query($link, $sqlquery_insertKritik)){
+                    $antwort = array(
+                        'returncode'=>0,
+                        'returnvalue'=>main::toDE('<strong>Gesendet</strong><br>Vielen Dank, dass Sie den Fragebogen ausgefüllt haben.<br>Einen schönen Tag.')
+                    );
+                }
+                else{
+                    $antwort = array(
+                        'returncode'=>1,
+                        'returnvalue'=>main::toDE('<strong>Programmfehler</strong><br>Es ist ein Programmfehler aufgetreten.<br>Bitte wenden Sie sich an Ihren Lehrer')
+                    );
+                }
+            }
         }
+        self::checkanddeleteCode($codehash);
+        return $antwort;
     }
 
     static function checkanddeleteCode($strCode){
