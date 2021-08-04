@@ -23,8 +23,9 @@
 	<body>
 		<!-- main container -->
 		<div id="main_container">
-		
-			<div id="container_pictorius_logo_header"></div>
+
+			<div id="container_pictorius_logo_header">
+			</div>
 			
 			<div id="container_pictorius_foto">
 				<img src="./fotos/Pictorius-Berufskolleg_in_Coesfeld.jpg" alt="Italian Trulli">
@@ -49,8 +50,11 @@
 			
 			<!--- vertikales Menü --->
 			<div id="container_vertical_menu">
-
 			</div>
 		</div>
+
+		
+		<!-- Fragebogen-Container -->
+		<!-- <div id="students_questionnaire_container" style="opacity:0;"></div> -->
 	</body>
 </html>

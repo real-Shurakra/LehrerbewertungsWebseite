@@ -14,7 +14,7 @@ gui.functionMannager = functionMannager;
 gui.loadSvgAndMenus("index");
 
 
-
+/*
 // Begrenzung der Codeeingabe des Schülerbereiches auf Zahlen und zwei Ziffern
 document.addEventListener("mousedown", ()=>{
     if (document.getElementById("input_area_students") != undefined);
@@ -45,13 +45,18 @@ document.addEventListener("mousedown", ()=>{
                         {
                             let nextNumber = parseInt(inputField.id.substr(2, 1)) + 1;
                             let nextElement = document.getElementById("nr" + nextNumber);
-                            if (nextElement != undefined) nextElement.focus();
+                            if (nextElement != undefined)
+                            {
+                                nextElement.focus();
+                                nextElement.value = "";
+                            }
                         }
                 })
             }
         }   
     }
 })
+*/
 
 
 
