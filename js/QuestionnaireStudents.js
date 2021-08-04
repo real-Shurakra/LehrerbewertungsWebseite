@@ -26,7 +26,7 @@ export default class QuestionnaireStudents{
         horizontalMenuButtonStudents.style.color = "white";
         horizontalMenuButtonStudents.style.height = "47px";
         horizontalMenuButtonStudents.style.borderStyle = "none";
-        horizontalMenuButtonStudents.style.width = "500px";
+        horizontalMenuButtonStudents.style.width = "650px";
 
         //let studentsQuestionnaireContainer = document.getElementById("students_questionnaire_container");
         if (document.getElementById("students_questionnaire_container") != null) document.getElementById("students_questionnaire_container").remove();
@@ -35,8 +35,8 @@ export default class QuestionnaireStudents{
             document.body.appendChild(studentsQuestionnaireContainer);
             studentsQuestionnaireContainer.id = "students_questionnaire_container";
     
-            studentsQuestionnaireContainer.style.opacity = "0.0";
             studentsQuestionnaireContainer.style.visibility = "hidden";
+            studentsQuestionnaireContainer.style.opacity = 1.0;
 
             studentsQuestionnaireContainer.style.height = window.innerHeight - 125 + "px";
             studentsQuestionnaireContainer.style.width = window.innerWidth - 500 + "px";
@@ -250,7 +250,9 @@ export default class QuestionnaireStudents{
             sendButton.appendChild(button);
             button.addEventListener("mousedown", ()=>{
                 //array('rate' : array('frageid' : string(FrageID), 'bogenid' : string(FragebogenID), 'bewertung' : int(FrageBewertung),  (...)) string('codehash' : )
-    
+                var sentAnswers = false;
+                var sentKritik = false;
+
                 let counter = 0;
                 // anzahl der Fragen ermitteln
                 let answersLength = 0;
@@ -313,39 +315,8 @@ export default class QuestionnaireStudents{
                         console.log(response);
 						try
 						{
-                            // Request an insertKritik
-                            let xhttp2 = new XMLHttpRequest()
-                            let response2 = undefined;
-                            let formData2 = new FormData();
-                            console.log("codehash:");
-                            console.log(this.codehash);
-                            formData2.append("codehash", this.codehash);
-                            formData2.append("fbId", this.questionnaireId);
-                            formData2.append("kritik", suggestionInput.value)
- 
-                            let path2 = "./php/main.php?mode=insertkritik";
- 
-                             xhttp2.open("POST", path2, true);
- 
-                             xhttp2.onreadystatechange = ()=>{
-                                if ( xhttp.readyState == 4 && xhttp.status == 200 )
-                                {
-                                    response2 = xhttp2.responseText;
-                                    console.log("response_insertKritik");
-                                    console.log(response2);
-                                    try
-                                    {
-                                        //TODO: Tooltip für erfolgreich abgegebene Antworten anzeigen und Ausfüll-Bogen schließen
-                                        //TODO: entsprechenden Code aus Datenbank löschen
-                                    }
-                                    catch(error)
-                                    {
- 
-                                    }
-                                }
-                            }
-                            xhttp2.send(formData2);
-
+                            sentAnswers = true;
+                            console.log(sentAnswers);
                         }
                         catch(error)
                         {
@@ -354,7 +325,70 @@ export default class QuestionnaireStudents{
                     }
                 }
                 xhttp.send(formData);
- 
+
+                // Request an insertKritik
+                let xhttp2 = new XMLHttpRequest()
+                let response2 = undefined;
+                let formData2 = new FormData();
+                console.log("codehash:");
+                console.log(this.codehash);
+                formData2.append("codehash", this.codehash);
+                formData2.append("fbId", this.questionnaireId);
+                formData2.append("kritik", suggestionInput.value)
+                 
+                let path2 = "./php/main.php?mode=insertkritik";
+                 
+                xhttp2.open("POST", path2, true);
+                 
+                xhttp2.onreadystatechange = ()=>{
+                    if ( xhttp.readyState == 4 && xhttp.status == 200 )
+                    {
+                        response2 = xhttp2.responseText;
+                        console.log("response_insertKritik");
+                        console.log(response2);
+                        try
+                        {
+                            sentKritik = true;
+                            console.log(sentKritik);
+
+                            setTimeout(()=>{
+                                console.log("questionnaireId_at_ausfüllen");
+                                console.log(this.questionnaireId);
+            
+                                console.log(sentAnswers == true && sentKritik == true);
+                                if (sentAnswers == true && sentKritik == true)
+                                {
+            
+                                    //TODO: Tooltip für erfolgreich abgegebene Antworten anzeigen und Ausfüll-Bogen schließen
+                                    //TODO: entsprechenden Code aus Datenbank löschen
+            
+                                    // Benachrichtigung über erfolgreich abgeschickte Antwort und Kritik anzeigen
+                                    let notificationId = "successfull_answer_notification";
+                                    let tooltipContainer = document.getElementById(notificationId);
+                                    if (tooltipContainer != undefined) tooltipContainer.remove();
+                                    tooltipContainer = document.createElement("div");
+                                    this.createNotificationSuccessfullAnswer(tooltipContainer);
+            
+                                    // Benachrichtigung über falsch eingegebenen Code einblenden
+                                    this.fadeElementIn(tooltipContainer, 0.97);
+                                    // Nach 5 Sek. wieder ausblenden
+                                    setTimeout(()=>{ this.fadeElementOut(tooltipContainer); }, 5000);
+            
+                                    let questionnaireStudents = document.getElementById("students_questionnaire_container");
+                                    //questionnaireStudents.remove();
+                                    this.fadeElementOut(questionnaireStudents);
+            
+                                }
+                            } ,250)
+                        }
+                        catch(error)
+                        {
+                 
+                        }
+                    }
+                }
+                xhttp2.send(formData2);
+
             });
     
             questionsContainer.appendChild(sendButton);
@@ -408,18 +442,6 @@ export default class QuestionnaireStudents{
 
         
 
-    }
-
-    fadeElementIn(element)
-    {
-        // Element einblenden
-        var timestamp = Math.floor(Date.now());
-        let interval = setInterval(()=>{
-        let tempTimestamp = Math.floor(Date.now());			
-        element.style.opacity = ((tempTimestamp - timestamp) / 1000).toString();
-        element.style.visibility = "visible";
-        if(((tempTimestamp - timestamp) / 1000) >= 0.9) clearInterval(interval);
-        },25);
     }
 
     createFormTable(motherDiv, questionId, question)
@@ -548,5 +570,101 @@ export default class QuestionnaireStudents{
 
         // Tabelle zu Spalte für Antwortauswahl in der Muttertabelle hinzufügen
         formTableColumnAnswerSelection.appendChild(tableAnswerSelection);
+    }
+
+    createNotificationSuccessfullAnswer(tooltipContainer)
+	{
+		tooltipContainer.id = "wrong_code_notification";
+		tooltipContainer.style.visibility = "hidden";
+		tooltipContainer.style.position = "absolute";
+		tooltipContainer.style.left = "4%";
+		tooltipContainer.style.zIndex = 10;
+		let tooltipContainerWidth = 280;
+		tooltipContainer.style.width = tooltipContainerWidth + "px";
+		tooltipContainer.style.height = tooltipContainerWidth / 3 + "px";
+		tooltipContainer.style.backgroundImage = "url(\"./html/tooltip_large.png\")";
+		tooltipContainer.style.backgroundSize = "100% 100%";
+		tooltipContainer.style.backgroundRepeat = "no-repeat";
+		tooltipContainer.style.backgroundPosition = "top left";
+
+		document.body.appendChild(tooltipContainer);
+		let tooltipTable = document.createElement("table");
+		tooltipTable.style.borderCollapse = "collapse";
+		tooltipTable.style.width = "100%";
+		tooltipTable.style.height = "100%";
+		tooltipContainer.appendChild(tooltipTable);
+		let tooltipRow = document.createElement("tr");
+		tooltipTable.appendChild(tooltipRow);
+
+		let toolTipElementIds = ["filler","notification_text"];
+								
+		for(let i = 0; i < toolTipElementIds.length; i++)
+		{
+			let tempColumn = document.createElement("td");
+
+			tempColumn.id = toolTipElementIds[i];
+
+			if(toolTipElementIds[i] != "filler")
+			{
+				tempColumn.style.textAlign = "left";
+				tempColumn.style.fontFamily = "calibri";
+				tempColumn.style.verticalAlign = "middle";
+				tempColumn.style.fontWeight = "medium";
+				//tempColumn.style.color = "red";
+				tempColumn.style.padding = "auto";
+				//tempColumn.innerText = "Der eingegebene Code ist ungültig!";
+				tempColumn.style.width = "75%";
+
+				let text1 = document.createElement("span");
+				text1.style.fontFamily = "calibri";
+				text1.innerText = "Danke fürs Ausfüllen! Schönen Tag noch!";
+				tempColumn.appendChild(text1);
+
+                /*
+				let text2 = document.createElement("span");
+				text2.style.fontFamily = "calibri";
+				text2.innerText = "ungültig!";
+				text2.style.color = "#e47069"; //soft red
+				tempColumn.appendChild(text2);
+                */
+			}
+			else
+			{
+				tempColumn.style.width = "25%";
+			}
+			tempColumn.style.height = "100%";
+
+			console.log(tempColumn);
+
+			tooltipRow.appendChild(tempColumn);
+		}
+	}
+
+    fadeElementIn(element)
+    {
+        // Element einblenden
+        var timestamp = Math.floor(Date.now());
+        let interval = setInterval(()=>{
+        let tempTimestamp = Math.floor(Date.now());			
+        element.style.opacity = ((tempTimestamp - timestamp) / 1000).toString();
+        element.style.visibility = "visible";
+        if(((tempTimestamp - timestamp) / 1000) >= 0.9) clearInterval(interval);
+        },25);
+    }
+
+	fadeElementOut(element)
+    {
+        // Element ausblenden und entfernen
+		let opacity = element.style.opacity;
+        let timestamp = Math.floor(Date.now());
+        let interval = setInterval(()=>{
+        let tempTimestamp = Math.floor(Date.now());			
+        element.style.opacity = opacity - ((tempTimestamp - timestamp) / 1000).toString();
+        if(element.style.opacity < 0)
+		{
+			element.remove();
+			clearInterval(interval);
+		}
+        },25);
     }
 }
