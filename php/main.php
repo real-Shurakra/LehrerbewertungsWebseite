@@ -8,24 +8,24 @@ class main {
     function __construct(){
         $_REQUEST = self::checkSemicolon($_REQUEST);
         switch ($_REQUEST['mode']) {
-            case 'loginUser': echo json_encode(nutzerverwaltung::loginUser($_REQUEST['mail'], $_REQUEST['passwort']));break;
-            case  'askAlleFragen': echo json_encode(FragenVerwaltung::askAlleFragen($_SESSION['usermail']));break;
-            case  'addFrage': echo json_encode(FragenVerwaltung::addFrage($_REQUEST['frage'], $_SESSION['usermail'], $_REQUEST['kategorie']));break;
-            case  'getAlleKategorien': echo json_encode(FragenVerwaltung::getAlleKategorien());break;
-            case  'makeFragebogen': echo json_encode(FragenVerwaltung::makeFragebogen($_REQUEST['name'], $_REQUEST['anzahl'], $_REQUEST['klasse'], $_REQUEST['fach'], $_REQUEST['fragen']));break;
-            case  'getFragebogens': echo json_encode(FragenVerwaltung::getFragebogens());break;
-            case  'getCodes': echo json_encode(FragenVerwaltung::getCodes($_REQUEST['fbId']));break;
-            case  'getFbFragen': echo json_encode(FragenVerwaltung::getFbFragen($_REQUEST['fbId']));break;
-            case  'insertRate': echo json_encode(FragenVerwaltung::insertRate($_REQUEST['rate'], $_REQUEST['codehash']));break;
-            case  'insertkritik': echo json_encode(FragenVerwaltung::insertkritik($_REQUEST['fbId'], $_REQUEST['kritik'], $_REQUEST['codehash']));break;
-            case  'getkritik': echo json_encode(FragenVerwaltung::getkritik($_REQUEST['fbId']));break;
-            case  'getAlleSchulklassen': echo json_encode(FragenVerwaltung::getAlleSchulklassen());break;
-            case  'getAllSubjects': echo json_encode(FragenVerwaltung::getAllSubjects());break;
-            case  'getFbFragenFromCode': echo json_encode(FragenVerwaltung::getFbFragenFromCode($_REQUEST['codehash']));break;
-            case  'alterQuestion': echo json_encode(FragenVerwaltung::alterQuestion($_REQUEST['frageId'], $_REQUEST['neuFrage']));break;
-            case  'delQuestionnaire': echo json_encode(FragenVerwaltung::delQuestionnaire($_REQUEST['fbId']));break;
-            case  'aecd587fdc09': echo json_encode(self::hilfe());
-            default:echo json_encode(array('returncode'=>1, 'Returnvalue'=>'<strong>Programmfehler Fehlercode: ##PHPMAIN_aktivierungJS_wv</strong><br>mode-Wert fehlerhaft. $_REQUEST[\'mode\'] = ' . strval($_REQUEST['mode'])));break;
+            case  'loginUser':                                                  echo json_encode(nutzerverwaltung::loginUser($_REQUEST['mail'], $_REQUEST['passwort']));break;
+            case  'askAlleFragen':          if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::askAlleFragen($_SESSION['usermail']));}break;
+            case  'addFrage':               if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::addFrage($_REQUEST['frage'], $_SESSION['usermail'], $_REQUEST['kategorie']));}break;
+            case  'getAlleKategorien':      if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::getAlleKategorien());}break;
+            case  'makeFragebogen':         if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::makeFragebogen($_REQUEST['name'], $_REQUEST['anzahl'], $_REQUEST['klasse'], $_REQUEST['fach'], $_REQUEST['fragen']));}break;
+            case  'getFragebogens':         if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::getFragebogens());}break;
+            case  'getCodes':               if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::getCodes($_REQUEST['fbId']));}break;
+            case  'getFbFragen':            if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::getFbFragen($_REQUEST['fbId']));}break;
+            case  'insertRate':                                                 echo json_encode(FragenVerwaltung::insertRate($_REQUEST['rate'], $_REQUEST['codehash']));break;
+            case  'insertkritik':                                               echo json_encode(FragenVerwaltung::insertkritik($_REQUEST['fbId'], $_REQUEST['kritik'], $_REQUEST['codehash']));break;
+            case  'getkritik':              if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::getkritik($_REQUEST['fbId']));}break;
+            case  'getAlleSchulklassen':    if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::getAlleSchulklassen());}break;
+            case  'getAllSubjects':         if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::getAllSubjects());}break;
+            case  'getFbFragenFromCode':                                        echo json_encode(FragenVerwaltung::getFbFragenFromCode($_REQUEST['codehash']));break;
+            case  'alterQuestion':          if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::alterQuestion($_REQUEST['frageId'], $_REQUEST['neuFrage']));}break;
+            case  'delQuestionnaire':       if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::delQuestionnaire($_REQUEST['fbId']));}break;
+            case  'aecd587fdc09':                                               echo json_encode(self::hilfe());
+            default:                                                            echo json_encode(array('returncode'=>1, 'Returnvalue'=>'<strong>Programmfehler Fehlercode: ##PHPMAIN_aktivierungJS_wv</strong><br>mode-Wert fehlerhaft. $_REQUEST[\'mode\'] = ' . strval($_REQUEST['mode'])));break;
         }
     }
 
