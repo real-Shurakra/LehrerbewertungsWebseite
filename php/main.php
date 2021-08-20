@@ -25,6 +25,7 @@ class main {
             case  'alterQuestion':          if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::alterQuestion($_REQUEST['frageId'], $_REQUEST['neuFrage']));}break;
             case  'delQuestionnaire':       if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::delQuestionnaire($_REQUEST['fbId']));}break;
             case  'aecd587fdc09':                                               echo json_encode(self::hilfe());
+            case  'deleteAllCodes':         if ($_SESSION['usermail'] != NULL) {echo json_decode(FragenVerwaltung::deleteAllCodes($_REQUEST['fbId']));}break;
             default:                                                            echo json_encode(array('returncode'=>1, 'Returnvalue'=>'<strong>Programmfehler Fehlercode: ##PHPMAIN_aktivierungJS_wv</strong><br>mode-Wert fehlerhaft. $_REQUEST[\'mode\'] = ' . strval($_REQUEST['mode'])));break;
         }
     }
@@ -441,7 +442,12 @@ class FragenVerwaltung {
                                                  'thema'            =>  $sqlquery_GetFbFragen_Result_Data[$i]['thema'],
                                                  'klassename'       =>  $sqlquery_GetFbFragen_Result_Data[$i]['klassename'],
                                                  'fachname'         =>  $sqlquery_GetFbFragen_Result_Data[$i]['fachname'],
-                                                 'bogenid'          =>  $sqlquery_GetFbFragen_Result_Data[$i]['bogenid']
+                                                 'bogenid'          =>  $sqlquery_GetFbFragen_Result_Data[$i]['bogenid'],
+                                                 '-2'               =>  $sqlquery_GetFbFragen_Result_Data[$i]['bew110'],
+                                                 '-1'               =>  $sqlquery_GetFbFragen_Result_Data[$i]['bew101'],
+                                                 '0'                =>  $sqlquery_GetFbFragen_Result_Data[$i]['bew000'],
+                                                 '1'                =>  $sqlquery_GetFbFragen_Result_Data[$i]['bew001'],
+                                                 '2'                =>  $sqlquery_GetFbFragen_Result_Data[$i]['bew010']
                                                 )
                                           )
                           );
