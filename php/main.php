@@ -441,7 +441,12 @@ class FragenVerwaltung {
                                                  'thema'            =>  $sqlquery_GetFbFragen_Result_Data[$i]['thema'],
                                                  'klassename'       =>  $sqlquery_GetFbFragen_Result_Data[$i]['klassename'],
                                                  'fachname'         =>  $sqlquery_GetFbFragen_Result_Data[$i]['fachname'],
-                                                 'bogenid'          =>  $sqlquery_GetFbFragen_Result_Data[$i]['bogenid']
+                                                 'bogenid'          =>  $sqlquery_GetFbFragen_Result_Data[$i]['bogenid'],
+                                                 '-2'               =>  $sqlquery_GetFbFragen_Result_Data[$i]['bew110'],
+                                                 '-1'               =>  $sqlquery_GetFbFragen_Result_Data[$i]['bew101'],
+                                                 '0'                =>  $sqlquery_GetFbFragen_Result_Data[$i]['bew000'],
+                                                 '1'                =>  $sqlquery_GetFbFragen_Result_Data[$i]['bew001'],
+                                                 '2'                =>  $sqlquery_GetFbFragen_Result_Data[$i]['bew010']
                                                 )
                                           )
                           );
