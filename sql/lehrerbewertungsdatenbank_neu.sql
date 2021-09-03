@@ -103,12 +103,12 @@ CREATE TABLE `getbewertungen` (
 DROP VIEW IF EXISTS `getfbfragen`;
 CREATE TABLE `getfbfragen` (
 `zeitstempel` timestamp
-,`frageid` bigint(20) unsigned
-,`frage` varchar(255)
-,`kategorie` varchar(255)
 ,`bogenid` bigint(20) unsigned
 ,`thema` varchar(255)
 ,`klassename` varchar(32)
+,`frageid` bigint(20) unsigned
+,`frage` varchar(255)
+,`kategorie` varchar(255)
 ,`fachname` varchar(32)
 ,`bew110` decimal(22,0)
 ,`bew101` decimal(22,0)
@@ -139,6 +139,9 @@ CREATE TABLE `klasse` (
   `name` varchar(32) NOT NULL,
   `schueleranzahl` smallint(6) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+INSERT INTO `klasse` (`name`, `schueleranzahl`) VALUES
+('ITB1-19', 30);
 
 DROP TABLE IF EXISTS `lehrer`;
 CREATE TABLE `lehrer` (
@@ -177,7 +180,7 @@ DROP TABLE IF EXISTS `getbewertungen`;
 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getbewertungen`  AS  select sum(`bewertungen`.`bewertung`) AS `sum(bewertungen.bewertung)`,`fragebogen`.`id` AS `id`,`lehrer`.`mail` AS `mail` from ((`lehrer` left join `fragebogen` on(`lehrer`.`id` = `fragebogen`.`lehrerid`)) left join `bewertungen` on(`fragebogen`.`id` = `bewertungen`.`bogenid`)) group by `fragebogen`.`id` ;
 DROP TABLE IF EXISTS `getfbfragen`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getfbfragen`  AS  select `fragebogen`.`zeitstempel` AS `zeitstempel`,`fragen`.`id` AS `frageid`,`fragen`.`frage` AS `frage`,`fragen`.`kategorie` AS `kategorie`,`fragebogen`.`id` AS `bogenid`,`fragebogen`.`name` AS `thema`,`fragebogen`.`klassename` AS `klassename`,`fach`.`name` AS `fachname`,sum(if(`bewertungen`.`bewertung` = -2,1,0)) AS `bew110`,sum(if(`bewertungen`.`bewertung` = -1,1,0)) AS `bew101`,sum(if(`bewertungen`.`bewertung` = 0,1,0)) AS `bew000`,sum(if(`bewertungen`.`bewertung` = 1,1,0)) AS `bew001`,sum(if(`bewertungen`.`bewertung` = 2,1,0)) AS `bew010`,sum(if(`bewertungen`.`bewertung` = -2,1,0)) * -2 + sum(if(`bewertungen`.`bewertung` = -1,1,0)) * -1 + sum(if(`bewertungen`.`bewertung` = 0,1,0)) * 0 + sum(if(`bewertungen`.`bewertung` = 1,1,0)) * 1 + sum(if(`bewertungen`.`bewertung` = 2,1,0)) * 2 AS `bewertung` from ((((`fragebogen` join `fach` on(`fragebogen`.`fachid` = `fach`.`id`)) join `nm_frage_fragebogen` on(`fragebogen`.`id` = `nm_frage_fragebogen`.`bogenid`)) join `bewertungen` on(`nm_frage_fragebogen`.`frageid` = `bewertungen`.`frageid` and `nm_frage_fragebogen`.`bogenid` = `bewertungen`.`bogenid`)) join `fragen` on(`bewertungen`.`frageid` = `fragen`.`id`)) group by `fragen`.`id`,`fragebogen`.`id` ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getfbfragen`  AS  select `fragebogen`.`zeitstempel` AS `zeitstempel`,`fragebogen`.`id` AS `bogenid`,`fragebogen`.`name` AS `thema`,`fragebogen`.`klassename` AS `klassename`,`fragen`.`id` AS `frageid`,`fragen`.`frage` AS `frage`,`fragen`.`kategorie` AS `kategorie`,`fach`.`name` AS `fachname`,sum(if(`bewertungen`.`bewertung` = -2,1,0)) AS `bew110`,sum(if(`bewertungen`.`bewertung` = -1,1,0)) AS `bew101`,sum(if(`bewertungen`.`bewertung` = 0,1,0)) AS `bew000`,sum(if(`bewertungen`.`bewertung` = 1,1,0)) AS `bew001`,sum(if(`bewertungen`.`bewertung` = 2,1,0)) AS `bew010`,sum(if(`bewertungen`.`bewertung` = -2,1,0)) * -2 + sum(if(`bewertungen`.`bewertung` = -1,1,0)) * -1 + sum(if(`bewertungen`.`bewertung` = 0,1,0)) * 0 + sum(if(`bewertungen`.`bewertung` = 1,1,0)) * 1 + sum(if(`bewertungen`.`bewertung` = 2,1,0)) * 2 AS `bewertung` from ((((`nm_frage_fragebogen` join `fragebogen` on(`fragebogen`.`id` = `nm_frage_fragebogen`.`bogenid`)) join `fragen` on(`nm_frage_fragebogen`.`frageid` = `fragen`.`id`)) join `fach` on(`fragebogen`.`fachid` = `fach`.`id`)) left join `bewertungen` on(`nm_frage_fragebogen`.`frageid` = `bewertungen`.`frageid` and `nm_frage_fragebogen`.`bogenid` = `bewertungen`.`bogenid`)) group by `fragen`.`id`,`fragebogen`.`id` ;
 DROP TABLE IF EXISTS `getfragebogen`;
 
 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getfragebogen`  AS  select `fragebogen`.`id` AS `id`,`fragebogen`.`zeitstempel` AS `zeitstempel`,`fragebogen`.`name` AS `name`,`fach`.`name` AS `fach`,`fragebogen`.`klassename` AS `klassename`,`fragebogen`.`schueleranzahl` AS `schueleranzahl`,`lehrer`.`mail` AS `mail` from ((`lehrer` left join `fragebogen` on(`lehrer`.`id` = `fragebogen`.`lehrerid`)) left join `fach` on(`fragebogen`.`fachid` = `fach`.`id`)) ;

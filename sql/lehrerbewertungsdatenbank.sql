@@ -46,7 +46,7 @@ CREATE TABLE `codes` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 INSERT INTO `codes` (`codehash`, `fragebogenid`, `kritik`, `bewertung`) VALUES
-('00-48-40-00', 103, 0, 0),
+('00-48-40-00', 103, 0, 1),
 ('00-51-32-87', 113, 0, 0),
 ('00-88-38-27', 108, 0, 0),
 ('00-98-27-82', 109, 0, 0),
@@ -357,6 +357,7 @@ INSERT INTO `codes` (`codehash`, `fragebogenid`, `kritik`, `bewertung`) VALUES
 ('65-48-35-43', 110, 0, 0),
 ('65-72-58-14', 110, 0, 0),
 ('66-00-14-45', 94, 0, 0),
+('66-34-47-25', 125, 0, 0),
 ('66-52-24-36', 108, 0, 0),
 ('66-61-77-54', 115, 0, 0),
 ('66-76-99-74', 104, 0, 0),
@@ -448,6 +449,7 @@ INSERT INTO `codes` (`codehash`, `fragebogenid`, `kritik`, `bewertung`) VALUES
 ('86-58-12-52', 112, 0, 0),
 ('87-09-94-35', 106, 0, 0),
 ('87-55-90-91', 117, 0, 0),
+('87-77-00-05', 125, 0, 0),
 ('87-81-32-84', 108, 0, 0),
 ('88-24-84-91', 115, 0, 0),
 ('88-92-05-39', 107, 0, 0),
@@ -565,7 +567,8 @@ INSERT INTO `fragebogen` (`id`, `zeitstempel`, `name`, `lehrerid`, `fachid`, `kl
 (120, '2021-07-12 10:30:01', '', 1, 1, 'ITB1-19', 1),
 (121, '2021-07-12 10:31:03', '', 1, 1, 'ITB1-19', 1),
 (122, '2021-07-12 10:31:49', '', 1, 1, 'ITB1-19', 1),
-(124, '2021-07-12 10:37:51', '', 1, 1, 'ITB1-19', 25);
+(124, '2021-07-12 10:37:51', '', 1, 1, 'ITB1-19', 25),
+(125, '2021-09-01 07:09:51', 'Test-KatzenSindCute', 1, 1, 'ITB1-19', 2);
 
 DROP TABLE IF EXISTS `fragen`;
 CREATE TABLE `fragen` (
@@ -623,12 +626,12 @@ CREATE TABLE `getbewertungen` (
 DROP VIEW IF EXISTS `getfbfragen`;
 CREATE TABLE `getfbfragen` (
 `zeitstempel` timestamp
-,`frageid` bigint(20) unsigned
-,`frage` varchar(255)
-,`kategorie` varchar(255)
 ,`bogenid` bigint(20) unsigned
 ,`thema` varchar(255)
 ,`klassename` varchar(32)
+,`frageid` bigint(20) unsigned
+,`frage` varchar(255)
+,`kategorie` varchar(255)
 ,`fachname` varchar(32)
 ,`bew110` decimal(22,0)
 ,`bew101` decimal(22,0)
@@ -683,13 +686,51 @@ CREATE TABLE `nm_frage_fragebogen` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 INSERT INTO `nm_frage_fragebogen` (`frageid`, `bogenid`) VALUES
+(1, 125),
+(2, 125),
+(3, 125),
+(4, 125),
+(5, 125),
+(6, 125),
+(7, 125),
+(8, 125),
+(9, 125),
+(10, 125),
+(11, 125),
+(12, 125),
+(13, 125),
+(14, 125),
+(15, 125),
 (16, 70),
+(16, 125),
 (17, 70),
 (17, 88),
+(17, 125),
+(18, 125),
 (19, 70),
 (19, 88),
+(19, 125),
 (20, 70),
-(22, 70);
+(20, 125),
+(21, 125),
+(22, 70),
+(22, 125),
+(23, 125),
+(24, 125),
+(25, 125),
+(26, 125),
+(27, 125),
+(28, 125),
+(29, 125),
+(30, 125),
+(31, 125),
+(32, 125),
+(33, 125),
+(34, 125),
+(35, 125),
+(36, 125),
+(37, 125),
+(38, 125);
 
 DROP TABLE IF EXISTS `nm_lehrer_klasse`;
 CREATE TABLE `nm_lehrer_klasse` (
@@ -709,7 +750,7 @@ DROP TABLE IF EXISTS `getbewertungen`;
 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getbewertungen`  AS  select sum(`bewertungen`.`bewertung`) AS `sum(bewertungen.bewertung)`,`fragebogen`.`id` AS `id`,`lehrer`.`mail` AS `mail` from ((`lehrer` left join `fragebogen` on(`lehrer`.`id` = `fragebogen`.`lehrerid`)) left join `bewertungen` on(`fragebogen`.`id` = `bewertungen`.`bogenid`)) group by `fragebogen`.`id` ;
 DROP TABLE IF EXISTS `getfbfragen`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getfbfragen`  AS  select `fragebogen`.`zeitstempel` AS `zeitstempel`,`fragen`.`id` AS `frageid`,`fragen`.`frage` AS `frage`,`fragen`.`kategorie` AS `kategorie`,`fragebogen`.`id` AS `bogenid`,`fragebogen`.`name` AS `thema`,`fragebogen`.`klassename` AS `klassename`,`fach`.`name` AS `fachname`,sum(if(`bewertungen`.`bewertung` = -2,1,0)) AS `bew110`,sum(if(`bewertungen`.`bewertung` = -1,1,0)) AS `bew101`,sum(if(`bewertungen`.`bewertung` = 0,1,0)) AS `bew000`,sum(if(`bewertungen`.`bewertung` = 1,1,0)) AS `bew001`,sum(if(`bewertungen`.`bewertung` = 2,1,0)) AS `bew010`,sum(if(`bewertungen`.`bewertung` = -2,1,0)) * -2 + sum(if(`bewertungen`.`bewertung` = -1,1,0)) * -1 + sum(if(`bewertungen`.`bewertung` = 0,1,0)) * 0 + sum(if(`bewertungen`.`bewertung` = 1,1,0)) * 1 + sum(if(`bewertungen`.`bewertung` = 2,1,0)) * 2 AS `bewertung` from ((((`fragebogen` join `fach` on(`fragebogen`.`fachid` = `fach`.`id`)) join `nm_frage_fragebogen` on(`fragebogen`.`id` = `nm_frage_fragebogen`.`bogenid`)) join `bewertungen` on(`nm_frage_fragebogen`.`frageid` = `bewertungen`.`frageid` and `nm_frage_fragebogen`.`bogenid` = `bewertungen`.`bogenid`)) join `fragen` on(`bewertungen`.`frageid` = `fragen`.`id`)) group by `fragen`.`id`,`fragebogen`.`id` ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getfbfragen`  AS  select `fragebogen`.`zeitstempel` AS `zeitstempel`,`fragebogen`.`id` AS `bogenid`,`fragebogen`.`name` AS `thema`,`fragebogen`.`klassename` AS `klassename`,`fragen`.`id` AS `frageid`,`fragen`.`frage` AS `frage`,`fragen`.`kategorie` AS `kategorie`,`fach`.`name` AS `fachname`,sum(if(`bewertungen`.`bewertung` = -2,1,0)) AS `bew110`,sum(if(`bewertungen`.`bewertung` = -1,1,0)) AS `bew101`,sum(if(`bewertungen`.`bewertung` = 0,1,0)) AS `bew000`,sum(if(`bewertungen`.`bewertung` = 1,1,0)) AS `bew001`,sum(if(`bewertungen`.`bewertung` = 2,1,0)) AS `bew010`,sum(if(`bewertungen`.`bewertung` = -2,1,0)) * -2 + sum(if(`bewertungen`.`bewertung` = -1,1,0)) * -1 + sum(if(`bewertungen`.`bewertung` = 0,1,0)) * 0 + sum(if(`bewertungen`.`bewertung` = 1,1,0)) * 1 + sum(if(`bewertungen`.`bewertung` = 2,1,0)) * 2 AS `bewertung` from ((((`nm_frage_fragebogen` join `fragebogen` on(`fragebogen`.`id` = `nm_frage_fragebogen`.`bogenid`)) join `fragen` on(`nm_frage_fragebogen`.`frageid` = `fragen`.`id`)) join `fach` on(`fragebogen`.`fachid` = `fach`.`id`)) left join `bewertungen` on(`nm_frage_fragebogen`.`frageid` = `bewertungen`.`frageid` and `nm_frage_fragebogen`.`bogenid` = `bewertungen`.`bogenid`)) group by `fragen`.`id`,`fragebogen`.`id` ;
 DROP TABLE IF EXISTS `getfragebogen`;
 
 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getfragebogen`  AS  select `fragebogen`.`id` AS `id`,`fragebogen`.`zeitstempel` AS `zeitstempel`,`fragebogen`.`name` AS `name`,`fach`.`name` AS `fach`,`fragebogen`.`klassename` AS `klassename`,`fragebogen`.`schueleranzahl` AS `schueleranzahl`,`lehrer`.`mail` AS `mail` from ((`lehrer` left join `fragebogen` on(`lehrer`.`id` = `fragebogen`.`lehrerid`)) left join `fach` on(`fragebogen`.`fachid` = `fach`.`id`)) ;
@@ -773,7 +814,7 @@ ALTER TABLE `fach`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 ALTER TABLE `fragebogen`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=125;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=126;
 
 ALTER TABLE `fragen`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=129;
