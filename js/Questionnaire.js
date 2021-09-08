@@ -115,12 +115,28 @@ export default class Questionnaire
 			// TODO: Eventuell Button zum Anzeigen der Codes in Footer des Bogens verlegen
 			let codesTag = document.createElement("div");
 			codesTag.innerHTML = "CODES";
+			let tempCodesTagId = this.id + "_codesTag";
+			codesTag.id = tempCodesTagId;
 			codesTag.style.fontSize = "10px";
 			codesTag.style.fontWeight = "bold";
 			codesTag.addEventListener("click", (event)=>{
 				window.open("./html/codes.htm?fbId=" + this.id + "&qSubject=" + this.qSubject + "&subject=" + this.subject + "&className=" + this.className); 
 				event.stopPropagation();
 			});
+			/*
+			codesTag.addEventListener("mouseenter", (event)=>{
+				document.getElementById(tempCodesTagId).style.color = "green";
+			});
+			codesTag.addEventListener("mouseleave", (event)=>{
+				if (this.state)
+				{
+					document.getElementById(tempCodesTagId).style.color = "white";
+				}
+				if (!this.state) document.getElementById(tempCodesTagId).style.color = this.menuBarColor;
+				
+			});
+			*/
+			
 
 			columnSymbol.appendChild(codesTag);
 
@@ -182,6 +198,7 @@ export default class Questionnaire
 					
 				//let columnData = document.createElement("td");
 	
+				// Zellen mit Daten hinzufügen
 				if (index == "zeitstempel")
 				{
 					let timestamp = questionnaire[index].split(" ");
@@ -220,10 +237,56 @@ export default class Questionnaire
 			columnStatusHeader.innerHTML = "Status";
 			columnStatusHeader.style.backgroundColor = "#9eb3c7";
 			rowHeaders.appendChild(columnStatusHeader);
-	
 			// Bogenstatus hinzufügen
 			let columnStatus = document.createElement("td");
 			columnStatus.style.fontWeight = "bold";
+
+			// Bogen-schließen Header hinzufügen
+			let columnCloseHeader = document.createElement("td");
+			columnCloseHeader.className = "questionnaireHeader";
+			columnCloseHeader.style.color = this.menuBarColor;
+			columnCloseHeader.style.fontWeight = "bold";
+			columnCloseHeader.style.fontSize = "small";
+			columnCloseHeader.innerHTML = "Schließen";
+			columnCloseHeader.style.backgroundColor = "#9eb3c7";
+			rowHeaders.appendChild(columnCloseHeader);			
+			// Bogen-löschen Header hinzufügen (leeres Datenfeld)
+			let columnClose = document.createElement("td");
+			columnClose.style.fontSize = "20px";
+			columnClose.style.paddingLeft = "15px";
+			columnClose.innerHTML = "🔒";
+			columnClose.style.fontWeight = "bold";
+			columnClose.addEventListener("mousedown", (event)=>{
+				//event.preventDefault();
+				let formdata = new FormData();
+				formdata.append("fbId", this.id);
+				console.log(JSON.parse(this.Request("./php/main.php?mode=deleteAllCodes", formdata)));
+				event.stopPropagation();
+			});
+
+			// Bogen-löschen Header hinzufügen
+			let columnDeleteHeader = document.createElement("td");
+			columnDeleteHeader.className = "questionnaireHeader";
+			columnDeleteHeader.style.color = this.menuBarColor;
+			columnDeleteHeader.style.fontWeight = "bold";
+			columnDeleteHeader.style.fontSize = "small";
+			columnDeleteHeader.innerHTML = "Löschen";
+			columnDeleteHeader.style.backgroundColor = "#9eb3c7";
+			rowHeaders.appendChild(columnDeleteHeader);
+			// Bogen-löschen Header hinzufügen (leeres Datenfeld)
+			let columnDelete = document.createElement("td");
+			columnDelete.style.fontSize = "30px";
+			columnDelete.style.paddingLeft = "15px";
+			columnDelete.innerHTML = "🗑";
+			columnDelete.style.fontWeight = "bold";
+			columnDelete.addEventListener("mousedown", (event)=>{
+				//event.preventDefault();
+				let formdata = new FormData();
+				formdata.append("fbId", this.id);
+				console.log(JSON.parse(this.Request("./php/main.php?mode=delQuestionnaire", formdata)));
+				event.stopPropagation();
+				document.getElementById(questionnaire.id).remove();
+			});
 			
 			// Asynchroner Request
 			let xhttp = new XMLHttpRequest()
@@ -257,6 +320,10 @@ export default class Questionnaire
 					}
 
 					rowData.appendChild(columnStatus);
+
+					// Zellen zum löschen und schließen hinzufügen
+					rowData.appendChild(columnClose);
+					rowData.appendChild(columnDelete);
 			
 					table.appendChild(rowHeaders);
 					table.appendChild(rowData);
@@ -414,10 +481,42 @@ export default class Questionnaire
 
 				let tempContainer = document.getElementById(questionnaireId + "_question_container");//.appendChild(tempCategory);
 				this.getKritik(this.id, tempContainer);
+
 			}
 		};
 		xhttp.open("POST", path, true);
 		xhttp.send(formData);
+	}
+
+	addFooter()
+	{
+		let questionnaireFooter = document.createElement("div");
+		document.getElementById(questionnaireId + "_question_container").appendChild(questionnaireFooter);
+		questionnaireFooter.style.height = "30px";
+		questionnaireFooter.style.width = "100%";
+
+		let tempFooterTable = document.createElement("table");
+		questionnaireFooter.appendChild(tempFooterTable);
+
+		let tempFooterTableRow = document.createElement("tr");
+		tempFooterTable.appendChild(tempFooterTableRow);
+
+		let tempColumns = {};
+		tempColumns.spacer = {"id":"spacer_" + this.id, "width":"70%", "title": ""};
+		tempColumns.closeQuestionnaire = {"id":"closeQuestionnaire_" + this.id, "width":"70%", "title": "Bogen schließen"};
+		tempColumns.deleteQuestionnaire = {"id":"deleteQuestionnaire_" + this.id, "width":"70%", "title": "Bogen löschen"};
+
+		console.log("tempColumns");
+		console.log(tempColumns);
+
+		for (let column in tempColumns)
+		{
+			let tempColumn = document.createElement("td");
+			tempFooterTableRow.appendChild(tempColumn)
+			tempColumn.id = tempColumns[column].id;
+			tempColumn.style.width = tempColumns[column].width;
+			tempColumn.innerHTML = tempColumns[column].title;
+		}
 	}
 
 	getKritik(questionnaireId, tempContainer)
@@ -469,6 +568,7 @@ export default class Questionnaire
 	
 							tempSuggestionContainer.appendChild(tempSuggestion);
 						}
+			
 					}
 					else
 					{
@@ -495,7 +595,8 @@ export default class Questionnaire
 						tempSuggestionContainer.appendChild(tempSuggestion);
 					}
 
-
+						// Footer mit Buttons zum Löschen des Bogens, sowie vorzeitigem abschließen hinzufügen
+						//this.addFooter();
 				}
 				catch(error)
 				{
@@ -505,6 +606,19 @@ export default class Questionnaire
 			}
 		}
 		xhttp.send(formData);
+	}
+
+	Request(path, formData)
+	{
+		let response;
+		let xhttp = new XMLHttpRequest();
+		xhttp.open("POST", path, false);
+		xhttp.send(formData);
+		response = xhttp.responseText;
+
+		//if (response.indexOf("{") != 0) return response;
+		//if (response.length > 100 && response != null) return JSON.parse(response);
+		return response;
 	}
 
 }
