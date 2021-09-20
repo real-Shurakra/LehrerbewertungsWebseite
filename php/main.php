@@ -636,7 +636,7 @@ class FragenVerwaltung {
 
     public static function deleteAllCodes($fbId) {
         global $link;
-        $sqlquery_DelCodehash = "DELETE FROM codes WHERE fragebogenid = '" . $fbId . "'";
+        $sqlquery_DelCodehash = "DELETE FROM codes WHERE fragebogenid = " . $fbId . ";";
         if (mysqli_query($link, $sqlquery_DelCodehash)) {
             return true;
         }
@@ -688,15 +688,27 @@ class FragenVerwaltung {
     }
 
     public static function delQuestionnaire($fbId) {
-        if(self::deleteAllCodes($fbId) == false){
-            return false;
-        }
-        global $link;
-        if (mysqli_query($link, "DELETE FROM fragebogen WHERE id = '" . $fbId . "'")){
-            return true;
-        }
-        else{
-            return false;
+        try{
+            $answer = array('rc' => false,'rv' => '<strong>Unknown-Error at main.php -> FragenVerwaltung.deleteQuestion()</strong><br>Bitte wenden Sie sich an einen Administrator.');
+            global $link;
+            if(self::deleteAllCodes($fbId) == false)throw new Exception('<strong>SQL-Error at deleteAllCodes()</strong><br>Bitte wenden Sie sich an einen Administrator.');
+            $sqlquery_deleteQuestions = "
+                DELETE FROM bewertungen WHERE bogenid = ".$fbId.";
+                DELETE FROM verbesserungen WHERE bogenid = ".$fbId.";
+                DELETE FROM fragebogen WHERE id = ".$fbId.";";
+            $sqlResult = mysqli_query($link, $sqlquery_deleteQuestions);
+            if ($sqlResult == False) throw new Exception('<strong>SQL-Error</strong><br>Bitte wenden Sie sich an einen Administrator.');
+            $answer = array(
+                'rc' => true,
+                'rv' => NULL
+            );
+        }catch(Exception $error){
+            $answer = array(
+                'rc' => false,
+                'rv' => $error
+            );
+        }finally{
+            return $answer;
         }
     }
 
@@ -730,6 +742,7 @@ class FragenVerwaltung {
             return $answer;
         }
     }
+
     public static function changeQuestionDelete($frageId) {
         try{
             $answer = array('rc' => false,'rv' => '<strong>Unknown-Error at main.php -> FragenVerwaltung.deleteQuestion()</strong><br>Bitte wenden Sie sich an einen Administrator.');
