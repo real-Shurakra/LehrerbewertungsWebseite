@@ -12,6 +12,12 @@ class main {
         $_REQUEST = self::checkSemicolon($_REQUEST);
         switch ($_REQUEST['mode']) {
             case  'loginUser':                                                  echo json_encode(nutzerverwaltung::loginUser($_REQUEST['mail'], $_REQUEST['passwort']));break;
+            case  'changePasswort':         if ($_SESSION['usermail'] != NULL) {echo json_encode(nutzerverwaltung::changePasswort($_REQUEST['oldPasswort'], $_REQUEST['newPasswort']));}break;
+            case  'addUser':                                                    echo json_encode(nutzerverwaltung::addUser($_REQUEST['mail'], $_REQUEST['firstname'], $_REQUEST['lastname']));break;
+            case  'checkPermission':                                            echo json_encode(nutzerverwaltung::checkPermission($_REQUEST['passwort']));break;
+            case  'deleteUser':             if ($_SESSION['usermail'] != NULL) {echo json_encode(nutzerverwaltung::deleteUser($_REQUEST['passwort'], $_REQUEST['mail']));}break;
+
+
             case  'askAlleFragen':          if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::askAlleFragen($_SESSION['usermail']));}break;
             case  'addFrage':               if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::addFrage($_REQUEST['frage'], $_SESSION['usermail'], $_REQUEST['kategorie']));}break;
             case  'getAlleKategorien':      if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::getAlleKategorien());}break;
@@ -134,6 +140,118 @@ class nutzerverwaltung {
         catch (Exception $e) 
         {
             return array ('returncode'=>4, 'Returnvalue'=>'<strong>Unbekannter Fehler Fehlercode: ##PHPMAIN_loginUser_ue</strong><br>Bei der ausf&#252;rung der Funktion ist folgender Fehler aufgetreten:<br><br>' . $e);
+        }
+    }
+
+    public static function addUser($mail, $firstname, $lastname){
+        try{
+            $answer = array('rc' => false,'rv' => '<strong>Unknown-Error at main.php -> FragenVerwaltung.deleteQuestion()</strong><br>Bitte wenden Sie sich an einen Administrator.');
+            global $link;
+            ## User register
+            $sqlquery_addUser = "
+            INSERT INTO lehrer(id, mail, vorname, nachname, passwort, isroot) 
+            VALUES (DEFAULT,'".$mail."','".$firstname."','".$lastname."',Default,FALSE);
+
+            SELECT @userid := id FROM lehrer WHERE mail = '".$mail."';
+
+            INSERT INTO fragen(frage, kategorie, lehrerid) 
+            SELECT frage, kategorie, @userid FROM fragentemplate;";
+            $sqlResult = mysqli_query($link, $sqlquery_addUser);
+            if ($sqlResult == False) throw new Exception('<strong>SQL-Error at nutzerverwaltung.addUser() #1</strong><br>Bitte wenden Sie sich an einen Administrator.');
+            
+            $answer = array(
+                'rc' => true,
+                'rv' => '<strong>Neuer Benutzer angelegt</strong><br>Nutzername: '.$mail.'<br>Passwort: Admin'
+            );
+        }catch(Exception $error){
+            $answer = array(
+                'rc' => false,
+                'rv' => $error
+            );
+        }finally{
+            return $answer;
+        }
+    }
+
+    public static function changePasswort($oldPasswort, $newPasswort){
+        if (self::checkPermission($oldPasswort)['rc'] <= 0) {throw new Exception('<strong>Permission denied!</strong><br>Sie haben keine Zugriffsberechtigung.');}
+        try{
+            $answer = array('rc' => false,'rv' => '<strong>Unknown-Error at main.php -> FragenVerwaltung.deleteQuestion()</strong><br>Bitte wenden Sie sich an einen Administrator.');
+            global $link;
+            $sqlquery_addUser = "UPDATE lehrer SET passwort=".validation::pass_encode($newPasswort)." WHERE mail = ".$_SESSION['usermail'].";";
+            $sqlResult = mysqli_query($link, $sqlquery_addUser);
+            if ($sqlResult == False) throw new Exception('<strong>SQL-Error at nutzerverwaltung.addUser() #1</strong><br>Bitte wenden Sie sich an einen Administrator.');
+            
+            $answer = array(
+                'rc' => true,
+                'rv' => '<strong>Erfolgreich</strong><br>Ihr Passwort wurde gändert.'
+            );
+        }catch(Exception $error){
+            $answer = array(
+                'rc' => false,
+                'rv' => $error
+            );
+        }finally{
+            return $answer;
+        }
+    }
+
+    public static function checkPermission($Password){
+        $Password = validation::pass_encode($Password);
+        try{
+            $answer = array('rc' => false,'rv' => '<strong>Unknown-Error at main.php -> FragenVerwaltung.deleteQuestion()</strong><br>Bitte wenden Sie sich an einen Administrator.');
+            global $link;
+            ## User register
+            $sqlquery_addUser = "SELECT isroot FROM lehrer WHERE passwort = ".$Password." AND mail = ".$_SESSION['usermail'].";";
+            $sqlResult = mysqli_query($link, $sqlquery_addUser);
+            if ($sqlResult == False) throw new Exception('<strong>SQL-Error at nutzerverwaltung.checkPermission() #1</strong><br>Bitte wenden Sie sich an einen Administrator.');
+            if ($sqlResult->num_rows != 1) throw new Exception('<strong>Permission denied!</strong><br>Sie haben keine Zugriffsberechtigung.');
+            for ($i = 0; $i < $sqlResult->num_rows; $i++) {
+                $sqlResult_Data[$i] = mysqli_fetch_array($sqlResult);
+            }
+            if ($sqlResult_Data[0][0]) {$answer = array('rc'=>-1, 'rv'=>NULL);}
+            else                       {$answer = array('rc'=> 0, 'rv'=>NULL);}
+        }catch(Exception $error){
+            $answer = array(
+                'rc' => 1,
+                'rv' => $error
+            );
+        }finally{
+            return $answer;
+        }
+    }
+
+    public static function deleteUser($rootPassword, $userMail) {
+        try{
+            $answer = array('rc' => false,'rv' => '<strong>Unknown-Error at main.php -> FragenVerwaltung.deleteQuestion()</strong><br>Bitte wenden Sie sich an einen Administrator.');
+            global $link;
+            ## Check permission
+            if (self::checkPermission($rootPassword)['rc'] != -1) {throw new Exception('<strong>Permission denied!</strong><br>Sie haben keine Zugriffsberechtigung.');}
+            $sqlquery_addUser = "
+            SELECT @userid := id FROM lehrer WHERE mail = '".$userMail."';
+
+            DELETE nm_frage_fragebogen FROM nm_frage_fragebogen LEFT JOIN fragebogen ON nm_frage_fragebogen.bogenid = fragebogen.id WHERE lehrerid = @userid;
+            DELETE bewertungen FROM bewertungen LEFT JOIN fragebogen ON bewertungen.bogenid = fragebogen.id WHERE lehrerid = @userid;
+            DELETE nm_frage_fragebogen FROM nm_frage_fragebogen LEFT JOIN  fragebogen ON nm_frage_fragebogen.bogenid = fragebogen.id WHERE lehrerid = @userid;
+            DELETE verbesserungen FROM verbesserungen LEFT JOIN fragebogen ON verbesserungen.bogenid = fragebogen.id WHERE lehrerid = @userid;
+            DELETE codes FROM codes LEFT JOIN fragebogen ON codes.fragebogenid = fragebogen.id WHERE lehrerid = @userid;
+            DELETE FROM fragebogen WHERE lehrerid = @userid;
+            DELETE FROM fragen WHERE lehrerid = @userid;
+            DELETE FROM lehrer WHERE id = @userid;";
+            $sqlResult = mysqli_query($link, $sqlquery_addUser);
+            if ($sqlResult == False) throw new Exception('<strong>SQL-Error at nutzerverwaltung.addUser() #1</strong><br>Bitte wenden Sie sich an einen Administrator.');
+            
+            $answer = array(
+                'rc' => true,
+                'rv' => '<strong>Erfolgreich</strong><br>Ihr Passwort wurde gändert.'
+            );
+        }catch(Exception $error){
+            $answer = array(
+                'rc' => false,
+                'rv' => $error
+            );
+        }finally{
+            return $answer;
         }
     }
 }
