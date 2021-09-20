@@ -1,4 +1,7 @@
 <?php
+
+use FFI\Exception;
+
 include 'database_connect.php'; session_start();
 
 
@@ -25,7 +28,8 @@ class main {
             case  'alterQuestion':          if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::alterQuestion($_REQUEST['frageId'], $_REQUEST['neuFrage']));}break;
             case  'delQuestionnaire':       if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::delQuestionnaire($_REQUEST['fbId']));}break;
             case  'aecd587fdc09':                                               echo json_encode(self::hilfe());
-            case  'deleteAllCodes':         if ($_SESSION['usermail'] != NULL) {echo json_decode(FragenVerwaltung::deleteAllCodes($_REQUEST['fbId']));}break;
+            case  'deleteAllCodes':         if ($_SESSION['usermail'] != NULL) {echo json_encode(FragenVerwaltung::deleteAllCodes($_REQUEST['fbId']));}break;
+            case  'getQuestions':           if ($_SESSION['usermail'] != NULL) {echo json_encode(FragenVerwaltung::getQuestions());break;}
             default:                                                            echo json_encode(array('returncode'=>1, 'Returnvalue'=>'<strong>Programmfehler Fehlercode: ##PHPMAIN_aktivierungJS_wv</strong><br>mode-Wert fehlerhaft. $_REQUEST[\'mode\'] = ' . strval($_REQUEST['mode'])));break;
         }
     }
@@ -417,7 +421,7 @@ class FragenVerwaltung {
             if($code == False){
                 $fbId = "'" . $fbId . "'";
             }
-            $sqlquery_GetFbFragen = "SELECT * FROM getfbfragen WHERE bogenid = " . $fbId . "";
+            $sqlquery_GetFbFragen = "SELECT * FROM getfbfragen WHERE bogenid = " . $fbId . " ORDER BY `getfbfragen`.`kategorie` ASC, `getfbfragen`.`frage` ASC;";
             $sqlquery_GetFbFragen_Result = mysqli_query($link, $sqlquery_GetFbFragen);
             if ($sqlquery_GetFbFragen_Result == FALSE){
                 return array(
@@ -645,7 +649,7 @@ class FragenVerwaltung {
         global $link;
         $sqlquery_getAlleSchulklassen = "SELECT name FROM fach";
         $sqlquery_getAlleSchulklassen_Result = mysqli_query($link, $sqlquery_getAlleSchulklassen);
-        if ($sqlquery_getAlleSchulklassen_Result->num_rows == 0) {
+         {
             return array(
                 'returncode'=>-1,
                 'returnvalue'=>main::toDE('<strong>Keine Fächer gefunden</strong><br>Es wurden keine Fächer in der Datenbank gefunden.')
@@ -663,28 +667,23 @@ class FragenVerwaltung {
     }
 
     public static function alterQuestion($frageId, $neuFrage) {
-        global $link;
-
-        $sqlquery_updateFrage = "UPDATE fragen SET ";
-        if (isset($neuFrage['frage'])){
-            $sqlquery_updateFrage .= "frage = '" . $neuFrage['frage'] . "',";
-        }
-        if (isset($neuFrage['lehrerId'])){
-            if($neuFrage['lehrerId'] != 'NULL'){
-                $neuFrage['lehrerId'] = "(SELECT id FROM lehrer WHERE mail = '" . $_SESSION['usermail'] ."'";
-            }
-            $sqlquery_updateFrage .= "lehrerid = " . $neuFrage['lehrerId'] . ",";
-        }
-        if (isset($neuFrage['kategorie'])){
-            $sqlquery_updateFrage .= "kategorie = '" . $neuFrage['kategorie'] . "',";
-        }
-        $sqlquery_updateFrage = rtrim($sqlquery_updateFrage, ",");
-        $sqlquery_updateFrage .= " WHERE id = " . $frageId;
-        if (mysqli_query($link, $sqlquery_updateFrage)){
-            return true;
-        }
-        else{
-            return false;
+        try{
+            $answer = array('rc' => false,'rv' => '<strong>Unknown-Error at main.php -> FragenVerwaltung.alterQuestion()</strong><br>Bitte wenden Sie sich an einen Administrator.');
+            global $link;
+            $sqlquery_deleteQuestions = "UPDATE fragen SET frage='".$neuFrage."' WHERE id = ".$frageId."";
+            $sqlResult = mysqli_query($link, $sqlquery_deleteQuestions);
+            if ($sqlResult == False) throw new Exception('<strong>SQL-Error</strong><br>Bitte wenden Sie sich an einen Administrator.');
+            $answer = array(
+                'rc' => true,
+                'rv' => NULL
+            );
+        }catch(Exception $error){
+            $answer = array(
+                'rc' => false,
+                'rv' => $error
+            );
+        }finally{
+            return $answer;
         }
     }
 
@@ -700,13 +699,65 @@ class FragenVerwaltung {
             return false;
         }
     }
-}
 
+    public static function getQuestions() {
+        try{
+            $answer = array('rc' => false,'rv' => '<strong>Unknown-Error at main.php -> FragenVerwaltung.getQuestions()</strong><br>Bitte wenden Sie sich an einen Administrator.');
+            global $link;
+            $sqlquery_getQuestions = "SELECT frage, kategorie FROM getquestions WHERE mail = '".$_SESSION['usermail']."';";
+            $sqlResult = mysqli_query($link, $sqlquery_getQuestions);
+            if ($sqlResult == False) throw new Exception('<strong>SQL-Error</strong><br>Bitte wenden Sie sich an einen Administrator.');
+            if ($sqlResult->num_rows == 0) throw new Exception('<strong>Keine Fragen gefunden</strong><br>Bitte tragen Sie Fragen ein.');
+            $arrayRv = array();
+            for ($i=0; $i < $sqlResult->num_rows; $i++) { 
+                $sqlResult_Data[$i] = mysqli_fetch_array($sqlResult);
+                array_push($arrayRv, array(
+                        'question' => $sqlResult_Data[$i]['frage'],
+                        'category' => $sqlResult_Data[$i]['kategorie']
+                        )
+                    );
+                }
+            $answer = array(
+                'rc' => true,
+                'rv' => $arrayRv
+            );
+        } catch (Exception $error){
+            $answer = array(
+                'rc' => false,
+                'rv' => $error
+            );
+        }finally{
+            return $answer;
+        }
+    }
+    public static function changeQuestionDelete($frageId) {
+        try{
+            $answer = array('rc' => false,'rv' => '<strong>Unknown-Error at main.php -> FragenVerwaltung.deleteQuestion()</strong><br>Bitte wenden Sie sich an einen Administrator.');
+            global $link;
+            $sqlquery_deleteQuestions = "UPDATE fragen SET softdelete=IF (softdelete, 0, 1) WHERE id = ".$frageId."";
+            $sqlResult = mysqli_query($link, $sqlquery_deleteQuestions);
+            if ($sqlResult == False) throw new Exception('<strong>SQL-Error</strong><br>Bitte wenden Sie sich an einen Administrator.');
+            $answer = array(
+                'rc' => true,
+                'rv' => NULL
+            );
+        }catch(Exception $error){
+            $answer = array(
+                'rc' => false,
+                'rv' => $error
+            );
+        }finally{
+            return $answer;
+        }
+    }
+}
+//////////////////////////////////////////  DEBUG  /////////////////////////////////////////////
 if (isset($_REQUEST['mode']) == false){
-    //////////////////////////////////////////  DEBUG  /////////////////////////////////////////////
     session_unset();
+    $_REQUEST['mode']           = 'getQuestions';
+
     $_SESSION['usermail']       = 'temp.dump@hotmail.com';
-    $_REQUEST['mode']           = 'insertRate';
+    $_REQUEST['mode']           = 'getQuestions';
     $_REQUEST['frage']          = 'Tafelbilder und Folien sind gut lesbar.';
     $_REQUEST['mail']           = 'temp.dump@hotmail.com';
     $_REQUEST['passwort']       = 'Admin';
@@ -722,6 +773,7 @@ if (isset($_REQUEST['mode']) == false){
     $_REQUEST['kritik']         = 'Alles Gefixt! Garkein Problem!';
     $_REQUEST['frageId']        = '124';
     $_REQUEST['neuFrage']       = array('frage' => 'Der Unterricht ist gut vorbereitet und sorgfaltig geplant.','lehrerId' => 'NULL','kategorie' => 'Unterricht');
-    //////////////////////////////////////////  DEBUG END  /////////////////////////////////////////
+    
 }
+//////////////////////////////////////////  DEBUG END  /////////////////////////////////////////
 $jsablauf = new main();
