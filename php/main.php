@@ -18,8 +18,8 @@ class main {
             case  'checkPermission':                                            echo json_encode(nutzerverwaltung::checkPermission($_REQUEST['passwort']));break;
             case  'deleteUser':             if ($_SESSION['usermail'] != NULL) {echo json_encode(nutzerverwaltung::deleteUser($_REQUEST['passwort'], $_REQUEST['mail']));}break;
             ## Modes for FragenVerwaltung
-            case  'askAlleFragen':          if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::askAlleFragen($_SESSION['usermail']));}break;
-            case  'addFrage':               if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::addFrage($_REQUEST['frage'], $_SESSION['usermail'], $_REQUEST['kategorie']));}break;
+            case  'askAlleFragen':          if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::askAlleFragen());}break;
+            case  'addFrage':               if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::addFrage($_REQUEST['frage'], $_REQUEST['kategorie']));}break;
             case  'getAlleKategorien':      if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::getAlleKategorien());}break;
             case  'makeFragebogen':         if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::makeFragebogen($_REQUEST['name'], $_REQUEST['anzahl'], $_REQUEST['klasse'], $_REQUEST['fach'], $_REQUEST['fragen']));}break;
             case  'getFragebogens':         if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::getFragebogens());}break;
@@ -259,106 +259,80 @@ class nutzerverwaltung {
 
 class FragenVerwaltung {
     
-    public static function addFrage($frage, $mail, $kategorie) {
-        global $link;
-        $sqlquary_SucheFrage = "SELECT * FROM fragen WHERE frage = '" . $frage . "' AND (lehrerid IS NULL OR lehrerid = (SELECT id FROM lehrer WHERE mail = '" . $mail . "'));";
-        $sqlquary_SucheFrage_Result = mysqli_query($link, $sqlquary_SucheFrage);
-        if ($sqlquary_SucheFrage_Result->num_rows == 0) {
-            $sqlquary_InsertFrage = "INSERT INTO fragen (id, frage, kategorie, lehrerid) VALUES (DEFAULT, '" . $frage . "', '" . $kategorie . "', (SELECT id FROM lehrer WHERE mail = '" . $mail . "'));";
-            $sqlquary_InsertFrage_Result = mysqli_query($link, $sqlquary_InsertFrage);
-            if ($sqlquary_InsertFrage_Result) {
-                return array
-                (
-                    'returncode' =>0,
-                    'returnvalue'=>'<strong style="color:green;">Die Frage wurde erfolgreich gespeichert.</strong>'
-                );
+    public static function addFrage($frage, $kategorie) {
+        try{
+            $answer = array('returncode' =>1,'returnvalue'=>'<strong style="color:red;">Unknown Error</strong><br>/php/main.php -> FragenVerwaltung.addFrage()');
+            global $link;
+            $sqlquary_SucheFrage = "SELECT * FROM fragen WHERE frage = '" . $frage . "' AND lehrerid = (SELECT id FROM lehrer WHERE mail = '".$_SESSION['usermail']."');";
+            $sqlquary_SucheFrage_Result = mysqli_query($link, $sqlquary_SucheFrage);
+            if ($sqlquary_SucheFrage_Result->num_rows == 0) {
+                $sqlquary_InsertFrage = "
+                    INSERT INTO fragen (frage, kategorie, lehrerid) VALUES 
+                    ('" . $frage . "', '" . $kategorie . "', (SELECT id FROM lehrer WHERE mail = '".$_SESSION['usermail']."'));";
+                $sqlquary_InsertFrage_Result = mysqli_query($link, $sqlquary_InsertFrage);
+                if ($sqlquary_InsertFrage_Result) {$answer = array('returncode' =>0,'returnvalue'=>'<strong style="color:green;">Die Frage wurde erfolgreich gespeichert.</strong>');}
             }
-            
+            else {$answer =  array('returncode' =>-1,'returnvalue'=>'<strong style="color:yellow;">Die Frage befand sich bereits in der Datenbank.</strong>');}
         }
-        else 
-        {
-            return array
-            (
-                'returncode' =>-1,
-                'returnvalue'=>'<strong style="color:red;">Die Frage befand sich bereits in der Datenbank.</strong>'
-            );
+        catch(Exception $error){
+            $answer = array('returncode' =>1,'returnvalue'=>'<strong style="color:red;">Error</strong><br>/php/main.php -> FragenVerwaltung.addFrage() => '.$error);
         }
+        finally{
+            return $answer;
+        }
+        
     }
     
-    public static function askAlleFragen($mail) {
-        try 
-        {
+    public static function askAlleFragen() {
+        try {
+            $answer = array('returncode' =>1,'returnvalue'=>'<strong>Unknown Error</strong><br>/php/main.php -> FragenVerwaltung.askAlleFragen()');
             global $link;
             $sqlquary_AlleFragen_Result_Data = array();
-            $sqlquary_AlleFragen = "SELECT id, frage, kategorie FROM fragen WHERE lehrerid = (SELECT id FROM lehrer WHERE mail = '" . $mail ."') OR lehrerid IS NULL ORDER BY kategorie ASC;";
-            //var_dump($sqlquary_AlleFragen);
-            //echo('<br><br>');
+            $sqlquary_AlleFragen = "
+                SELECT id, frage, kategorie FROM fragen 
+                WHERE lehrerid = (SELECT id FROM lehrer WHERE mail = '".$_SESSION['usermail']."') ORDER BY kategorie ASC;";
             $sqlquary_AlleFragen_Result = mysqli_query($link, $sqlquary_AlleFragen);
-            //var_dump($sqlquary_AlleFragen_Result);
-            //echo('<br><br>');
-            $answer = array();
+            if (!$sqlquary_AlleFragen_Result) {throw new Exception($link->error);}
+            $answerArray = array();
             for ($i = 0; $i < $sqlquary_AlleFragen_Result->num_rows; $i++) {
-                $sqlquary_AlleFragen_Result_Data[$i]                = mysqli_fetch_array($sqlquary_AlleFragen_Result);
-                $answer[$i]['id']          = main::toDE($sqlquary_AlleFragen_Result_Data[$i]['id']);
-                $answer[$i]['frage']       = main::toDE($sqlquary_AlleFragen_Result_Data[$i]['frage']);
-                $answer[$i]['kategorie']   = main::toDE($sqlquary_AlleFragen_Result_Data[$i]['kategorie']);
-                $answer[$i][0]             = main::toDE($sqlquary_AlleFragen_Result_Data[$i][0]);
-                $answer[$i][1]             = main::toDE($sqlquary_AlleFragen_Result_Data[$i][1]);
+                $sqlquary_AlleFragen_Result_Data[$i] = mysqli_fetch_array($sqlquary_AlleFragen_Result);
+                $answerArray[$i]['id']          = main::toDE($sqlquary_AlleFragen_Result_Data[$i]['id']);
+                $answerArray[$i]['frage']       = main::toDE($sqlquary_AlleFragen_Result_Data[$i]['frage']);
+                $answerArray[$i]['kategorie']   = main::toDE($sqlquary_AlleFragen_Result_Data[$i]['kategorie']);
+                $answerArray[$i][0]             = main::toDE($sqlquary_AlleFragen_Result_Data[$i][0]);
+                $answerArray[$i][1]             = main::toDE($sqlquary_AlleFragen_Result_Data[$i][1]);
             }
-            
             $kategorien = self::getAlleKategorien();
-            if ($kategorien['returncode'] == 0){
-                $antwort = array(
+            if ($kategorien['returncode']){
+                $answer = array(
                     'returncode'=>0,
                     'returnvalue'=>array(
-                        $kategorien['returnvalue'],
-                        $answer
+                        $kategorien['rv'],
+                        $answerArray
                     )
                 );
-                return $antwort;
             }
-            else {
-                return array
-                (
-                    'returncode'=>$kategorien['returncode'],
-                    'returnvalue'=>$kategorien['returnvalue']
-                );
-            }
+            else {throw new Exception($kategorien['rv']);}
         } 
-        catch (Exception $e) 
-        {
-            return array
-            (
-                'returncode'=>1,
-                'returnvalue'=>$e
-            );
-        };
+        catch (Exception $error) {$answer =  array('returncode'=>1,'returnvalue'=>$error);}
+        finally{return $answer;}
     }
     
     public static function getAlleKategorien() {
-        try 
-        {
+        try {
             global $link;
             $sqlquary_AlleKategorien_Result_Data = array();
             $sqlquary_AlleKategorien = "SELECT kategorie FROM fragen GROUP BY kategorie";
             $sqlquary_AlleKategorien_Result = mysqli_query($link, $sqlquary_AlleKategorien);
-            for ($i = 0; $i < $sqlquary_AlleKategorien_Result->num_rows; $i++) {
-                $sqlquary_AlleKategorien_Result_Data[$i] = mysqli_fetch_array($sqlquary_AlleKategorien_Result);
-            }
-            return array
-            (
-                'returncode'=>0,
-                'returnvalue'=>$sqlquary_AlleKategorien_Result_Data
-            );
+            if (!$sqlquary_AlleKategorien_Result) {throw new Exception($link->error);}
+            for ($i = 0; $i < $sqlquary_AlleKategorien_Result->num_rows; $i++) {$sqlquary_AlleKategorien_Result_Data[$i] = mysqli_fetch_array($sqlquary_AlleKategorien_Result);}
+            $answer =  array('rc'=>true,'rv'=>$sqlquary_AlleKategorien_Result_Data);
         }
-        catch (Exception $e) 
-        {
-            return array
-            (
-                'returncode'=>1,
-                'returnvalue'=>$e
-            );
-        };
+        catch (Exception $error) {$answer = array('rc'=>false,'rv'=>$error);
+        }
+        finally{
+            return $answer;
+        }
     }
 
     public static function makeFragebogen($name, $anzahl, $klasse, $fach, $fragenids)  {
@@ -366,16 +340,14 @@ class FragenVerwaltung {
         $fragen = explode(',', $fragenids);
         $sqlstring_MakeFragebogen = "
             INSERT INTO fragebogen 
-            (zeitstempel, id, name, schueleranzahl, klassename, fachid, lehrerid)
+            (name, schueleranzahl, klassename, fachid, lehrerid)
             VALUES
             (
-                CURRENT_TIMESTAMP,
-                DEFAULT,
-                '" . $name ."', 
-                '" . $anzahl ."',
-                '" . $klasse ."',
-                (SELECT id FROM fach WHERE name = '" . $fach ."'),
-                (SELECT id FROM lehrer WHERE mail = '" . $_SESSION['usermail'] ."')
+                '".$name."', 
+                '".$anzahl."',
+                '".$klasse."',
+                (SELECT id FROM fach WHERE name = '".$fach."'),
+                (SELECT id FROM lehrer WHERE mail = '".$_SESSION['usermail']."')
             );";
         global $link;
         $sqlstring_MakeFragebogen_Result = mysqli_query($link, $sqlstring_MakeFragebogen);
@@ -391,16 +363,13 @@ class FragenVerwaltung {
             $sqlquery_GetLastFbId_Result = mysqli_query($link, $sqlquery_GetLastFbId);
             $sqlquery_GetLastFbId_Result_Data = mysqli_fetch_array($sqlquery_GetLastFbId_Result);
             $fbId = $sqlquery_GetLastFbId_Result_Data['MAX(id)'];
-            $row_sqlquery_InsertFbFragen = "INSERT INTO nm_frage_fragebogen (bogenid, frageid) VALUES";
-            for ($i = 0; $i < count($fragen); $i++) {
-                $row_sqlquery_InsertFbFragen .= "
-                    (" . $fbId . ", " . $fragen[$i] ."),";
-            }
+            $row_sqlquery_InsertFbFragen = "INSERT INTO nm_frage_fragebogen (bogenid, frageid) VALUES ";
+            for ($i = 0; $i < count($fragen); $i++) {$row_sqlquery_InsertFbFragen .= "(".$fbId.", ".$fragen[$i]."),";}
             $sqlquery_InsertFbFragen = rtrim($row_sqlquery_InsertFbFragen, ",");
             $sqlquery_InsertFbFragen .= ";";
             #var_dump($sqlquery_InsertFbFragen);
             mysqli_query($link, $sqlquery_InsertFbFragen);
-            if (self::genCodes($anzahl, $fbId) == 1){
+            if (!self::genCodes($anzahl, $fbId)){
                 $antwort = array(
                     'retruncode' => 1,
                     'returnvalue' => '<strong>WARNUNG!</strong><br>Die maximale Anzahl an Codes ist bereits erreicht.'
@@ -421,36 +390,17 @@ class FragenVerwaltung {
             $counter = 0;
             while (true) {
                 $memcode = array();
-                $code = self::genNumber() . '-' . self::genNumber() . '-' . self::genNumber() . '-' . self::genNumber();
-                if (in_array($code, $memcode)){
-                    array_push($memcode, $code);
-                    continue;
-                }
+                $code = self::genNumber().'-'.self::genNumber().'-'.self::genNumber().'-'.self::genNumber();
+                if (in_array($code, $memcode)) {array_push($memcode, $code);continue;}
                 array_push($memcode, $code);
-                $test = mysqli_query($link, "SELECT * FROM codes WHERE codehash = '" . $code . "'");
-                if ($test->num_rows == 0){
-                    mysqli_query($link, "INSERT INTO codes (codehash, fragebogenid) VALUES ('" . $code . "', " . $fbId . ");");
-                    break;
-                }
-                else{
-                    if ($counter == 100000000){
-                        return 1;
-                        break;
-                    }
-                    $counter++;
-                    continue;
-                }
+                $test = mysqli_query($link, "SELECT * FROM codes WHERE codehash = '".$code."'");
+                if ($test->num_rows == 0){mysqli_query($link, "INSERT INTO codes (codehash, fragebogenid) VALUES ('".$code."', ".$fbId.");");break;}
+                else {if ($counter == 100000000) {return false;}$counter++;continue;}
             }
         }
     }
     
-    static function genNumber() {
-        $numb = random_int(0, 99);
-        if ($numb <= 9){
-            $numb = '0' . $numb;
-        }
-        return $numb;
-    }
+    static function genNumber() {$numb = random_int(0, 99);if($numb<=9){$numb='0'.$numb;}return $numb;}
     
     public static function getFragebogens() {
         // hole DB Link
@@ -517,7 +467,7 @@ class FragenVerwaltung {
 
     public static function getCodes($fbId) {
         global $link;
-        $sqlquery_GetCodes = "SELECT codehash FROM codes WHERE fragebogenid = '" . $fbId . "'";
+        $sqlquery_GetCodes = "SELECT codehash FROM codes WHERE fragebogenid = '".$fbId."'";
         $sqlquery_GetCodes_Result = mysqli_query($link, $sqlquery_GetCodes);
         if($sqlquery_GetCodes_Result->num_rows == 0){
             return array(
@@ -593,9 +543,7 @@ class FragenVerwaltung {
         }
     }
 
-    public static function getFbFragenFromCode($code) {
-        return self::getFbFragen("(SELECT fragebogenid FROM codes WHERE codehash = '" . $code . "')", True);
-    }
+    public static function getFbFragenFromCode($code) {return self::getFbFragen("(SELECT fragebogenid FROM codes WHERE codehash = '" . $code . "')", True);}
 
     public static function insertRate($rates, $codehash) {
         global $link;
@@ -721,7 +669,7 @@ class FragenVerwaltung {
         );
     }
 
-    public static function getAlleSchulklassen($var = null) {
+    public static function getAlleSchulklassen() {
         global $link;
         $sqlquery_getAlleSchulklassen = "SELECT name FROM klasse";
         $sqlquery_getAlleSchulklassen_Result = mysqli_query($link, $sqlquery_getAlleSchulklassen);
@@ -744,31 +692,23 @@ class FragenVerwaltung {
 
     public static function deleteCode($codehash) {
         global $link;
-        $sqlquery_DelCodehash = "DELETE FROM codes WHERE codehash = '" . $codehash . "'";
-        if (mysqli_query($link, $sqlquery_DelCodehash)) {
-            return true;
-        }
-        else {
-            return false;
-        }
+        $sqlquery_DelCodehash = "DELETE FROM codes WHERE codehash = '".$codehash."'";
+        if (mysqli_query($link, $sqlquery_DelCodehash)) {return true;}
+        else {return false;}
     }
 
     public static function deleteAllCodes($fbId) {
         global $link;
-        $sqlquery_DelCodehash = "DELETE FROM codes WHERE fragebogenid = " . $fbId . ";";
-        if (mysqli_query($link, $sqlquery_DelCodehash)) {
-            return true;
-        }
-        else {
-            return false;
-        }
+        $sqlquery_DelCodehash = "DELETE FROM codes WHERE fragebogenid = ".$fbId.";";
+        if (mysqli_query($link, $sqlquery_DelCodehash)) {return true;}
+        else {return false;}
     }
 
     public static function getAllSubjects(){
         global $link;
         $sqlquery_getAlleSchulklassen = "SELECT name FROM fach";
         $sqlquery_getAlleSchulklassen_Result = mysqli_query($link, $sqlquery_getAlleSchulklassen);
-         {
+        if ($sqlquery_getAlleSchulklassen_Result->num_rows == 0) {
             return array(
                 'returncode'=>-1,
                 'returnvalue'=>main::toDE('<strong>Keine Fächer gefunden</strong><br>Es wurden keine Fächer in der Datenbank gefunden.')
@@ -792,18 +732,10 @@ class FragenVerwaltung {
             $sqlquery_deleteQuestions = "UPDATE fragen SET frage='".$neuFrage."' WHERE id = ".$frageId."";
             $sqlResult = mysqli_query($link, $sqlquery_deleteQuestions);
             if ($sqlResult == False) throw new Exception('<strong>SQL-Error</strong><br>Bitte wenden Sie sich an einen Administrator.');
-            $answer = array(
-                'rc' => true,
-                'rv' => NULL
-            );
-        }catch(Exception $error){
-            $answer = array(
-                'rc' => false,
-                'rv' => $error
-            );
-        }finally{
-            return $answer;
+            $answer = array('rc' => true,'rv' => NULL);
         }
+        catch(Exception $error){$answer = array('rc' => false,'rv' => $error);}
+        finally{return $answer;}
     }
 
     public static function delQuestionnaire($fbId) {
@@ -817,18 +749,9 @@ class FragenVerwaltung {
                 DELETE FROM fragebogen WHERE id = ".$fbId.";";
             $sqlResult = mysqli_query($link, $sqlquery_deleteQuestions);
             if ($sqlResult == False) throw new Exception('<strong>SQL-Error</strong><br>Bitte wenden Sie sich an einen Administrator.');
-            $answer = array(
-                'rc' => true,
-                'rv' => NULL
-            );
-        }catch(Exception $error){
-            $answer = array(
-                'rc' => false,
-                'rv' => $error
-            );
-        }finally{
-            return $answer;
-        }
+            $answer = array('rc' => true,'rv' => NULL);}
+        catch(Exception $error){$answer = array('rc' => false,'rv' => $error);}
+        finally{return $answer;}
     }
 
     public static function getQuestions() {
@@ -842,24 +765,11 @@ class FragenVerwaltung {
             $arrayRv = array();
             for ($i=0; $i < $sqlResult->num_rows; $i++) { 
                 $sqlResult_Data[$i] = mysqli_fetch_array($sqlResult);
-                array_push($arrayRv, array(
-                        'question' => $sqlResult_Data[$i]['frage'],
-                        'category' => $sqlResult_Data[$i]['kategorie']
-                        )
-                    );
-                }
-            $answer = array(
-                'rc' => true,
-                'rv' => $arrayRv
-            );
-        } catch (Exception $error){
-            $answer = array(
-                'rc' => false,
-                'rv' => $error
-            );
-        }finally{
-            return $answer;
-        }
+                array_push($arrayRv, array('question' => $sqlResult_Data[$i]['frage'],'category' => $sqlResult_Data[$i]['kategorie']));
+            }
+            $answer = array('rc' => true,'rv' => $arrayRv);}
+        catch (Exception $error){$answer = array('rc' => false,'rv' => $error);}
+        finally{return $answer;}
     }
 
     public static function changeQuestionDelete($frageId) {
@@ -869,18 +779,9 @@ class FragenVerwaltung {
             $sqlquery_deleteQuestions = "UPDATE fragen SET softdelete=IF (softdelete, 0, 1) WHERE id = ".$frageId."";
             $sqlResult = mysqli_query($link, $sqlquery_deleteQuestions);
             if ($sqlResult == False) throw new Exception('<strong>SQL-Error</strong><br>Bitte wenden Sie sich an einen Administrator.');
-            $answer = array(
-                'rc' => true,
-                'rv' => NULL
-            );
-        }catch(Exception $error){
-            $answer = array(
-                'rc' => false,
-                'rv' => $error
-            );
-        }finally{
-            return $answer;
-        }
+            $answer = array('rc' => true,'rv' => NULL);}
+        catch(Exception $error){$answer = array('rc' => false,'rv' => $error);}
+        finally{return $answer;}
     }
 }
 //////////////////////////////////////////  DEBUG  /////////////////////////////////////////////
