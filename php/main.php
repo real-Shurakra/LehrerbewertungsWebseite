@@ -11,13 +11,13 @@ class main {
     function __construct(){
         $_REQUEST = self::checkSemicolon($_REQUEST);
         switch ($_REQUEST['mode']) {
+            ## Modes for "nutzerverwaltung
             case  'loginUser':                                                  echo json_encode(nutzerverwaltung::loginUser($_REQUEST['mail'], $_REQUEST['passwort']));break;
             case  'changePasswort':         if ($_SESSION['usermail'] != NULL) {echo json_encode(nutzerverwaltung::changePasswort($_REQUEST['oldPasswort'], $_REQUEST['newPasswort']));}break;
             case  'addUser':                                                    echo json_encode(nutzerverwaltung::addUser($_REQUEST['mail'], $_REQUEST['firstname'], $_REQUEST['lastname']));break;
             case  'checkPermission':                                            echo json_encode(nutzerverwaltung::checkPermission($_REQUEST['passwort']));break;
             case  'deleteUser':             if ($_SESSION['usermail'] != NULL) {echo json_encode(nutzerverwaltung::deleteUser($_REQUEST['passwort'], $_REQUEST['mail']));}break;
-
-
+            ## Modes for FragenVerwaltung
             case  'askAlleFragen':          if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::askAlleFragen($_SESSION['usermail']));}break;
             case  'addFrage':               if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::addFrage($_REQUEST['frage'], $_SESSION['usermail'], $_REQUEST['kategorie']));}break;
             case  'getAlleKategorien':      if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::getAlleKategorien());}break;
@@ -33,9 +33,10 @@ class main {
             case  'getFbFragenFromCode':                                        echo json_encode(FragenVerwaltung::getFbFragenFromCode($_REQUEST['codehash']));break;
             case  'alterQuestion':          if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::alterQuestion($_REQUEST['frageId'], $_REQUEST['neuFrage']));}break;
             case  'delQuestionnaire':       if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::delQuestionnaire($_REQUEST['fbId']));}break;
-            case  'aecd587fdc09':                                               echo json_encode(self::hilfe());
             case  'deleteAllCodes':         if ($_SESSION['usermail'] != NULL) {echo json_encode(FragenVerwaltung::deleteAllCodes($_REQUEST['fbId']));}break;
             case  'getQuestions':           if ($_SESSION['usermail'] != NULL) {echo json_encode(FragenVerwaltung::getQuestions());break;}
+            ## Other modes
+            case  'aecd587fdc09':                                               echo json_encode(self::hilfe());
             default:                                                            echo json_encode(array('returncode'=>1, 'Returnvalue'=>'<strong>Programmfehler Fehlercode: ##PHPMAIN_aktivierungJS_wv</strong><br>mode-Wert fehlerhaft. $_REQUEST[\'mode\'] = ' . strval($_REQUEST['mode'])));break;
         }
     }
@@ -109,37 +110,37 @@ class validation {
 class nutzerverwaltung {
     
     public static function loginUser($mail, $passwort) {
-        $passwort = validation::pass_encode($passwort);
-        global $link;
         try {
+            $answer = array(
+                'returncode'=>false,
+                'returnvalue'=>'<strong>Unknown Error</strong>
+                                <br>Unbekannter Fehler in /php/main.php -> nutzerverwaaltung.loginUser()<br>
+                                Bitte wenden Sie sich an einen Administrator.'
+            );
+            $passwort = validation::pass_encode($passwort);
+            global $link;
             $sqlquary_FrageBenutzer = "SELECT isroot FROM lehrer WHERE mail = '" . $mail . "' AND passwort = '" . $passwort . "';";
             $sqlquary_FrageBenutzer_Result = mysqli_query($link, $sqlquary_FrageBenutzer);
+            if (!$sqlquary_FrageBenutzer_Result) {throw new Exception('Es ist ein SQL-Fehler aufgetreten.');}
             if ($sqlquary_FrageBenutzer_Result->num_rows == 1) {
                 $sqlquary_FrageBenutzer_Result_Array = mysqli_fetch_array($sqlquary_FrageBenutzer_Result);
                 $_SESSION['usermail'] = $_REQUEST['mail'];
                 if ($sqlquary_FrageBenutzer_Result_Array['isroot'] == 1){$_SESSION['userisroot'] = true;}
                 else{$_SESSION['userisroot'] = false;}
-                return array ('returncode'=>0, 'returnvalue'=>true);
+                $answer =  array ('returncode'=>true, 'returnvalue'=>true);
             }
-            elseif ($sqlquary_FrageBenutzer_Result->num_rows == 0) {
-                return array('returncode'=>-1, 'Returnvalue'=>false);
-            }
-            elseif ($sqlquary_FrageBenutzer_Result->num_rows > 1)
-            {
-                return array('returncode'=>1, 'Returnvalue'=>'<strong>Datenbankfehler Fehlercode: ##PHPMAIN_loginUser_tma</strong><br>Der Account mit der Mailadresse ' . $mail . ' befindet sich mehrmals in der Datenbank.');
-            }
-            elseif ($sqlquary_FrageBenutzer_Result->num_rows < 0)
-            {
-                return array('returncode'=>2, 'Returnvalue'=>'<strong>SQL Quary Fehler Fehlercode: ##PHPMAIN_loginUser_tla</strong><br>Das z&#228;hlen der SQL Resultate ergab einen negativen Wert.');
-            }
-            else 
-            {
-                return array ('returncode'=>3, 'Returnvalue'=>'<strong>Unbekannter Fehler Fehlercode: ##PHPMAIN_loginUser_cue</strong><br>Beim auswerten des SQL Ergebnisse ist ein Fehler aufgetreten.');
-            }
+            elseif ($sqlquary_FrageBenutzer_Result->num_rows == 0) {$answer =  array('returncode'=>true,'Returnvalue'=>false);}
+            elseif ($sqlquary_FrageBenutzer_Result->num_rows > 1) {throw new Exception('Der Account mit der Mailadresse '.$mail.' befindet sich mehrmals in der Datenbank.');}
+            elseif ($sqlquary_FrageBenutzer_Result->num_rows < 0) {throw new Exception('Das z&#228;hlen der SQL Resultate ergab einen negativen Wert.');}
+            else {throw new Exception('Beim auswerten des SQL Ergebnisse ist ein Fehler aufgetreten.');}
         } 
-        catch (Exception $e) 
-        {
-            return array ('returncode'=>4, 'Returnvalue'=>'<strong>Unbekannter Fehler Fehlercode: ##PHPMAIN_loginUser_ue</strong><br>Bei der ausf&#252;rung der Funktion ist folgender Fehler aufgetreten:<br><br>' . $e);
+        catch (Exception $error) {
+             $answer = array (
+                'returncode'=>false, 
+                'Returnvalue'=>'<strong>Error!</strong><br>'.$error.'<br>Bitte wenden Sie sich an einen Administrator');
+        }
+        finally{
+            return $answer;
         }
     }
 
@@ -157,7 +158,7 @@ class nutzerverwaltung {
             INSERT INTO fragen(frage, kategorie, lehrerid) 
             SELECT frage, kategorie, @userid FROM fragentemplate;";
             $sqlResult = mysqli_query($link, $sqlquery_addUser);
-            if ($sqlResult == False) throw new Exception('<strong>SQL-Error at nutzerverwaltung.addUser() #1</strong><br>Bitte wenden Sie sich an einen Administrator.');
+            if ($sqlResult == False) throw new Exception('<strong>SQL-Error at nutzerverwaltung.addUser()</strong><br>Bitte wenden Sie sich an einen Administrator.');
             
             $answer = array(
                 'rc' => true,
@@ -180,7 +181,7 @@ class nutzerverwaltung {
             global $link;
             $sqlquery_addUser = "UPDATE lehrer SET passwort=".validation::pass_encode($newPasswort)." WHERE mail = ".$_SESSION['usermail'].";";
             $sqlResult = mysqli_query($link, $sqlquery_addUser);
-            if ($sqlResult == False) throw new Exception('<strong>SQL-Error at nutzerverwaltung.addUser() #1</strong><br>Bitte wenden Sie sich an einen Administrator.');
+            if ($sqlResult == False) throw new Exception('<strong>SQL-Error at nutzerverwaltung.changePasswort()</strong><br>Bitte wenden Sie sich an einen Administrator.');
             
             $answer = array(
                 'rc' => true,
@@ -239,7 +240,7 @@ class nutzerverwaltung {
             DELETE FROM fragen WHERE lehrerid = @userid;
             DELETE FROM lehrer WHERE id = @userid;";
             $sqlResult = mysqli_query($link, $sqlquery_addUser);
-            if ($sqlResult == False) throw new Exception('<strong>SQL-Error at nutzerverwaltung.addUser() #1</strong><br>Bitte wenden Sie sich an einen Administrator.');
+            if ($sqlResult == False) throw new Exception('<strong>SQL-Error at nutzerverwaltung.deleteUser()</strong><br>Bitte wenden Sie sich an einen Administrator.');
             
             $answer = array(
                 'rc' => true,
