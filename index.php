@@ -3,7 +3,7 @@
 	session_unset();
 	
 	$_SESSION['usermail'] = null;
-	$_SESSION['userisroot'] = null;
+	$_SESSION['userisroot'] = false;
 ?>
 <!DOCTYPE html>
 <html lang="de">

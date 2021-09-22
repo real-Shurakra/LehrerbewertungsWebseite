@@ -373,7 +373,7 @@ export default class FunctionMannager
 						{
 							response = JSON.parse( responseRow );
 
-							if( response['returncode'] == 0 && response['returnvalue'] )
+							if( response['returncode']  && response['returnvalue'] )
 							{
 								window.open("./verwaltung.php", "_self");
 							}
