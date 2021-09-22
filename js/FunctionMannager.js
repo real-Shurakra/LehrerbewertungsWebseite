@@ -209,15 +209,46 @@ export default class FunctionMannager
 							subTableColumnTextContainer.style.width = "95%";
 							let subTableColumnButtonContainer = document.createElement( "td" );
 						
-							let subTableColumnText = document.createElement( "span" );
-							subTableColumnText.innerHTML = dummyResponse.returnvalue[1][i].frage;
+							let subTableColumnText = document.createElement( "input" );
+							subTableColumnText.type = "text";
+							subTableColumnText.style.width = "99%";
+							subTableColumnText.value = this.replaceAllUmlauts(dummyResponse.returnvalue[1][i].frage, false);
 	
 							//if ( !dummyResponse.questions[i].inUse ) subTableColumnText.style.color = "green";
 							subTableColumnTextContainer.appendChild(subTableColumnText);
 						
 							let subTableColumnButton = document.createElement( "button" );
+							subTableColumnButton.addEventListener("click", ()=>{
+								
+								let xhttp = new XMLHttpRequest();
+								let formData = new FormData();
+								formData.append("frageId", dummyResponse.returnvalue[1][i].id);
+								formData.append("neuFrage", subTableColumnText.value);
+
+								console.log("frageId: " + dummyResponse.returnvalue[1][i].id);
+								console.log("neuFrage: " + subTableColumnText.value);
+
+								let path = "./php/main.php?mode=alterQuestion";
+
+								xhttp.open("POST", path, true);
+								xhttp.addEventListener("readystatechange", ()=>{
+									if(xhttp.readyState == 4 && xhttp.status == 200)
+									{
+										try
+										{
+											console.log(xhttp.responseText);
+										}
+										catch(error)
+										{
+											console.log(error);
+										}
+									}
+								});
+								xhttp.send(formData);
+							});
+
 							subTableColumnButton.id = dummyResponse.returnvalue[1][i].frage;
-							subTableColumnButton.innerHTML = "löschen";
+							subTableColumnButton.innerHTML = "Ändern";
 							subTableColumnButtonContainer.appendChild(subTableColumnButton);
 						
 							subTableRow.appendChild( subTableColumnTextContainer );
