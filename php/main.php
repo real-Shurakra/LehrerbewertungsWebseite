@@ -242,18 +242,10 @@ class nutzerverwaltung {
             $sqlResult = mysqli_query($link, $sqlquery_addUser);
             if ($sqlResult == False) throw new Exception('<strong>SQL-Error at nutzerverwaltung.deleteUser()</strong><br>Bitte wenden Sie sich an einen Administrator.');
             
-            $answer = array(
-                'rc' => true,
-                'rv' => '<strong>Erfolgreich</strong><br>Ihr Passwort wurde gändert.'
-            );
-        }catch(Exception $error){
-            $answer = array(
-                'rc' => false,
-                'rv' => $error
-            );
-        }finally{
-            return $answer;
+            $answer = array('rc' => true,'rv' => '<strong>Erfolgreich</strong><br>Ihr Passwort wurde gändert.');
         }
+        catch(Exception $error){$answer = array('rc' => false,'rv' => $error);}
+        finally{return $answer;}
     }
 }
 
