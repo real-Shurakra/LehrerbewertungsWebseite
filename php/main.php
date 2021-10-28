@@ -295,7 +295,7 @@ class FragenVerwaltung {
                 $answerArray[$i][1]             = main::toDE($sqlquary_AlleFragen_Result_Data[$i][1]);
             }
             $kategorien = self::getAlleKategorien();
-            if ($kategorien['returncode']){
+            if ($kategorien['rc']){
                 $answer = array(
                     'returncode'=>0,
                     'returnvalue'=>array(
@@ -328,68 +328,84 @@ class FragenVerwaltung {
     }
 
     public static function makeFragebogen($name, $anzahl, $klasse, $fach, $fragenids)  {
-        #var_dump($fragenids);
-        $fragen = explode(',', $fragenids);
-        $sqlstring_MakeFragebogen = "
-            INSERT INTO fragebogen 
-            (name, schueleranzahl, klassename, fachid, lehrerid)
-            VALUES
-            (
-                '".$name."', 
-                '".$anzahl."',
-                '".$klasse."',
-                (SELECT id FROM fach WHERE name = '".$fach."'),
-                (SELECT id FROM lehrer WHERE mail = '".$_SESSION['usermail']."')
-            );";
-        global $link;
-        $sqlstring_MakeFragebogen_Result = mysqli_query($link, $sqlstring_MakeFragebogen);
-        if (!$sqlstring_MakeFragebogen_Result) {
-            $antwort = array
-            (
-                'returncode'=>-1,
-                'returnvalue'=>'<strong>Fehler</strong><br>Konnte Fragebogen nicht erstellen.'
-            );
-        }
-        else{
-            $sqlquery_GetLastFbId = "SELECT MAX(id) FROM fragebogen WHERE `lehrerid` = (SELECT id FROM lehrer WHERE mail = '" . $_SESSION['usermail'] ."');";
-            $sqlquery_GetLastFbId_Result = mysqli_query($link, $sqlquery_GetLastFbId);
-            $sqlquery_GetLastFbId_Result_Data = mysqli_fetch_array($sqlquery_GetLastFbId_Result);
-            $fbId = $sqlquery_GetLastFbId_Result_Data['MAX(id)'];
-            $row_sqlquery_InsertFbFragen = "INSERT INTO nm_frage_fragebogen (bogenid, frageid) VALUES ";
-            for ($i = 0; $i < count($fragen); $i++) {$row_sqlquery_InsertFbFragen .= "(".$fbId.", ".$fragen[$i]."),";}
-            $sqlquery_InsertFbFragen = rtrim($row_sqlquery_InsertFbFragen, ",");
-            $sqlquery_InsertFbFragen .= ";";
-            #var_dump($sqlquery_InsertFbFragen);
-            mysqli_query($link, $sqlquery_InsertFbFragen);
-            if (!self::genCodes($anzahl, $fbId)){
-                $antwort = array(
-                    'retruncode' => 1,
-                    'returnvalue' => '<strong>WARNUNG!</strong><br>Die maximale Anzahl an Codes ist bereits erreicht.'
+        try{
+            $answer = array('returncode' =>1,'returnvalue'=>'<strong>Unknown Error</strong><br>/php/main.php -> FragenVerwaltung.makeFragebogen()');
+            global $link;
+            $fragen = explode(',', $fragenids);
+            echo '1';
+            $sqlstring_MakeFragebogen = "
+                INSERT INTO fragebogen 
+                (name, schueleranzahl, klassename, fachid, lehrerid)
+                VALUES
+                (
+                    '".$name."', 
+                    '".$anzahl."',
+                    '".$klasse."',
+                    (SELECT id FROM fach WHERE name = '".$fach."'),
+                    (SELECT id FROM lehrer WHERE mail = '".$_SESSION['usermail']."')
+                );";
+                echo '2';
+            $sqlstring_MakeFragebogen_Result = mysqli_query($link, $sqlstring_MakeFragebogen);
+            if (!$sqlstring_MakeFragebogen_Result) {
+                echo '2.a';
+                $errormsg = $link->error;
+                var_dump($errormsg);
+                throw new Exception($errormsg);
+            }
+            else{
+                echo '2.b';
+                $sqlquery_GetLastFbId = "SELECT MAX(id) FROM fragebogen WHERE `lehrerid` = (SELECT id FROM lehrer WHERE mail = '" . $_SESSION['usermail'] ."');";
+                $sqlquery_GetLastFbId_Result = mysqli_query($link, $sqlquery_GetLastFbId);
+                $sqlquery_GetLastFbId_Result_Data = mysqli_fetch_array($sqlquery_GetLastFbId_Result);
+                $fbId = $sqlquery_GetLastFbId_Result_Data['MAX(id)'];
+                $row_sqlquery_InsertFbFragen = "INSERT INTO nm_frage_fragebogen (bogenid, frageid) VALUES ";
+                for ($i = 0; $i < count($fragen); $i++) {
+                    $row_sqlquery_InsertFbFragen .= "(".$fbId.", ".$fragen[$i]."),";
+                }
+                $sqlquery_InsertFbFragen = rtrim($row_sqlquery_InsertFbFragen, ",");
+                $sqlquery_InsertFbFragen .= ";";
+                mysqli_query($link, $sqlquery_InsertFbFragen);
+                $genCodesResult = self::genCodes($anzahl, $fbId);
+                if ($genCodesResult['rc'] != 0){throw new Exception($genCodesResult['rv']);}
+                $answer = array(
+                    'retruncode' => 0,
+                    'returnvalue' => '<strong>Erfolg.</strong><br>Fragebogen angelegt.'
                 );
             }
-            $antwort = array(
-                'retruncode' => 0,
-                'returnvalue' => '<strong>Erfolg.</strong><br>Fragebogen angelegt.'
-            );
         }
-        return $antwort; 
+        catch(Exception $error){
+                                echo '2.a.1';
+                                $answer = array('returncode'=>1,
+                                                'returnvalue'=>$error);
+                                var_dump($answer);}
+        finally{return $answer;}
     }
     
     static function genCodes($anz, $fbId) {
-        global $link;
-        for ($i = 0; $i < $anz; $i++) {
-            $memcode = array();
-            $counter = 0;
-            while (true) {
-                $memcode = array();
-                $code = self::genNumber().'-'.self::genNumber().'-'.self::genNumber().'-'.self::genNumber();
-                if (in_array($code, $memcode)) {array_push($memcode, $code);continue;}
-                array_push($memcode, $code);
-                $test = mysqli_query($link, "SELECT * FROM codes WHERE codehash = '".$code."'");
-                if ($test->num_rows == 0){mysqli_query($link, "INSERT INTO codes (codehash, fragebogenid) VALUES ('".$code."', ".$fbId.");");break;}
-                else {if ($counter == 100000000) {return false;}$counter++;continue;}
+        try{
+            global $link;
+            for ($i = 0; $i < $anz; $i++) {
+                $counter = 0;
+                while (true) {
+                    $code = self::genNumber().'-'.self::genNumber().'-'.self::genNumber().'-'.self::genNumber();
+                    $test = mysqli_query($link, "SELECT * FROM codes WHERE codehash = '".$code."'");
+                    if ($test->num_rows == 0){
+                        mysqli_query($link, "INSERT INTO codes (codehash, fragebogenid) VALUES ('".$code."', ".$fbId.");");
+                        break;
+                    }
+                    else {
+                        if ($counter == 100000000) {
+                            return false;
+                        }
+                        $counter++;
+                        continue;
+                    }
+                }
             }
+            $answer = array('rc'=>0,'rv'=>NULL);
         }
+        catch (Exception $error) {$answer = array('rc'=>1,'rv'=>$error);}
+        finally{return $answer;}
     }
     
     static function genNumber() {$numb = random_int(0, 99);if($numb<=9){$numb='0'.$numb;}return $numb;}
