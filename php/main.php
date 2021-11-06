@@ -281,16 +281,17 @@ class FragenVerwaltung {
             global $link;
             $sqlquary_AlleFragen_Result_Data = array();
             $sqlquary_AlleFragen = "
-                SELECT id, frage, kategorie FROM fragen 
+                SELECT id, frage, kategorie, softdelete FROM fragen 
                 WHERE lehrerid = (SELECT id FROM lehrer WHERE mail = '".$_SESSION['usermail']."') ORDER BY kategorie ASC;";
             $sqlquary_AlleFragen_Result = mysqli_query($link, $sqlquary_AlleFragen);
             if (!$sqlquary_AlleFragen_Result) {throw new ErrorException($link->error);}
             $answerArray = array();
-            for ($i = 0; $i < $sqlquary_AlleFragen_Result->num_rows; $i++) {
+            for ($i = 0; $i < $sqlquary_AlleFragen_Result->num_rows; $i++){
                 $sqlquary_AlleFragen_Result_Data[$i] = mysqli_fetch_array($sqlquary_AlleFragen_Result);
                 $answerArray[$i]['id']          = main::toDE($sqlquary_AlleFragen_Result_Data[$i]['id']);
                 $answerArray[$i]['frage']       = main::toDE($sqlquary_AlleFragen_Result_Data[$i]['frage']);
                 $answerArray[$i]['kategorie']   = main::toDE($sqlquary_AlleFragen_Result_Data[$i]['kategorie']);
+                $answerArray[$i]['softdelete']  = main::toDE($sqlquary_AlleFragen_Result_Data[$i]['softdelete']);
                 $answerArray[$i][0]             = main::toDE($sqlquary_AlleFragen_Result_Data[$i][0]);
                 $answerArray[$i][1]             = main::toDE($sqlquary_AlleFragen_Result_Data[$i][1]);
             }
@@ -761,7 +762,7 @@ class FragenVerwaltung {
 
     public static function getQuestions() {
         try{
-            $answer = array('rc' => false,'rv' => '<strong>Unknown-Error at main.php -> FragenVerwaltung.getQuestions()</strong><br>Bitte wenden Sie sich an einen Administrator.');
+            $answer = array('returncode' => false,'returnvalue' => '<strong>Unknown-Error at main.php -> FragenVerwaltung.getQuestions()</strong><br>Bitte wenden Sie sich an einen Administrator.');
             global $link;
             $sqlquery_getQuestions = "SELECT frage, kategorie FROM getquestions WHERE mail = '".$_SESSION['usermail']."';";
             $sqlResult = mysqli_query($link, $sqlquery_getQuestions);
@@ -770,10 +771,10 @@ class FragenVerwaltung {
             $arrayRv = array();
             for ($i=0; $i < $sqlResult->num_rows; $i++) { 
                 $sqlResult_Data[$i] = mysqli_fetch_array($sqlResult);
-                array_push($arrayRv, array('question' => $sqlResult_Data[$i]['frage'],'category' => $sqlResult_Data[$i]['kategorie']));
+                array_push($arrayRv, array('frage' => $sqlResult_Data[$i]['frage'],'kategorie' => $sqlResult_Data[$i]['kategorie']));
             }
-            $answer = array('rc' => true,'rv' => $arrayRv);}
-        catch (ErrorException $error){$answer = array('rc' => false,'rv' => $error);}
+            $answer = array('returncode' => true,'returnvalue' => $arrayRv);}
+        catch (ErrorException $error){$answer = array('returncode' => false,'returnvalue' => $error);}
         finally{return $answer;}
     }
 
@@ -795,7 +796,6 @@ if (isset($_REQUEST['mode']) == false){
     $_REQUEST['mode']           = 'getQuestions';
 
     $_SESSION['usermail']       = 'temp.dump@hotmail.com';
-    $_REQUEST['mode']           = 'getQuestions';
     $_REQUEST['frage']          = 'Tafelbilder und Folien sind gut lesbar.';
     $_REQUEST['mail']           = 'temp.dump@hotmail.com';
     $_REQUEST['passwort']       = 'Admin';
