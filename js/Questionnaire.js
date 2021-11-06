@@ -2,21 +2,665 @@
 
 export default class Questionnaire
 {
-	constructor(id, className, subject, amountStudents)
+	constructor(questionnaire, questionnaireList)
 	{
-		this.id = id;
-		this.className = className;
-		this.subject = subject;
-		this.amountStudents = amountStudents;
-		this.questions = [];
-		this.currentStatus = "offline";
-		this.year = 0;
-	}
+		// console.log("Aufruf von Klasse Questionnaire:");
+		// console.log(questionnaire);
+
+		this.menuBarColor;
+		this.unhighlightedColor = "#9eb3c7";
+		this.id;
+		this.amountStudents;
+		this.questions;
+		this.currentStatus;
+		this.date;
+		this.state = false;
+		this.codes = [];
+		this.qSubject = "";
+		this.className = "";
+		this.subject = "";
+
+
+		let div = document.getElementById(questionnaire.id);
+		if (div !== null) div.remove();
+		else
+		{
+			div = document.createElement("div");
+			div.style.borderStyle = "solid";
+			div.style.borderColor = this.unhighlightedColor;
+			div.style.borderWidth = "1px";
+			div.style.width = "99%";
+			div.id = questionnaire.id;
+			this.id = questionnaire.id;
 	
-	addQuestion(question)
+			let tds = div.getElementsByClassName("questionnaireHeader");
+			div.addEventListener("mouseenter", ()=>{
+				div.style.cursor = "pointer";
+				for(let td in tds)
+				{
+					if (tds[td].style != undefined)
+					{
+						tds[td].style.color = "#ffffff";
+						tds[td].style.backgroundColor = this.menuBarColor;
+						
+					}
+				}
+			});
+			div.addEventListener("mouseleave", ()=>{
+				if (!this.state)
+				{
+					for(let td in tds)
+					{
+						if (tds[td].style != undefined)
+						{
+							tds[td].style.color = this.menuBarColor;
+							tds[td].style.backgroundColor = this.unhighlightedColor;
+						}
+					}
+					div.style.borderColor = this.unhighlightedColor;
+				}
+			});
+			div.addEventListener("click", ()=>{
+				if (!this.state) this.state = true;
+				else this.state = false;
+
+				if (this.state)
+				{
+					this.ShowQuestions(div.id);
+					for(let td in tds)
+					{
+						if (tds[td].style != undefined)
+						{
+							tds[td].style.color = "#ffffff";
+							tds[td].style.backgroundColor = this.menuBarColor;
+							
+						}
+					}
+				}
+				else
+				{
+					this.HideQuestions(div.id);
+					for(let td in tds)
+					{
+						if (tds[td].style != undefined)
+						{
+							tds[td].style.color = this.menuBarColor;
+							tds[td].style.backgroundColor = this.unhighlightedColor;
+						}
+					}
+					div.style.borderColor = this.unhighlightedColor;
+				}
+			});
+			
+			let table = document.createElement("table");
+			table.style.borderCollapse = "collapse";
+			table.style.tableLayout = "fixed";
+			table.style.width = "100%";
+	
+			let rowHeaders = document.createElement("tr");
+			let rowData = document.createElement("tr");
+	
+			// Dokument-Symbol hinzufügen
+			let columnSymbol = document.createElement("td");
+			columnSymbol.className = "questionnaireHeader";
+			columnSymbol.rowSpan = 2;
+			columnSymbol.style.width = "50px";
+			columnSymbol.style.fontSize = "40px";
+			columnSymbol.style.textAlign = "center";
+			columnSymbol.style.color = this.menuBarColor;
+			columnSymbol.innerHTML = " &#128462;"; // 🗎-Zeichen
+			columnSymbol.style.backgroundColor = this.unhighlightedColor;
+
+
+			// TODO: Eventuell Button zum Anzeigen der Codes in Footer des Bogens verlegen
+			let codesTag = document.createElement("div");
+			codesTag.className = "show_codes_button";
+			codesTag.innerHTML = "CODES";
+			let tempCodesTagId = this.id + "_codesTag";
+			codesTag.id = tempCodesTagId;
+			codesTag.style.fontSize = "10px";
+			codesTag.style.fontWeight = "bold";
+			codesTag.addEventListener("click", (event)=>{
+				window.open("./html/codes.htm?fbId=" + this.id + "&qSubject=" + this.qSubject + "&subject=" + this.subject + "&className=" + this.className); 
+				event.stopPropagation();
+			});
+			/*
+			codesTag.addEventListener("mouseenter", (event)=>{
+				document.getElementById(tempCodesTagId).style.color = "green";
+			});
+			codesTag.addEventListener("mouseleave", (event)=>{
+				if (this.state)
+				{
+					document.getElementById(tempCodesTagId).style.color = "white";
+				}
+				if (!this.state) document.getElementById(tempCodesTagId).style.color = this.menuBarColor;
+				
+			});
+			*/
+			
+
+			columnSymbol.appendChild(codesTag);
+
+			rowHeaders.append(columnSymbol);
+
+			for (let index in questionnaire)
+			{
+				//console.log(response[questionnaire][index]);
+				let columnHeaders = document.createElement("td");
+				columnHeaders.className = "questionnaireHeader";
+
+				let columnData = document.createElement("td");
+	
+				// Änderung der Header-Bezeichnungen
+				if (index == "name") 
+				{
+					columnHeaders.innerHTML = "Thema";
+					this.qSubject = questionnaire[index];
+
+					// Breite der Spalten für Bogen-Thema
+
+					// Header
+					columnHeaders.style.width = "400px";
+					columnHeaders.style.paddingLeft = "5px";
+
+					// Daten
+					columnData.style.width = "400px";
+					columnData.style.paddingLeft = "5px";
+				}
+				else if (index == "zeitstempel") columnHeaders.innerHTML = "Datum";
+				else if (index == "id") continue;
+				else if (index == "anzfragen") continue;
+				else if (index == "schueleranzahl")
+				{
+					columnHeaders.innerHTML = "Schüleranzahl";
+					this.amountStudents = questionnaire[index];
+				}
+				else if (index == "klassenname")
+				{
+					columnHeaders.innerHTML = "Klasse";
+					this.className = questionnaire[index];
+				}
+				else if (index == "fach")
+				{
+					this.subject = questionnaire[index];
+					columnHeaders.innerHTML = "Fach";
+				}
+				else if (index == "bewertungsumme") 
+				{
+					columnHeaders.innerHTML = "Punkte";
+				}
+				else columnHeaders.innerHTML = index;
+	
+				columnHeaders.style.backgroundColor = this.unhighlightedColor;
+				columnHeaders.style.fontWeight = "bold";
+				columnHeaders.style.fontSize = "small";
+				columnHeaders.style.color = this.menuBarColor;
+				rowHeaders.appendChild(columnHeaders);
+					
+				//let columnData = document.createElement("td");
+	
+				// Zellen mit Daten hinzufügen
+				if (index == "zeitstempel")
+				{
+					let timestamp = questionnaire[index].split(" ");
+					columnData.innerHTML = timestamp[0];
+				}
+				else if(index == "bewertungsumme")
+				{
+					let columnId = questionnaire.id + "_bewertungsssumme";
+					columnData.id = columnId;
+					//getQuestionsAmount(questionnaireId, currentAmount, columnId)
+					
+					setTimeout(()=>{
+						let interval = setInterval(()=>{
+							this.computeAnswerValue( this.id, questionnaire[index], columnId);
+							let dataContent = document.getElementById(columnId).innerHTML;
+							console.log(dataContent.innerHTML);
+							if (dataContent != undefined)
+							{
+								clearInterval(interval);
+							}
+						}, 100)
+					}, 100)
+
+				}
+				else columnData.innerHTML = questionnaire[index];
+	
+				rowData.appendChild(columnData);			
+			}
+	
+			// Bogenstatus Header hinzufügen
+			let columnStatusHeader = document.createElement("td");
+			columnStatusHeader.className = "questionnaireHeader";
+			columnStatusHeader.style.color = this.menuBarColor;
+			columnStatusHeader.style.fontWeight = "bold";
+			columnStatusHeader.style.fontSize = "small";
+			columnStatusHeader.innerHTML = "Status";
+			columnStatusHeader.style.backgroundColor = "#9eb3c7";
+			rowHeaders.appendChild(columnStatusHeader);
+			// Bogenstatus hinzufügen
+			let columnStatus = document.createElement("td");
+			columnStatus.style.fontWeight = "bold";
+
+			// Bogen-schließen Header hinzufügen
+			let columnCloseHeader = document.createElement("td");
+			columnCloseHeader.className = "questionnaireHeader";
+			columnCloseHeader.style.color = this.menuBarColor;
+			columnCloseHeader.style.fontWeight = "bold";
+			columnCloseHeader.style.fontSize = "small";
+			columnCloseHeader.innerHTML = "Schließen";
+			columnCloseHeader.style.backgroundColor = "#9eb3c7";
+			rowHeaders.appendChild(columnCloseHeader);			
+			// Bogen-löschen Header hinzufügen (leeres Datenfeld)
+			let columnClose = document.createElement("td");
+			columnClose.style.fontSize = "20px";
+			columnClose.style.paddingLeft = "15px";
+			columnClose.innerHTML = "🔒";
+			columnClose.style.fontWeight = "bold";
+			columnClose.addEventListener("mousedown", (event)=>{
+				//event.preventDefault();
+				let formdata = new FormData();
+				formdata.append("fbId", this.id);
+				console.log(JSON.parse(this.Request("./php/main.php?mode=deleteAllCodes", formdata)));
+				event.stopPropagation();
+			});
+
+			// Bogen-löschen Header hinzufügen
+			let columnDeleteHeader = document.createElement("td");
+			columnDeleteHeader.className = "questionnaireHeader";
+			columnDeleteHeader.style.color = this.menuBarColor;
+			columnDeleteHeader.style.fontWeight = "bold";
+			columnDeleteHeader.style.fontSize = "small";
+			columnDeleteHeader.innerHTML = "Löschen";
+			columnDeleteHeader.style.backgroundColor = "#9eb3c7";
+			rowHeaders.appendChild(columnDeleteHeader);
+			// Bogen-löschen Header hinzufügen (leeres Datenfeld)
+			let columnDelete = document.createElement("td");
+			columnDelete.style.fontSize = "30px";
+			columnDelete.style.paddingLeft = "15px";
+			columnDelete.innerHTML = "🗑";
+			columnDelete.style.fontWeight = "bold";
+			columnDelete.addEventListener("mousedown", (event)=>{
+				//event.preventDefault();
+				let formdata = new FormData();
+				formdata.append("fbId", this.id);
+				console.log(JSON.parse(this.Request("./php/main.php?mode=delQuestionnaire", formdata)));
+				event.stopPropagation();
+				document.getElementById(questionnaire.id).remove();
+			});
+			
+			// Asynchroner Request
+			let xhttp = new XMLHttpRequest()
+			let path = "./php/main.php?mode=getCodes";
+
+			let formDataCodes = new FormData();
+			formDataCodes.append("fbId", questionnaire.id);
+
+			xhttp.onreadystatechange = ()=>{
+				if ( xhttp.readyState == 4 && xhttp.status == 200 )
+				{
+					questionnaireList.appendChild(document.createElement("br"));
+					var responseQuestionnaireCodes = JSON.parse(xhttp.responseText);
+
+					// Anzeige des Bogenstatus auf Page "Übersicht";
+					if (responseQuestionnaireCodes.retruncode == -1)
+					{
+						columnStatus.innerHTML = "abgeschlossen";
+						columnStatus.style.color = "green";	
+					}
+					else if (responseQuestionnaireCodes.retruncode == 0)
+					{
+						columnStatus.innerHTML = "offen";
+						columnStatus.style.color = "#feb460"; // orange
+					}
+					
+					// Fragebogen Codes in this.codes speichern
+					for(let i = 0; i < responseQuestionnaireCodes.returnvalue.length; i++)
+					{
+						this.codes.push(responseQuestionnaireCodes.returnvalue[i].codehash);
+					}
+
+					rowData.appendChild(columnStatus);
+
+					// Zellen zum löschen und schließen hinzufügen
+					rowData.appendChild(columnClose);
+					rowData.appendChild(columnDelete);
+			
+					table.appendChild(rowHeaders);
+					table.appendChild(rowData);
+					div.appendChild(table);
+
+					let questionContainer = document.createElement("div");
+					questionContainer.id = div.id + "_question_container";
+					questionContainer.style.width = "99%";
+					questionContainer.style.margin = "auto";
+					
+					div.appendChild(questionContainer);
+					
+					questionnaireList.appendChild(div);
+				}
+			};
+			xhttp.open("POST", path, true);
+			xhttp.send(formDataCodes);
+		}
+	}
+
+	HideQuestions(questionnaireId)
 	{
-		this.questions.push(question);
+		let tempQuestionnaire = document.getElementById(questionnaireId);
+		tempQuestionnaire.style.borderColor = this.unhighlightedColor;
+		document.getElementById(questionnaireId + "_question_container").innerHTML = "";
 	}
+
+
+	computeAnswerValue(questionnaireId, currentAmount, columnId)
+	{
+		console.log(questionnaireId + " / " + currentAmount + " / " + columnId);
+		let xhttp = new XMLHttpRequest()
+		let path = "./php/main.php?mode=getFbFragen";
+
+		let formData = new FormData();
+		formData.append("fbId", questionnaireId);
+
+		xhttp.open("POST", path, true);
+		xhttp.onreadystatechange = ()=>{
+			if ( xhttp.readyState == 4 && xhttp.status == 200 )
+			{
+				let response = JSON.parse(xhttp.responseText);
+				
+				let questionsAmount = 0;
+				for (let element in response.returnvalue)
+				{
+					for (let dim2 in response.returnvalue[element])
+					{
+						if (dim2.includes("frageid")) questionsAmount++;
+					}
+				}
+				console.log("Anzahl Fragen:")
+				console.log(questionsAmount);
+
+				let tempColumn = document.getElementById(columnId);
+				if (tempColumn != undefined) tempColumn.innerHTML = currentAmount + " / " + questionsAmount * this.amountStudents * 2;
+
+			}
+		}
+		xhttp.send(formData);
+	}
+
+	ShowQuestions(questionnaireId)
+	{
+		let xhttp = new XMLHttpRequest()
+		let path = "./php/main.php?mode=getFbFragen";
+
+		let formData = new FormData();
+		formData.append("fbId", questionnaireId);
+
+		document.getElementById(questionnaireId).style.borderColor = this.menuBarColor;
+
+		xhttp.onreadystatechange = ()=>{
+			if ( xhttp.readyState == 4 && xhttp.status == 200 )
+			{
+				try
+				{
+					let response = JSON.parse(xhttp.responseText);
+					console.log("showQuestions:");
+					console.log(response);
 	
+					let tempCategoryBeforeSpacer = document.createElement("div");
+					tempCategoryBeforeSpacer.style.height = "15px";
+					tempCategoryBeforeSpacer.style.backgroundColor = "white";
+					document.getElementById(questionnaireId + "_question_container").appendChild(tempCategoryBeforeSpacer);
+					
+					for (let element in response.returnvalue)
+					{
+						for (let dim2 in response.returnvalue[element])
+						{
+							if(response.returnvalue[element][dim2].fragestring != undefined && response.returnvalue[element][dim2].fragekategorie != undefined)
+							{
+								// Kategorie-Header hinzufügen, Zusammengesetzte Id aus Fragebogen-Id und Kategorie-Id
+								let tempCategoryId = questionnaireId + "_expanded_questionnaire_category_" + response.returnvalue[element][dim2].fragekategorie;
+								let tempCategory = document.getElementById(tempCategoryId);
 	
+								if (tempCategory == undefined) 
+								{
+									tempCategory = document.createElement("div");
+									tempCategory.id = tempCategoryId;
+									tempCategory.style.backgroundColor = "#191f51"; // Marineblau
+									tempCategory.style.color = "white";
+									tempCategory.style.fontSize = "16px";
+									tempCategory.innerHTML = response.returnvalue[element][dim2].fragekategorie;
+	
+									let tempCategoryAfterSpacer = document.createElement("div");
+									tempCategoryAfterSpacer.style.height = "5px";
+									tempCategoryAfterSpacer.style.backgroundColor = "white";
+									tempCategory.appendChild(tempCategoryAfterSpacer);
+								}
+	
+								// Frage-Tabelle hinzufügen
+								let tempQuestionContainer = document.createElement("div");
+								//tempQuestionContainer.style.width = "99%";
+								tempQuestionContainer.style.backgroundColor = "white";
+								tempQuestionContainer.style.padding = "5px";
+								tempQuestionContainer.id = questionnaireId + "_expanded_questionnaire_question_" + response.returnvalue[element].frageid;
+								tempCategory.appendChild(tempQuestionContainer);
+	
+								let tempQuestionTable = document.createElement("table");
+								tempQuestionTable.style.width = "100%";
+								tempQuestionContainer.appendChild(tempQuestionTable);
+	
+								let tempQuestionTableRow = document.createElement("tr");
+								tempQuestionTableRow.style.width = "99%";
+								tempQuestionTable.appendChild(tempQuestionTableRow);
+	
+								// Frage
+								let tempQuestionTableColumn1 = document.createElement("td");
+								tempQuestionTableRow.appendChild(tempQuestionTableColumn1);
+								tempQuestionTableColumn1.id = questionnaireId + "_expanded_questionnaire_question_" + response.returnvalue[element].frageid + "_text";
+								tempQuestionTableColumn1.style.width = "55%";
+								tempQuestionTableColumn1.style.backgroundColor = "white";
+								tempQuestionTableColumn1.style.color = "black";
+								tempQuestionTableColumn1.style.fontSize = "16px";
+								tempQuestionTableColumn1.style.height = "22px";
+								tempQuestionTableColumn1.innerHTML = response.returnvalue[element][dim2].fragestring;
+	
+								// Streuung
+								let tempQuestionTableColumn2 = document.createElement("td");
+								tempQuestionTableRow.appendChild(tempQuestionTableColumn2);
+								tempQuestionTableColumn2.id = questionnaireId + "_expanded_questionnaire_scattering_" + response.returnvalue[element].frageid + "_sub_table_container";
+								tempQuestionTableColumn2.style.width = "30%";
+								tempQuestionTableColumn2.style.backgroundColor = "white";
+								tempQuestionTableColumn2.style.color = "black";
+								tempQuestionTableColumn2.style.fontSize = "16px";
+								tempQuestionTableColumn2.style.height = "22px";
+
+								// Sub-Tabelle für Streuungs-Daten
+								let subTableContainerScattering = document.createElement("div");
+								subTableContainerScattering.style.width = "99%";
+								let subTableScattering = document.createElement("table");
+								subTableScattering.style.width = "100%";
+								subTableContainerScattering.appendChild(subTableScattering);
+								let subTableScatteringRow = document.createElement("tr");
+								subTableScattering.appendChild(subTableScatteringRow);
+
+								let counter = -2;
+								for (let i = 0; i < 5; i++)
+								{
+									let tempSubTableScatteringColumn = document.createElement("td");
+									tempSubTableScatteringColumn.style.width = "1%";
+									tempSubTableScatteringColumn.innerHTML = "<b>" + counter.toString() + " :</b> " + response.returnvalue[element][dim2][counter.toString()] + " x";
+									subTableScatteringRow.appendChild(tempSubTableScatteringColumn);
+									counter++;
+								}
+								tempQuestionTableColumn2.appendChild(subTableContainerScattering);
+
+								//tempQuestionTableColumn2.innerHTML = response.returnvalue[element][dim2].fragestring;								
+
+								// Erreichte Punkte
+								let tempQuestionTableColumn3 = document.createElement("td");
+								tempQuestionTableRow.appendChild(tempQuestionTableColumn3);
+								tempQuestionTableColumn3.id = questionnaireId + "_expanded_questionnaire_question_" + response.returnvalue[element].frageid + "_Answer_value";
+								tempQuestionTableColumn3.style.width = "15%";
+								tempQuestionTableColumn3.style.backgroundColor = "white";
+								tempQuestionTableColumn3.style.color = "black";
+								tempQuestionTableColumn3.style.fontSize = "16px";
+								tempQuestionTableColumn3.style.height = "22px";
+								tempQuestionTableColumn3.style.textAlign = "right";
+								tempQuestionTableColumn3.style.paddingRight = "50px";
+								let tempValue = Number(response.returnvalue[element][dim2].fragebewertung);
+								tempQuestionTableColumn3.innerHTML = tempValue.toFixed(2) + " / " + this.amountStudents * 2;
+								
+	
+								document.getElementById(questionnaireId + "_question_container").appendChild(tempCategory);
+							}
+						}
+					}
+	
+					let tempContainer = document.getElementById(questionnaireId + "_question_container");//.appendChild(tempCategory);
+					this.getKritik(this.id, tempContainer);
+	
+				}
+				catch(error)
+				{
+					console.log("Fehler in Klasse Questionnaire.Questions():");
+					console.log(error);
+				}
+			}
+		};
+		xhttp.open("POST", path, true);
+		xhttp.send(formData);
+	}
+
+	addFooter()
+	{
+		let questionnaireFooter = document.createElement("div");
+		document.getElementById(questionnaireId + "_question_container").appendChild(questionnaireFooter);
+		questionnaireFooter.style.height = "30px";
+		questionnaireFooter.style.width = "100%";
+
+		let tempFooterTable = document.createElement("table");
+		questionnaireFooter.appendChild(tempFooterTable);
+
+		let tempFooterTableRow = document.createElement("tr");
+		tempFooterTable.appendChild(tempFooterTableRow);
+
+		let tempColumns = {};
+		tempColumns.spacer = {"id":"spacer_" + this.id, "width":"70%", "title": ""};
+		tempColumns.closeQuestionnaire = {"id":"closeQuestionnaire_" + this.id, "width":"70%", "title": "Bogen schließen"};
+		tempColumns.deleteQuestionnaire = {"id":"deleteQuestionnaire_" + this.id, "width":"70%", "title": "Bogen löschen"};
+
+		console.log("tempColumns");
+		console.log(tempColumns);
+
+		for (let column in tempColumns)
+		{
+			let tempColumn = document.createElement("td");
+			tempFooterTableRow.appendChild(tempColumn)
+			tempColumn.id = tempColumns[column].id;
+			tempColumn.style.width = tempColumns[column].width;
+			tempColumn.innerHTML = tempColumns[column].title;
+		}
+	}
+
+	getKritik(questionnaireId, tempContainer)
+	{
+		let xhttp = new XMLHttpRequest()
+		let path = "./php/main.php?mode=getkritik";
+		let response = undefined;
+		let formData = new FormData();
+		formData.append("fbId", questionnaireId);
+
+		xhttp.open("POST", path, true);
+		xhttp.onreadystatechange = ()=>{
+			if ( xhttp.readyState == 4 && xhttp.status == 200 )
+			{
+				console.log(xhttp.responseText);
+				try
+				{
+					let response = JSON.parse(xhttp.responseText);
+					console.log("kritik:");
+					console.log(response);
+
+					if (response.returncode != -1)
+					{
+						let tempSuggestionContainer = document.createElement("div");
+						tempContainer.appendChild(tempSuggestionContainer);
+	
+						let tempSuggestionHeader = document.createElement("div");
+						tempSuggestionHeader.innerHTML = "Verbesserungsvorschläge";
+						//tempSuggestionHeader.style.paddingLeft = "10px";
+						tempSuggestionHeader.style.backgroundColor = "#191f51"; // Marineblau
+						tempSuggestionHeader.style.color = "white";
+						tempSuggestionContainer.appendChild(tempSuggestionHeader);
+	
+						for (let suggestion in response.returnvalue)
+						{
+							let tempSuggestion = document.createElement("div");
+							tempSuggestion.style.paddingTop = "10px";
+							tempSuggestion.style.paddingBottom = "10px";
+							tempSuggestion.style.paddingLeft = "10px";
+	
+							let span1 = document.createElement("span");
+							span1.style.fontWeight = "bold";
+							span1.innerHTML = "Anon: ";
+							tempSuggestion.appendChild(span1);
+	
+							let span2 = document.createElement("span");
+							span2.innerHTML = response.returnvalue[suggestion];
+							tempSuggestion.appendChild(span2);
+	
+							tempSuggestionContainer.appendChild(tempSuggestion);
+						}
+			
+					}
+					else
+					{
+						let tempSuggestionContainer = document.createElement("div");
+						tempContainer.appendChild(tempSuggestionContainer);
+	
+						let tempSuggestionHeader = document.createElement("div");
+						tempSuggestionHeader.innerHTML = "Verbesserungsvorschläge";
+						//tempSuggestionHeader.style.paddingLeft = "10px";
+						tempSuggestionHeader.style.backgroundColor = "#191f51"; // Marineblau
+						tempSuggestionHeader.style.color = "white";
+						tempSuggestionContainer.appendChild(tempSuggestionHeader);
+
+						let tempSuggestion = document.createElement("div");
+						tempSuggestion.style.paddingTop = "10px";
+						tempSuggestion.style.paddingBottom = "10px";
+						tempSuggestion.style.paddingLeft = "10px";
+
+						let span1 = document.createElement("span");
+						span1.style.fontWeight = "bold";
+						span1.innerHTML = "keine";
+						tempSuggestion.appendChild(span1);
+
+						tempSuggestionContainer.appendChild(tempSuggestion);
+					}
+
+						// Footer mit Buttons zum Löschen des Bogens, sowie vorzeitigem abschließen hinzufügen
+						//this.addFooter();
+				}
+				catch(error)
+				{
+					console.log(error);
+				}
+
+			}
+		}
+		xhttp.send(formData);
+	}
+
+	Request(path, formData)
+	{
+		let response;
+		let xhttp = new XMLHttpRequest();
+		xhttp.open("POST", path, false);
+		xhttp.send(formData);
+		response = xhttp.responseText;
+
+		//if (response.indexOf("{") != 0) return response;
+		//if (response.length > 100 && response != null) return JSON.parse(response);
+		return response;
+	}
+
 }

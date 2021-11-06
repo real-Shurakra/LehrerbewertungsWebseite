@@ -1,0 +1,48 @@
+in dim3 
+bogenid 5 true
+in dim3 
+frageid 2 true
+in dim3 
+bewertung 0 true
+in dim3 
+bogenid 5 true
+in dim3 
+frageid 3 true
+in dim3 
+bewertung 0 true
+in dim3 
+bogenid 5 true
+in dim3 
+frageid 14 true
+in dim3 
+bewertung 0 true
+in dim3 
+bogenid 5 true
+in dim3 
+frageid 20 true
+in dim3 
+bewertung 0 true
+in dim3 
+bogenid 5 true
+in dim3 
+frageid 25 true
+in dim3 
+bewertung 0 true
+in dim3 
+bogenid 5 true
+in dim3 
+frageid 27 true
+in dim3 
+bewertung 0 true
+in dim3 
+bogenid 5 true
+in dim3 
+frageid 36 true
+in dim3 
+bewertung 0 true
+in dim3 
+bogenid 5 true
+in dim3 
+frageid 37 true
+in dim3 
+bewertung 0 true

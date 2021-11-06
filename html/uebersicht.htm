@@ -1,3 +1,49 @@
-<div>
-	ÜBERSICHT
+<div class="area_border">
+	<div class="area" id="manage_all_questionnaires_menu">
+		<div class="header">Anzeige-Filter</div>
+
+		<div style="height:10px;"></div>
+		<div style="width:93%;">
+			<table style="width:100%; height:50px;">
+				<tr style="width:100%; height:100%;">
+					<td id="select_class_subject" style="width:10%; height:100%; text-align:left;">
+						&nbsp;Klasse&nbsp;<select class="questionnaire_filter" id="questionnaire_filter_classes"></select> &nbsp;&nbsp;
+						Schulfach&nbsp;<select class="questionnaire_filter" id="questionnaire_filter_subjects"></select>
+					</td>
+					<td id="search_qSubject" style="width:15%; height:100%; text-align:center;">
+						Thema-Suche&nbsp;<input class="questionnaire_filter" id="questionnaire_filter_qSubject" style="width:300px" type="text"></input>
+					</td>
+					<td id="select_from_to" style="width:15%; height:100%; text-align:center;">
+						<div>
+							von&nbsp;<input class="questionnaire_filter" id="questionnaire_filter_from" style="width:110px" type="date"></input> &nbsp;&nbsp;
+							bis&nbsp;<input class="questionnaire_filter" id="questionnaire_filter_to" style="width:110px" type="date"></input>
+						</div>
+					</td>
+					<td id="select_status" style="width:7%; height:100%; text-align:right;">
+						Status&nbsp;<select class="questionnaire_filter" id="questionnaire_filter_status">
+							<option value="keiner">keiner</option>
+							<option value="offen">offen</option>
+							<option value="abgeschlossen">abgeschlossen</option>
+						</select>
+					</td>
+				</tr>
+			</table>
+		</div>
+	</div>
+	
+	<div style="height:10px;"></div>
+		<div id ="questionnaire_select_area">
+			<div id ="questionnaire_list_container">
+				<!--<div id="questionnaire_list"></div>-->
+			</div>
+		</div>
+	</div>
+
 </div>
+
+
+
+
+
+
+<label id="messageCreateQuestionnaire"></label>

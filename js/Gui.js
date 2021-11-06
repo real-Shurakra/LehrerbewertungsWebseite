@@ -4,7 +4,8 @@
 export default class Gui
 {
 	constructor()
-	{		
+	{	
+		this.leftKeyDown = false;
 		this.headerSvgUrl = "./svg/Pictorius_Logo_Header.svg";
 		this.containerPictoriusLogoHeader = document.getElementById("container_pictorius_logo_header");
 		this.containerPictoriusFoto = document.getElementById("container_pictorius_foto");
@@ -21,21 +22,26 @@ export default class Gui
 		this.addHTMLHorizontalMenuInputFields = ["input_teacher_email", "input_password_teacher", "input_student_code"];
 		this.verticalMenuButtons = [];
 		
-		this.pages = ["Uebersicht", "Fragebogen_erstellen", "Fragen_verwalten", "Klassen_verwalten"];
-		this.pagesNames = ["./html/uebersicht.htm", "./html/fragebogen_erstellen.htm", "./html/fragen_verwalten.htm", "./html/klassen_verwalten.htm"];
+		this.pages = ["Uebersicht", "Fragebogen_erstellen", "Fragen_verwalten"];
+		this.pagesNames = ["./html/uebersicht.htm", "./html/fragebogen_erstellen.htm", "./html/fragen_verwalten.htm"];
 		
 		this.functionKeys = [];
 		
 		this.functionKeys['login_area_teacher'] = [];
 		this.functionKeys['login_area_teacher'][0] = "login_area_teacher";
+
+		this.functionKeys['login_area_student'] = [];
+		this.functionKeys['login_area_student'][0] = "login_area_student";
 		
 		this.functionKeys['Uebersicht_page'] = [];
+		//this.functionKeys['Uebersicht_page'][0] = "Uebersicht_page_0";
+		this.functionKeys['Uebersicht_page'][0] = "Uebersicht_page_event_0";
 		
 		this.functionKeys['Fragebogen_erstellen_page'] = [];
 		this.functionKeys['Fragebogen_erstellen_page'][0] = "Fragebogen_erstellen_page_0";
 		this.functionKeys['Fragebogen_erstellen_page'][1] = "Fragebogen_erstellen_page_1";
 		this.functionKeys['Fragebogen_erstellen_page'][2] = "Fragebogen_erstellen_page_event_0";
-		this.functionKeys['Fragebogen_erstellen_page'][3] = "Fragebogen_erstellen_page_event_1";
+		this.functionKeys['Fragebogen_erstellen_page'][4] = "Fragebogen_erstellen_page_event_2";
 		
 		this.functionKeys['Fragen_verwalten_page'] = [];
 		this.functionKeys['Fragen_verwalten_page'][0] = "Fragen_verwalten_page_0";
@@ -80,7 +86,8 @@ export default class Gui
 			{
 				containerPictoriusLogoHeader.innerHTML = xhttp.responseText;
 				headerSvg = xhttp.responseText;
-				
+				//headerSvg.style.strokeWidth = "0px";
+
 				this.initHorizontalMenu();
 				
 				// Event listener werden den Menübuttons hinzugefügt sobald der Hintergrund und die SVG geladen sind
@@ -94,6 +101,10 @@ export default class Gui
 					this.initVerticalMenu();
 					this.initPageContainer();
 					this.addEventsVerticalMenu(pages, pagesNames, this.functionMannager, this.functionKeys);
+
+					// Initial-Page öffnen, Page-Button des vertikalen Menüs entsprechend einfärben
+					// (Visibility der anderen Pages auf "invisible" stellen)
+					document.onreadystatechange = this.openInitialPage("Uebersicht");
 				}
 			}
 		};
@@ -142,7 +153,8 @@ export default class Gui
 		this.containerVerticalMenuBar = document.getElementById("container_vertical_menu");
 		this.containerVerticalMenuBar.style.width = this.verticalMenuBarWidth + "px";
 		this.containerVerticalMenuBar.style.height = (window.innerHeight - this.verticalMenuBarHeight - this.logoBackgroundRectangleHeight).toString() + "px";
-		this.containerVerticalMenuBar.style.top = this.logoBackgroundRectangleHeight + this.verticalMenuBarHeight + 6 + "px";
+		this.containerVerticalMenuBar.style.top = this.logoBackgroundRectangleHeight + this.verticalMenuBarHeight + "px";
+		this.containerVerticalMenuBar.style.left = "2px";
 		
 		//this.containerVerticalMenuBar.style.backgroundColor = this.menuBarColor;
 		//this.containerVerticalMenuBar.style.opacity = "90%";
@@ -155,8 +167,8 @@ export default class Gui
 		let horizontalMenuBarHeight = document.getElementById("headerHorizontalMenuBar").getBoundingClientRect().height;
 		let verticalMenuBarWidth = document.getElementById("headerVerticalMenuBar").getBoundingClientRect().width;
 		let containerPages = document.getElementById("container_pages");
-		containerPages.style.top = horizontalMenuBarHeight + 8 + "px";
-		containerPages.style.left = verticalMenuBarWidth + 8 + "px";
+		containerPages.style.top = horizontalMenuBarHeight + 2 + "px";
+		containerPages.style.left = verticalMenuBarWidth + 2 + "px";
 		containerPages.style.width = (window.innerWidth - verticalMenuBarWidth).toString() + "px";
 		containerPages.style.height = (window.innerHeight - horizontalMenuBarHeight).toString() + "px";
 		containerPages.style.backgroundColor = "white";
@@ -174,31 +186,54 @@ export default class Gui
 		for(let i = 0; i < idArray.length; i++)
 		{
 			let element = document.getElementById(idArray[i]);
-			
+			element.leftKeyDown = false;
+
 			if (element != null)
 			{
 				let originalBackgroundColor = element.style.backgroundColor;
 				let originalHeight = element.style.height;
 			
 				element.addEventListener("mouseenter", function(){
-				
-					this.style.backgroundColor = color;
-					this.style.color = menuBarColor;
-					this.style.height = logoBackgroundRectangleHeight + "px";
-					this.style.borderStyle = "solid";
-					this.style.borderWidth = "1px";
-				
-					paramFunction( domIds[i], paths[i], null, functions, functionKeys );
+					
+						this.style.backgroundColor = color;
+						this.style.color = menuBarColor;
+						this.style.height = logoBackgroundRectangleHeight + "px";
+						this.style.borderStyle = "solid";
+						this.style.borderWidth = "1px";
+
+						let child = document.getElementById(this.children[1].id);
+
+						if(child.innerHTML.length < 100)
+						{					
+							paramFunction( domIds[i], paths[i], null, functions, functionKeys );
+						}
+
 				});
 			
-				element.addEventListener("mouseleave", function(){
-								
-					this.style.backgroundColor = originalBackgroundColor;
-					this.style.color = color;
-					this.style.height = originalHeight;
-					this.style.borderStyle = "none";
 
-					if (document.getElementById( domIds[i] ) != null) document.getElementById( domIds[i] ).innerHTML = "";
+				element.addEventListener("mouseleave", ()=>{
+
+					// Prüfung ob in einem Eingabefeld der Login Bereiche etwas eingegeben wurde. Ist dies der Fall wird dieser nicht ausgeblendet
+					var inputArray = element.getElementsByTagName("input");
+
+					var allInput = "";
+        			for(let i = 0; i < inputArray.length; i++)
+        			{
+						allInput += document.getElementById(inputArray[i].id).value;
+        			}
+
+					if(allInput.length == 0)
+					{	
+						setTimeout(()=>{
+							element.style.backgroundColor = originalBackgroundColor;
+							element.style.color = color;
+							element.style.height = originalHeight;
+							element.style.borderStyle = "none";
+			
+							if (document.getElementById( domIds[i] ) != null) document.getElementById( domIds[i] ).textContent = "";
+						},200);	
+					}
+					
 				});					
 			}
 
@@ -242,7 +277,7 @@ export default class Gui
 			
 			containerVerticalMenu.appendChild(this.verticalMenuButtons[i]);
 		}
-		// Lückenfüller zum ausfüllen des restlichen Verwaltungsmenüs hinzufügen
+		// Lückenfüller zum ausfüllen des restlichen Verwaltungsmenüs hinzufügen (Bereich von Unterkante-letzer-Button bis Page-Ende Marineblau ausfüllen)
 		let spaceFiller = document.createElement("div");
 		spaceFiller.id = "spaceFiller";
 		spaceFiller.style.height = containerVerticalMenuBarHeight - (containerVerticalMenuBarHeight / 100 * 8 * pages.length) + "px";
@@ -262,21 +297,47 @@ export default class Gui
 			this.addHTML(page.id, pagesNames[i], page, functions, functionKeys);
 			
 			containerPages.appendChild(page);
+			
+		}
+		
+	}
+
+	openInitialPage(pageName)
+	{
+		let menuButton = document.getElementById(pageName + "_button");
+		menuButton.style.backgroundColor = "white";
+		menuButton.style.color = this.menuBarColor;
+		menuButton.style.borderLeft = "5px solid " + this.menuBarColor;
+		menuButton.style.fontWeight = "bold";
+
+
+		for (let i = 0; i < this.pages.length; i++)
+		{
+			if (this.pages[i] == pageName) continue;
+
+			let tempPage = document.getElementById(this.pages[i] + "_page");
+			tempPage.style.visibility = "hidden";
+
+
+
 		}
 	}
 	
 	// Funktion zum Wechseln der Page
 	switchPage(pageName, pagesArray, menuBarColor, functions, functionKeys)
 	{
+		// console.log("switchPage:");
+		// console.log(pageName);
 		for (let i = 0; i < pagesArray.length; i++)
 		{
 			let idPage = pagesArray[i] + "_page";
-			let tempPage = document.getElementById(idPage);
+			let tempPage = undefined;
+			if (document.getElementById(idPage) != null) tempPage = document.getElementById(idPage);
 			
 			var idButton = pagesArray[i] + "_button";
 			let menuButton = document.getElementById(idButton);
 			
-			let bool = idPage.includes( pageName );
+			let bool = idPage.includes(pageName);
 			
 			if (!bool)
 			{
@@ -286,13 +347,7 @@ export default class Gui
 				menuButton.style.fontWeight = "normal";
 			}
 			else
-			{
-				tempPage.style.visibility = "visible";
-				menuButton.style.backgroundColor = "white";
-				menuButton.style.color = menuBarColor;
-				menuButton.style.borderLeft = "5px solid " + menuBarColor;
-				menuButton.style.fontWeight = "bold";
-				
+			{	
 				for( var key in functionKeys[idPage] )
 				{
 					let functionName = functionKeys[idPage][key];
@@ -301,7 +356,13 @@ export default class Gui
 					{
 						if ( typeof functions[functionName] == "function" ) functions[functionName]();						
 					}
-				}	
+				}
+				
+				menuButton.style.backgroundColor = "white";
+				menuButton.style.color = menuBarColor;
+				menuButton.style.borderLeft = "5px solid " + menuBarColor;
+				menuButton.style.fontWeight = "bold";
+				tempPage.style.visibility = "visible";
 			}
 		}
 	}

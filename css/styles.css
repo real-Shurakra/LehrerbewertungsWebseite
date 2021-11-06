@@ -1,8 +1,17 @@
 /* Lehrerbeurteilung Styles */
+@font-face {
+    font-family: 'droid_sans_monoregular';
+    src: url('http://localhost:8012/LehrerbewertungsWebseite/css/fonts/droidsansmono-webfont.woff2') format('woff2'),
+         url('http://localhost:8012/LehrerbewertungsWebseite/css/fonts/droidsansmono-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+
+}
 
 body
 {
-	font-family: Sans-Serif;
+	font-family: calibri;
+	font-size: large;
 }
 
 .button:hover
@@ -15,7 +24,8 @@ body
 {
 	background-color:#191f51;
 	color:white;
-	padding:10px;
+	padding:5px;
+	width:93%;
 }
 
 .title
@@ -40,6 +50,10 @@ body
 
 #container_pictorius_logo_header
 {
+	top:2px;
+	left:2px;
+	border-collapse: collapse;
+	border-style: none;
 	position: fixed;
 }
 
@@ -51,8 +65,10 @@ body
 
 #container_pictorius_foto
 {
+	top:2px;
+	left:2px;
 	position: fixed;
-	z-index: -1;
+	z-index: -5;
 	min-width: 100%;
 }
 
@@ -78,20 +94,46 @@ body
 
 }
 
+svg {
+    stroke: transparent;
+    stroke-width: 0px;
+}
+
 #container_horizontal_menu
 {
 	position: relative;
 	color: white;
 }
 
+#students_questionnaire_container
+{
+	overflow-y: hidden;
+	position: absolute;
+	/*display: inline-block;*/
+	background-color: white;
+	z-index: 1;
+}
+
+.tempTdQuestionnaire
+{
+	/*
+	border-color: "#ffffff";
+	border-width: 2px;
+	border-top: dashed;
+	border-right: none;
+	border-left: none;
+	border-bottom: none;*/
+}
+
 .area_border
 {
-	margin:50px
+	margin:20px;
 }
 
 .area
 {
-	background-color:white;
+	overflow: auto;
+	background-color: white;
 }
 
 #login_area_teacher
@@ -109,9 +151,17 @@ body
 	margin: 5px;
 }
 
+
 .input_student
 {
-	width: 20px;
+	font-family: calibri;
+	font-size: large;
+	text-align: center;
+	width: 18px;
+	border-style: none;
+	background-color: #ededed;
+	height: 23px;
+	width: 23px;
 }
 
 .verticalMenuButton
@@ -122,6 +172,12 @@ body
 	margin: auto;
 }
 
+#add_question_dropdown
+{
+	font-family: Consolas, monospace;
+	font-style: bold;
+}
+
 #container_pages
 {
 	position: fixed;
@@ -130,13 +186,51 @@ body
 #Uebersicht_page
 {
 	visibility: visible;
-	overflow-y:auto
+	/*overflow-y:auto;'/
 }
 
 #Fragebogen_erstellen_page
 {
-	visibility: hidden;
-	overflow-y:auto
+	/*overflow-y:auto;*/
+}
+
+#add_question_dropdown
+{
+	overflow: scroll;
+	overflow-x: hidden;
+	height: 200px;
+	width: 93%;
+	border-style: solid;
+	border-width: 1px;
+	margin:5px;
+}
+
+#create_questionnaire_area
+{
+	overflow: scroll;
+	overflow-x: hidden;
+	height: 475px;
+	width: 93%;
+	border-style: solid;
+	border-width: 1px;
+	margin:5px;
+}
+
+#questionnaire_select_area
+{
+	overflow: scroll;
+	overflow-x: hidden;
+	height: 700px;
+	width: 93%;
+	border-style: solid;
+	border-width: 1px;
+	margin:5px;
+}
+
+#Fragebogen_erstellen_page
+{
+	/*visibility: hidden;
+	overflow-y:auto*/
 }
 
 #Fragen_verwalten_page
@@ -165,9 +259,19 @@ body
 	height:100%;
 }
 
+
+.questionSelectElement
+{
+	user-select: none;
+}
+
 .menuTable
 {
-	width: 80%;
+	width: 100%;
 }
-*/
+
+.show_codes_button:hover{
+	color: lightgreen;
+}
+
 
