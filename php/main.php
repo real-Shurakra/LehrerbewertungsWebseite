@@ -11,30 +11,30 @@ class main {
     function __construct(){
         $_REQUEST = self::checkSemicolon($_REQUEST);
         switch ($_REQUEST['mode']) {
-            ## Modes for "nutzerverwaltung
-            case  'loginUser':                                                  echo json_encode(nutzerverwaltung::loginUser($_REQUEST['mail'], $_REQUEST['passwort']));break;
-            case  'changePasswort':         if ($_SESSION['usermail'] != NULL) {echo json_encode(nutzerverwaltung::changePasswort($_REQUEST['oldPasswort'], $_REQUEST['newPasswort']));}break;
-            case  'addUser':                                                    echo json_encode(nutzerverwaltung::addUser($_REQUEST['mail'], $_REQUEST['firstname'], $_REQUEST['lastname']));break;
-            case  'checkPermission':                                            echo json_encode(nutzerverwaltung::checkPermission($_REQUEST['passwort']));break;
-            case  'deleteUser':             if ($_SESSION['usermail'] != NULL) {echo json_encode(nutzerverwaltung::deleteUser($_REQUEST['passwort'], $_REQUEST['mail']));}break;
+            ## Modes for nutzerverwaltung
+            case  'loginUser':                                                  echo json_encode(nutzerverwaltung::loginUser($_REQUEST['mail'], $_REQUEST['passwort']));                                                                    break;
+            case  'changePasswort':         if ($_SESSION['usermail'] != NULL) {echo json_encode(nutzerverwaltung::changePasswort($_REQUEST['oldPasswort'], $_REQUEST['newPasswort']));}                                                    break;
+            case  'addUser':                                                    echo json_encode(nutzerverwaltung::addUser($_REQUEST['mail'], $_REQUEST['firstname'], $_REQUEST['lastname']));                                              break;
+            case  'checkPermission':                                            echo json_encode(nutzerverwaltung::checkPermission($_REQUEST['passwort']));                                                                                 break;
+            case  'deleteUser':             if ($_SESSION['usermail'] != NULL) {echo json_encode(nutzerverwaltung::deleteUser($_REQUEST['passwort'], $_REQUEST['mail']));}                                                                  break;
             ## Modes for FragenVerwaltung
-            case  'askAlleFragen':          if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::askAlleFragen());}break;
-            case  'addFrage':               if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::addFrage($_REQUEST['frage'], $_REQUEST['kategorie']));}break;
-            case  'getAlleKategorien':      if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::getAlleKategorien());}break;
-            case  'makeFragebogen':         if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::makeFragebogen($_REQUEST['name'], $_REQUEST['anzahl'], $_REQUEST['klasse'], $_REQUEST['fach'], $_REQUEST['fragen']));}break;
-            case  'getFragebogens':         if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::getFragebogens());}break;
-            case  'getCodes':               if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::getCodes($_REQUEST['fbId']));}break;
-            case  'getFbFragen':            if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::getFbFragen($_REQUEST['fbId']));}break;
-            case  'insertRate':                                                 echo json_encode(FragenVerwaltung::insertRate($_REQUEST['rate'], $_REQUEST['codehash']));break;
-            case  'insertkritik':                                               echo json_encode(FragenVerwaltung::insertkritik($_REQUEST['fbId'], $_REQUEST['kritik'], $_REQUEST['codehash']));break;
-            case  'getkritik':              if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::getkritik($_REQUEST['fbId']));}break;
-            case  'getAlleSchulklassen':    if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::getAlleSchulklassen());}break;
-            case  'getAllSubjects':         if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::getAllSubjects());}break;
-            case  'getFbFragenFromCode':                                        echo json_encode(FragenVerwaltung::getFbFragenFromCode($_REQUEST['codehash']));break;
-            case  'alterQuestion':          if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::alterQuestion($_REQUEST['frageId'], $_REQUEST['neuFrage']));}break;
-            case  'delQuestionnaire':       if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::delQuestionnaire($_REQUEST['fbId']));}break;
-            case  'deleteAllCodes':         if ($_SESSION['usermail'] != NULL) {echo json_encode(FragenVerwaltung::deleteAllCodes($_REQUEST['fbId']));}break;
-            case  'getQuestions':           if ($_SESSION['usermail'] != NULL) {echo json_encode(FragenVerwaltung::getQuestions());break;}
+            case  'askAlleFragen':          if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::askAlleFragen());}                                                                                                       break;
+            case  'addFrage':               if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::addFrage($_REQUEST['frage'], $_REQUEST['kategorie']));}                                                                  break;
+            case  'getAlleKategorien':      if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::getAlleKategorien());}                                                                                                   break;
+            case  'makeFragebogen':         if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::makeFragebogen($_REQUEST['name'], $_REQUEST['anzahl'], $_REQUEST['klasse'], $_REQUEST['fach'], $_REQUEST['fragen']));}   break;
+            case  'getFragebogens':         if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::getFragebogens());}                                                                                                      break;
+            case  'getCodes':               if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::getCodes($_REQUEST['fbId']));}                                                                                           break;
+            case  'getFbFragen':            if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::getFbFragen($_REQUEST['fbId']));}                                                                                        break;
+            case  'insertRate':                                                 echo json_encode(FragenVerwaltung::insertRate($_REQUEST['rate'], $_REQUEST['codehash']));                                                                   break;
+            case  'insertkritik':                                               echo json_encode(FragenVerwaltung::insertkritik($_REQUEST['fbId'], $_REQUEST['kritik'], $_REQUEST['codehash']));                                            break;
+            case  'getkritik':              if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::getkritik($_REQUEST['fbId']));}                                                                                          break;
+            case  'getAlleSchulklassen':    if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::getAlleSchulklassen());}                                                                                                 break;
+            case  'getAllSubjects':         if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::getAllSubjects());}                                                                                                      break;
+            case  'getFbFragenFromCode':                                        echo json_encode(FragenVerwaltung::getFbFragenFromCode($_REQUEST['codehash']));                                                                             break;
+            case  'alterQuestion':          if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::alterQuestion($_REQUEST['frageId'], $_REQUEST['neuFrage']));}                                                            break;
+            case  'delQuestionnaire':       if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::delQuestionnaire($_REQUEST['fbId']));}                                                                                   break;
+            case  'deleteAllCodes':         if ($_SESSION['usermail'] != NULL) {echo json_encode(FragenVerwaltung::deleteAllCodes($_REQUEST['fbId']));}                                                                                     break;
+            case  'getQuestions':           if ($_SESSION['usermail'] != NULL) {echo json_encode(FragenVerwaltung::getQuestions());}                                                                                                        break;
             ## Other modes
             case  'aecd587fdc09':                                               echo json_encode(self::hilfe());break;
             default:                                                            echo json_encode(array('returncode'=>1, 'Returnvalue'=>'<strong>Programmfehler Fehlercode: ##PHPMAIN_aktivierungJS_wv</strong><br>mode-Wert fehlerhaft. $_REQUEST[\'mode\'] = ' . strval($_REQUEST['mode'])));break;
@@ -743,17 +743,19 @@ class FragenVerwaltung {
 
     public static function delQuestionnaire($fbId) {
         try{
-            $answer = array('rc' => false,'rv' => '<strong>Unknown-Error at main.php -> FragenVerwaltung.deleteQuestion()</strong><br>Bitte wenden Sie sich an einen Administrator.');
+            //$answer = array('rc' => false,'rv' => '<strong>Unknown-Error at main.php -> FragenVerwaltung.deleteQuestion()</strong><br>Bitte wenden Sie sich an einen Administrator.');
             global $link;
             if(self::deleteAllCodes($fbId) == false)throw new ErrorException('<strong>SQL-Error at deleteAllCodes()</strong><br>Bitte wenden Sie sich an einen Administrator.');
-            $sqlquery_deleteQuestions = "
-                DELETE FROM bewertungen WHERE bogenid = ".$fbId.";
-                DELETE FROM verbesserungen WHERE bogenid = ".$fbId.";
-                DELETE FROM fragebogen WHERE id = ".$fbId.";";
-            $sqlResult = mysqli_query($link, $sqlquery_deleteQuestions);
-            if ($sqlResult == False) throw new ErrorException('<strong>SQL-Error</strong><br>Bitte wenden Sie sich an einen Administrator.');
+            $sqlResult = mysqli_query($link, "DELETE FROM bewertungen WHERE bogenid = ".$fbId.";");
+            if ($sqlResult == False) throw new ErrorException('<strong>SQL-Error: bewertungen'.$sqlResult.'</strong><br>' . $link->error);
+            $sqlResult = mysqli_query($link, "DELETE FROM verbesserungen WHERE bogenid = ".$fbId.";");
+            if ($sqlResult == False) throw new ErrorException('<strong>SQL-Error: verbesserungen'.$sqlResult.'</strong><br>' . $link->error);
+            $sqlResult = mysqli_query($link, "DELETE FROM nm_frage_fragebogen WHERE bogenid = ".$fbId.";");
+            if ($sqlResult == False) throw new ErrorException('<strong>SQL-Error: nm_frage_fragebogen'.$sqlResult.'</strong><br>' . $link->error);
+            $sqlResult = mysqli_query($link, "DELETE FROM fragebogen WHERE id = ".$fbId.";");
+            if ($sqlResult == False) throw new ErrorException('<strong>SQL-Error: fragebogen'.$sqlResult.'</strong><br>' . $link->error);
             $answer = array('rc' => true,'rv' => NULL);}
-        catch(ErrorException $error){$answer = array('rc' => false,'rv' => $error);}
+        catch(ErrorException $error){$answer = array('rc' => false,'rv' => $error->getMessage());}
         finally{return $answer;}
     }
 
