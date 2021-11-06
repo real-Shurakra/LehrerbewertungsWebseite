@@ -114,6 +114,7 @@ export default class Questionnaire
 
 			// TODO: Eventuell Button zum Anzeigen der Codes in Footer des Bogens verlegen
 			let codesTag = document.createElement("div");
+			codesTag.className = "show_codes_button";
 			codesTag.innerHTML = "CODES";
 			let tempCodesTagId = this.id + "_codesTag";
 			codesTag.id = tempCodesTagId;
@@ -399,89 +400,130 @@ export default class Questionnaire
 		xhttp.onreadystatechange = ()=>{
 			if ( xhttp.readyState == 4 && xhttp.status == 200 )
 			{
-				let response = JSON.parse(xhttp.responseText);
-				console.log("showQuestions:");
-				console.log(response);
-
-				let tempCategoryBeforeSpacer = document.createElement("div");
-				tempCategoryBeforeSpacer.style.height = "15px";
-				tempCategoryBeforeSpacer.style.backgroundColor = "white";
-				document.getElementById(questionnaireId + "_question_container").appendChild(tempCategoryBeforeSpacer);
-				
-				for (let element in response.returnvalue)
+				try
 				{
-					for (let dim2 in response.returnvalue[element])
+					let response = JSON.parse(xhttp.responseText);
+					console.log("showQuestions:");
+					console.log(response);
+	
+					let tempCategoryBeforeSpacer = document.createElement("div");
+					tempCategoryBeforeSpacer.style.height = "15px";
+					tempCategoryBeforeSpacer.style.backgroundColor = "white";
+					document.getElementById(questionnaireId + "_question_container").appendChild(tempCategoryBeforeSpacer);
+					
+					for (let element in response.returnvalue)
 					{
-						if(response.returnvalue[element][dim2].fragestring != undefined && response.returnvalue[element][dim2].fragekategorie != undefined)
+						for (let dim2 in response.returnvalue[element])
 						{
-							// Kategorie-Header hinzufügen, Zusammengesetzte Id aus Fragebogen-Id und Kategorie-Id
-							let tempCategoryId = questionnaireId + "_expanded_questionnaire_category_" + response.returnvalue[element][dim2].fragekategorie;
-							let tempCategory = document.getElementById(tempCategoryId);
-
-							if (tempCategory == undefined) 
+							if(response.returnvalue[element][dim2].fragestring != undefined && response.returnvalue[element][dim2].fragekategorie != undefined)
 							{
-								tempCategory = document.createElement("div");
-								tempCategory.id = tempCategoryId;
-								tempCategory.style.backgroundColor = "#191f51"; // Marineblau
-								tempCategory.style.color = "white";
-								tempCategory.style.fontSize = "16px";
-								tempCategory.innerHTML = response.returnvalue[element][dim2].fragekategorie;
+								// Kategorie-Header hinzufügen, Zusammengesetzte Id aus Fragebogen-Id und Kategorie-Id
+								let tempCategoryId = questionnaireId + "_expanded_questionnaire_category_" + response.returnvalue[element][dim2].fragekategorie;
+								let tempCategory = document.getElementById(tempCategoryId);
+	
+								if (tempCategory == undefined) 
+								{
+									tempCategory = document.createElement("div");
+									tempCategory.id = tempCategoryId;
+									tempCategory.style.backgroundColor = "#191f51"; // Marineblau
+									tempCategory.style.color = "white";
+									tempCategory.style.fontSize = "16px";
+									tempCategory.innerHTML = response.returnvalue[element][dim2].fragekategorie;
+	
+									let tempCategoryAfterSpacer = document.createElement("div");
+									tempCategoryAfterSpacer.style.height = "5px";
+									tempCategoryAfterSpacer.style.backgroundColor = "white";
+									tempCategory.appendChild(tempCategoryAfterSpacer);
+								}
+	
+								// Frage-Tabelle hinzufügen
+								let tempQuestionContainer = document.createElement("div");
+								//tempQuestionContainer.style.width = "99%";
+								tempQuestionContainer.style.backgroundColor = "white";
+								tempQuestionContainer.style.padding = "5px";
+								tempQuestionContainer.id = questionnaireId + "_expanded_questionnaire_question_" + response.returnvalue[element].frageid;
+								tempCategory.appendChild(tempQuestionContainer);
+	
+								let tempQuestionTable = document.createElement("table");
+								tempQuestionTable.style.width = "100%";
+								tempQuestionContainer.appendChild(tempQuestionTable);
+	
+								let tempQuestionTableRow = document.createElement("tr");
+								tempQuestionTableRow.style.width = "99%";
+								tempQuestionTable.appendChild(tempQuestionTableRow);
+	
+								// Frage
+								let tempQuestionTableColumn1 = document.createElement("td");
+								tempQuestionTableRow.appendChild(tempQuestionTableColumn1);
+								tempQuestionTableColumn1.id = questionnaireId + "_expanded_questionnaire_question_" + response.returnvalue[element].frageid + "_text";
+								tempQuestionTableColumn1.style.width = "55%";
+								tempQuestionTableColumn1.style.backgroundColor = "white";
+								tempQuestionTableColumn1.style.color = "black";
+								tempQuestionTableColumn1.style.fontSize = "16px";
+								tempQuestionTableColumn1.style.height = "22px";
+								tempQuestionTableColumn1.innerHTML = response.returnvalue[element][dim2].fragestring;
+	
+								// Streuung
+								let tempQuestionTableColumn2 = document.createElement("td");
+								tempQuestionTableRow.appendChild(tempQuestionTableColumn2);
+								tempQuestionTableColumn2.id = questionnaireId + "_expanded_questionnaire_scattering_" + response.returnvalue[element].frageid + "_sub_table_container";
+								tempQuestionTableColumn2.style.width = "30%";
+								tempQuestionTableColumn2.style.backgroundColor = "white";
+								tempQuestionTableColumn2.style.color = "black";
+								tempQuestionTableColumn2.style.fontSize = "16px";
+								tempQuestionTableColumn2.style.height = "22px";
 
-								let tempCategoryAfterSpacer = document.createElement("div");
-								tempCategoryAfterSpacer.style.height = "5px";
-								tempCategoryAfterSpacer.style.backgroundColor = "white";
-								tempCategory.appendChild(tempCategoryAfterSpacer);
+								// Sub-Tabelle für Streuungs-Daten
+								let subTableContainerScattering = document.createElement("div");
+								subTableContainerScattering.style.width = "99%";
+								let subTableScattering = document.createElement("table");
+								subTableScattering.style.width = "100%";
+								subTableContainerScattering.appendChild(subTableScattering);
+								let subTableScatteringRow = document.createElement("tr");
+								subTableScattering.appendChild(subTableScatteringRow);
+
+								let counter = -2;
+								for (let i = 0; i < 5; i++)
+								{
+									let tempSubTableScatteringColumn = document.createElement("td");
+									tempSubTableScatteringColumn.style.width = "1%";
+									tempSubTableScatteringColumn.innerHTML = "<b>" + counter.toString() + " :</b> " + response.returnvalue[element][dim2][counter.toString()] + " x";
+									subTableScatteringRow.appendChild(tempSubTableScatteringColumn);
+									counter++;
+								}
+								tempQuestionTableColumn2.appendChild(subTableContainerScattering);
+
+								//tempQuestionTableColumn2.innerHTML = response.returnvalue[element][dim2].fragestring;								
+
+								// Erreichte Punkte
+								let tempQuestionTableColumn3 = document.createElement("td");
+								tempQuestionTableRow.appendChild(tempQuestionTableColumn3);
+								tempQuestionTableColumn3.id = questionnaireId + "_expanded_questionnaire_question_" + response.returnvalue[element].frageid + "_Answer_value";
+								tempQuestionTableColumn3.style.width = "15%";
+								tempQuestionTableColumn3.style.backgroundColor = "white";
+								tempQuestionTableColumn3.style.color = "black";
+								tempQuestionTableColumn3.style.fontSize = "16px";
+								tempQuestionTableColumn3.style.height = "22px";
+								tempQuestionTableColumn3.style.textAlign = "right";
+								tempQuestionTableColumn3.style.paddingRight = "50px";
+								let tempValue = Number(response.returnvalue[element][dim2].fragebewertung);
+								tempQuestionTableColumn3.innerHTML = tempValue.toFixed(2) + " / " + this.amountStudents * 2;
+								
+	
+								document.getElementById(questionnaireId + "_question_container").appendChild(tempCategory);
 							}
-
-							// Frage-Tabelle hinzufügen
-							let tempQuestionContainer = document.createElement("div");
-							tempQuestionContainer.style.backgroundColor = "white";
-							tempQuestionContainer.style.padding = "5px";
-							tempQuestionContainer.id = questionnaireId + "_expanded_questionnaire_question_" + response.returnvalue[element][dim2].frageid;
-							tempCategory.appendChild(tempQuestionContainer);
-
-							let tempQuestionTable = document.createElement("table");
-							tempQuestionContainer.appendChild(tempQuestionTable);
-
-							let tempQuestionTableRow = document.createElement("tr");
-							tempQuestionTable.appendChild(tempQuestionTableRow);
-
-							// Frage
-							let tempQuestionTableColumn1 = document.createElement("td");
-							tempQuestionTableRow.appendChild(tempQuestionTableColumn1);
-							tempQuestionTableColumn1.id = questionnaireId + "_expanded_questionnaire_question_" + response.returnvalue[element][dim2].frageid + "_text";
-							tempQuestionTableColumn1.style.width = "1%";
-							tempQuestionTableColumn1.style.backgroundColor = "white";
-							tempQuestionTableColumn1.style.color = "black";
-							tempQuestionTableColumn1.style.fontSize = "16px";
-							tempQuestionTableColumn1.style.height = "22px";
-							// Zusammengesetzte Id aus Fragebogen-Id und Frage-Id
-							tempQuestionTableColumn1.innerHTML = response.returnvalue[element][dim2].fragestring;
-
-							// Erreichte Punkte
-							let tempQuestionTableColumn2 = document.createElement("td");
-							tempQuestionTableRow.appendChild(tempQuestionTableColumn2);
-							tempQuestionTableColumn2.id = questionnaireId + "_expanded_questionnaire_question_" + response.returnvalue[element][dim2].frageid + "_Answer_value";
-							tempQuestionTableColumn2.style.width = "1%";
-							tempQuestionTableColumn2.style.backgroundColor = "white";
-							tempQuestionTableColumn2.style.color = "black";
-							tempQuestionTableColumn2.style.fontSize = "16px";
-							tempQuestionTableColumn2.style.height = "22px";
-							tempQuestionTableColumn2.style.textAlign = "right";
-							tempQuestionTableColumn2.style.paddingRight = "50px";
-							// Zusammengesetzte Id aus Fragebogen-Id und Frage-Id
-							let tempValue = Number(response.returnvalue[element][dim2].fragebewertung);
-							tempQuestionTableColumn2.innerHTML = tempValue.toFixed(2) + " / " + this.amountStudents * 2;
-							
-
-							document.getElementById(questionnaireId + "_question_container").appendChild(tempCategory);
 						}
 					}
+	
+					let tempContainer = document.getElementById(questionnaireId + "_question_container");//.appendChild(tempCategory);
+					this.getKritik(this.id, tempContainer);
+	
 				}
-
-				let tempContainer = document.getElementById(questionnaireId + "_question_container");//.appendChild(tempCategory);
-				this.getKritik(this.id, tempContainer);
-
+				catch(error)
+				{
+					console.log("Fehler in Klasse Questionnaire.Questions():");
+					console.log(error);
+				}
 			}
 		};
 		xhttp.open("POST", path, true);

@@ -249,9 +249,78 @@ export default class QuestionnaireStudents{
             button.innerHTML = "Absenden";
             sendButton.appendChild(button);
             button.addEventListener("mousedown", ()=>{
+
+                let callback = ()=>{
+
+                    console.log("Der Callback zum Eintragen der Kritik wurde ausgeführt!");
+                    // callback um Kritik abzuschicken nachdem die Antworten abgeschickt wurden
+                    // Request an insertKritik
+                    let xhttp2 = new XMLHttpRequest()
+                    let response2 = undefined;
+                    let formData2 = new FormData();
+                    console.log("codehash:");
+                    console.log(this.codehash);
+                    formData2.append("codehash", this.codehash);
+                    formData2.append("fbId", this.questionnaireId);
+                    formData2.append("kritik", suggestionInput.value)
+ 
+                    let path2 = "./php/main.php?mode=insertkritik";
+ 
+                    xhttp2.open("POST", path2, true);
+ 
+                    xhttp2.onreadystatechange = ()=>{
+                        if ( xhttp.readyState == 4 && xhttp.status == 200 )
+                        {
+                            response2 = xhttp2.responseText;
+                            console.log("response_insertKritik");
+                            console.log(response2);
+                            try
+                            {
+                                //sentKritik = true;
+                                //console.log(sentKritik);
+
+                                setTimeout(()=>{
+                                    console.log("questionnaireId_at_ausfüllen");
+                                    console.log(this.questionnaireId);
+
+                                    //console.log(sentAnswers == true && sentKritik == true);
+                                    //if (sentAnswers == true && sentKritik == true)
+                                    //{
+
+                                        //TODO: Tooltip für erfolgreich abgegebene Antworten anzeigen und Ausfüll-Bogen schließen
+                                        //TODO: entsprechenden Code aus Datenbank löschen
+
+                                        // Benachrichtigung über erfolgreich abgeschickte Antwort und Kritik anzeigen
+                                        let notificationId = "successfull_answer_notification";
+                                        let tooltipContainer = document.getElementById(notificationId);
+                                        if (tooltipContainer != undefined) tooltipContainer.remove();
+                                        tooltipContainer = document.createElement("div");
+                                        this.createNotificationSuccessfullAnswer(tooltipContainer);
+
+                                        // Benachrichtigung über falsch eingegebenen Code einblenden
+                                        this.fadeElementIn(tooltipContainer, 0.97);
+                                        // Nach 5 Sek. wieder ausblenden
+                                        setTimeout(()=>{ this.fadeElementOut(tooltipContainer); }, 5000);
+
+                                        let questionnaireStudents = document.getElementById("students_questionnaire_container");
+                                        //questionnaireStudents.remove();
+                                        this.fadeElementOut(questionnaireStudents);
+
+                                    //}
+                                } ,250)
+                            }
+                            catch(error)
+                            {
+ 
+                            }
+                        }
+                    }
+                    xhttp2.send(formData2);                    
+                }
+
                 //array('rate' : array('frageid' : string(FrageID), 'bogenid' : string(FragebogenID), 'bewertung' : int(FrageBewertung),  (...)) string('codehash' : )
-                var sentAnswers = false;
-                var sentKritik = false;
+                //var sentAnswers = false;
+                //var sentKritik = false;
 
                 let counter = 0;
                 // anzahl der Fragen ermitteln
@@ -310,13 +379,14 @@ export default class QuestionnaireStudents{
                 xhttp.onreadystatechange = ()=>{
 					if ( xhttp.readyState == 4 && xhttp.status == 200 )
 					{
-						response = xhttp.responseText;
-                        console.log("response_insertRate");
-                        console.log(response);
 						try
 						{
-                            sentAnswers = true;
-                            console.log(sentAnswers);
+                            //sentAnswers = true;
+                            //console.log(sentAnswers);
+                            response = xhttp.responseText;
+                            console.log("response_insertRate");
+                            console.log(response);
+                            callback();
                         }
                         catch(error)
                         {
@@ -326,69 +396,7 @@ export default class QuestionnaireStudents{
                 }
                 xhttp.send(formData);
 
-                // Request an insertKritik
-                let xhttp2 = new XMLHttpRequest()
-                let response2 = undefined;
-                let formData2 = new FormData();
-                console.log("codehash:");
-                console.log(this.codehash);
-                formData2.append("codehash", this.codehash);
-                formData2.append("fbId", this.questionnaireId);
-                formData2.append("kritik", suggestionInput.value)
-                 
-                let path2 = "./php/main.php?mode=insertkritik";
-                 
-                xhttp2.open("POST", path2, true);
-                 
-                xhttp2.onreadystatechange = ()=>{
-                    if ( xhttp.readyState == 4 && xhttp.status == 200 )
-                    {
-                        response2 = xhttp2.responseText;
-                        console.log("response_insertKritik");
-                        console.log(response2);
-                        try
-                        {
-                            sentKritik = true;
-                            console.log(sentKritik);
-
-                            setTimeout(()=>{
-                                console.log("questionnaireId_at_ausfüllen");
-                                console.log(this.questionnaireId);
-            
-                                console.log(sentAnswers == true && sentKritik == true);
-                                if (sentAnswers == true && sentKritik == true)
-                                {
-            
-                                    //TODO: Tooltip für erfolgreich abgegebene Antworten anzeigen und Ausfüll-Bogen schließen
-                                    //TODO: entsprechenden Code aus Datenbank löschen
-            
-                                    // Benachrichtigung über erfolgreich abgeschickte Antwort und Kritik anzeigen
-                                    let notificationId = "successfull_answer_notification";
-                                    let tooltipContainer = document.getElementById(notificationId);
-                                    if (tooltipContainer != undefined) tooltipContainer.remove();
-                                    tooltipContainer = document.createElement("div");
-                                    this.createNotificationSuccessfullAnswer(tooltipContainer);
-            
-                                    // Benachrichtigung über falsch eingegebenen Code einblenden
-                                    this.fadeElementIn(tooltipContainer, 0.97);
-                                    // Nach 5 Sek. wieder ausblenden
-                                    setTimeout(()=>{ this.fadeElementOut(tooltipContainer); }, 5000);
-            
-                                    let questionnaireStudents = document.getElementById("students_questionnaire_container");
-                                    //questionnaireStudents.remove();
-                                    this.fadeElementOut(questionnaireStudents);
-            
-                                }
-                            } ,250)
-                        }
-                        catch(error)
-                        {
-                 
-                        }
-                    }
-                }
-                xhttp2.send(formData2);
-
+                // Evtl. hier callback();
             });
     
             questionsContainer.appendChild(sendButton);

@@ -145,17 +145,26 @@ export default class FunctionMannager
 
 	}
 
-	Request(path, formData) // zurzeit nicht genutzt
+	Request(path, formData)
 	{
-		let response;
-		let xhttp = new XMLHttpRequest();
-		xhttp.open("POST", path, false);
-		xhttp.send(formData);
-		response = xhttp.responseText;
+		try
+		{
+			let response;
+			let xhttp = new XMLHttpRequest();
+			xhttp.open("POST", path, false);
+			xhttp.send(formData);
+			response = xhttp.responseText;
+	
+			//if (response.indexOf("{") != 0) return response;
+			//if (response.length > 100 && response != null) return JSON.parse(response);
+			return response;
+		}
+		catch(error)
+		{
+			console.log("Fehler in FunktionManager.Request()");
+			console.log(error);
+		}
 
-		//if (response.indexOf("{") != 0) return response;
-		//if (response.length > 100 && response != null) return JSON.parse(response);
-		return response;
 	}
 
 	
