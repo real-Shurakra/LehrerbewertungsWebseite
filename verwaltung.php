@@ -42,6 +42,9 @@
 			<!--- page container --->
 			<div id="container_pages">
 			</div>
+
+			<div id="subMaskNotification_layer">
+			</div>
 		</div>
 	</body>
 </html>

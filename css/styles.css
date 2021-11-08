@@ -12,6 +12,10 @@ body
 {
 	font-family: calibri;
 	font-size: large;
+	width: 100%;
+	height: 100%;
+	overflow-x: hidden;
+	overflow-y: hidden;
 }
 
 .button:hover
@@ -274,4 +278,74 @@ svg {
 	color: lightgreen;
 }
 
+/* SubMaskNotification */
+#subMaskNotification_layer
+{
+	position: absolute;
+	top:0px;
+	left:0px;
+}
 
+#subMaskNotification_container
+{
+	padding: 20px;
+	position: absolute;
+	top:40%;
+	left: 35%;
+	width: 30%;
+	height: 20%;
+	background-color: white;
+	border-style: inset;
+	border-color:#191f51;
+	z-index: 200;
+	box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.2);
+
+}
+
+#subMaskNotification_message_container{
+	width: 99%;
+	height: 80%;
+}
+
+#subMaskNotification_message{
+	margin: auto;
+	text-align: center;
+}
+
+#subMaskNotification_container table
+{
+	width: 100%;
+	height: 20%;
+}
+
+#subMaskNotification_buttons_row{
+	height: 100%;
+	width: 100%;
+}
+
+.subMaskNotification_button_td{
+	width: 50%;
+	height: 100%;
+	text-align: center;
+}
+
+.subMaskNotification_button_td button{
+	font-weight: bold;
+	width: 100%;
+	height: 100%;
+}
+
+.subMaskNotification_button_container{
+	width: 100%;
+	height: 100%;
+}
+
+.closeButton:hover{
+	text-shadow: 3px 3px lightslategray;
+	/*background-color:lightgrey;*/
+}
+
+.deleteButton:hover{
+	text-shadow: 3px 3px lightslategray;
+	/*background-color:lightgrey;*/
+}

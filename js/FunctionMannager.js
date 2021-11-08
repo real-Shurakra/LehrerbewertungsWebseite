@@ -188,7 +188,8 @@ export default class FunctionMannager
 					{
 						//console.log(xhttp.responseText);
 						dummyResponse = JSON.parse(xhttp.responseText);
-						
+						console.log("askAlleFragen:");
+						console.log(dummyResponse);
 
 						for ( let i = 0; i < dummyResponse.returnvalue[0].length; i++ )
 						{
@@ -1300,6 +1301,7 @@ export default class FunctionMannager
 					if(response != undefined && response[questionnaire] != undefined)
 					{
 						let tempQuestionnaire = new Questionnaire(response[questionnaire], questionnaireList);
+						tempQuestionnaire.functionManager = this;
 						tempQuestionnaire.menuBarColor = this.menuBarColor;
 						this.OverviewPageQuestionnaires.push(tempQuestionnaire);
 					}
