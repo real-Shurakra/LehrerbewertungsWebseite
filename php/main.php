@@ -36,6 +36,7 @@ class main {
             case  'deleteAllCodes':         if ($_SESSION['usermail'] != NULL) {echo json_encode(FragenVerwaltung::deleteAllCodes($_REQUEST['fbId']));}                                                                                     break;
             case  'getQuestions':           if ($_SESSION['usermail'] != NULL) {echo json_encode(FragenVerwaltung::getQuestions());}                                                                                                        break;
             ## Other modes
+            case  'checkLogin':                                                 echo json_encode(self::checkLogin());break;
             case  'aecd587fdc09':                                               echo json_encode(self::hilfe());break;
             default:                                                            echo json_encode(array('returncode'=>1, 'Returnvalue'=>'<strong>Programmfehler Fehlercode: ##PHPMAIN_aktivierungJS_wv</strong><br>mode-Wert fehlerhaft. $_REQUEST[\'mode\'] = ' . strval($_REQUEST['mode'])));break;
         }
@@ -90,6 +91,15 @@ class main {
             return $var;
         }
     }
+
+    static function checkLogin(){
+        try{
+            if ($_SESSION['usermail'] != Null) {return true;}
+            else {return false;}
+        }
+        catch (ErrorException $error) {return false;}
+
+    }
 }
 
 class validation {
@@ -99,7 +109,7 @@ class validation {
      * @details 
      * @param string $passwort =  String mit zu verschluessendem Inhalt
      * @return string $antwort = Sha512 verschluesselter String
-     * @note In der Datei 'save.php' stehen die Variablen die bei der Verschl�sselnug ben�tigt werden.
+     * @note In der Datei 'save.php' stehen die Variablen die bei der Verschluesselnug benoetigt werden.
      */
     static function pass_encode($passwort) {
         include 'save.php'; 
