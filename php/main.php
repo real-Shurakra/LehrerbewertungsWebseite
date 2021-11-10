@@ -102,20 +102,7 @@ class main {
     }
 }
 
-class validation {
 
-    /**
-     * @brief Encode des Passworts
-     * @details 
-     * @param string $passwort =  String mit zu verschluessendem Inhalt
-     * @return string $antwort = Sha512 verschluesselter String
-     * @note In der Datei 'save.php' stehen die Variablen die bei der Verschluesselnug benoetigt werden.
-     */
-    static function pass_encode($passwort) {
-        include 'save.php'; 
-        $passwort = hash("sha512", $pepper . $passwort . $salt);
-        return $passwort;}
-}
 
 class nutzerverwaltung {
     
@@ -127,7 +114,8 @@ class nutzerverwaltung {
                                 <br>Unbekannter Fehler in /php/main.php -> nutzerverwaaltung.loginUser()<br>
                                 Bitte wenden Sie sich an einen Administrator.'
             );
-            $passwort = validation::pass_encode($passwort);
+            include 'LBWEncription.php';
+            $passwort = LBWEncription::pass_encode($passwort);
             global $link;
             $sqlquary_FrageBenutzer = "SELECT isroot FROM lehrer WHERE mail = '" . $mail . "' AND passwort = '" . $passwort . "';";
             $sqlquary_FrageBenutzer_Result = mysqli_query($link, $sqlquary_FrageBenutzer);
@@ -189,7 +177,8 @@ class nutzerverwaltung {
         try{
             $answer = array('rc' => false,'rv' => '<strong>Unknown-Error at main.php -> FragenVerwaltung.deleteQuestion()</strong><br>Bitte wenden Sie sich an einen Administrator.');
             global $link;
-            $sqlquery_addUser = "UPDATE lehrer SET passwort=".validation::pass_encode($newPasswort)." WHERE mail = ".$_SESSION['usermail'].";";
+            include 'LBWEncription.php';
+            $sqlquery_addUser = "UPDATE lehrer SET passwort=".LBWEncription::pass_encode($newPasswort)." WHERE mail = ".$_SESSION['usermail'].";";
             $sqlResult = mysqli_query($link, $sqlquery_addUser);
             if ($sqlResult == False) throw new Exception('<strong>SQL-Error at nutzerverwaltung.changePasswort()</strong><br>Bitte wenden Sie sich an einen Administrator.');
             
@@ -208,7 +197,8 @@ class nutzerverwaltung {
     }
 
     public static function checkPermission($Password){
-        $Password = validation::pass_encode($Password);
+        include 'LBWEncription.php';
+        $Password = LBWEncription::pass_encode($Password);
         try{
             $answer = array('rc' => false,'rv' => '<strong>Unknown-Error at main.php -> FragenVerwaltung.deleteQuestion()</strong><br>Bitte wenden Sie sich an einen Administrator.');
             global $link;
