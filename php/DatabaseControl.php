@@ -29,20 +29,10 @@ class DatabaseControl {
                 $this->dbName
             );
             if (!$this->link) {throw new ErrorException(mysqli_connect_error());}
-            $answer = array(
-                'rc'=>true,
-                'rv'=>'connected'
-            );
+            $answer = array('rc'=>true,'rv'=>'connected');
         }
-        catch (ErrorException $error) {
-            $answer = array(
-                'rc'=>false,
-                'rv'=>$error->getMessage()
-            );
-        }
-        finally{
-            return $answer;
-        }
+        catch (ErrorException $error) {$answer = array('rc'=>false,'rv'=>'DatabaseControl.connectToDatabase->'.$error->getMessage());}
+        finally{return $answer;}
     }
 
     /**
@@ -55,22 +45,13 @@ class DatabaseControl {
         try{
             $sqlquaryResultData=array();
             $sqlquaryResult = mysqli_query($this->link, $sqlString);
-                if (!$sqlquaryResult) {throw new Exception($this->link->error);}
+                if (!$sqlquaryResult) {throw new ErrorException($this->link->error);}
+                if ($sqlquaryResult) {$answer=array('rc'=>true,'rv'=>true);return;}
             for ($i = 0; $i < $sqlquaryResult->num_rows; $i++) {$sqlquaryResultData[$i] = mysqli_fetch_array($sqlquaryResult);}
-            $answer = array(
-                'rc'=>true,
-                'rv'=>$sqlquaryResultData
-            );
+            $answer = array('rc'=>true,'rv'=>$sqlquaryResultData);
         }
-        catch(ErrorException $error){
-            $answer = array(
-                'rc'=>false,
-                'rv'=>$error->getMessage()
-            );
-        }
-        finally{
-            return $answer;
-        }
+        catch(ErrorException $error){$answer = array('rc'=>false,'rv'=>'DatabaseControl.sendToDB->'.$error->getMessage());}
+        finally{return $answer;}
     }
 
     /**
@@ -81,19 +62,9 @@ class DatabaseControl {
     function disconnectFromDatabase() {
         try{
             $this->link->close();
-            $answer = array(
-                'rc'=>true,
-                'rv'=>'disconected'
-            );
+            $answer = array('rc'=>true,'rv'=>'disconected');
         }
-        catch(ErrorException $error){
-            $answer = array(
-                'rc'=>false,
-                'rv'=>$error->getMessage()
-            );
-        }
-        finally{
-            return $answer;
-        }
+        catch(ErrorException $error){$answer = array('rc'=>false,'rv'=>'DatabaseControl.disconnectFromDatabase->'.$error->getMessage());}
+        finally{return $answer;}
     }
 }

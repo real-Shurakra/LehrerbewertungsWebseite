@@ -15,6 +15,7 @@ class main {
             case  'loginUser':                                                  echo json_encode(nutzerverwaltung::loginUser($_REQUEST['mail'], $_REQUEST['passwort']));                                                                    break;
             case  'changePasswort':         if ($_SESSION['usermail'] != NULL) {echo json_encode(nutzerverwaltung::changePasswort($_REQUEST['oldPasswort'], $_REQUEST['newPasswort']));}                                                    break;
             case  'addUser':                                                    echo json_encode(nutzerverwaltung::addUser($_REQUEST['mail'], $_REQUEST['firstname'], $_REQUEST['lastname']));                                              break;
+            // @note checkPermission durch authoriseUser ersetzen!
             case  'checkPermission':                                            echo json_encode(nutzerverwaltung::checkPermission($_REQUEST['passwort']));                                                                                 break;
             case  'deleteUser':             if ($_SESSION['usermail'] != NULL) {echo json_encode(nutzerverwaltung::deleteUser($_REQUEST['passwort'], $_REQUEST['mail']));}                                                                  break;
             ## Modes for FragenVerwaltung
