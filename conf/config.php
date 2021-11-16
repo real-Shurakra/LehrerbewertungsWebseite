@@ -1,6 +1,12 @@
 <?php
 // ----------------------------------------------------------
+// Debug configuation
+global $debug;
+$debug = true;
+// ----------------------------------------------------------
 // Database configuation
+// Database globals
+global $dbipv4, $dbuser, $dbpass, $dbname;
 // Database server IPv4 adress
 $dbipv4 = "localhost";
 // Database account

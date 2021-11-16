@@ -1,4 +1,5 @@
 <?php
+session_start(); // @note To Main with this!!!
 class UserAdministration {
     function __construct(){}
 
@@ -8,17 +9,24 @@ class UserAdministration {
      */
     protected function __sendOneToDatabase($sqlString){
         try{
-            include 'DatabaseControl.php';
-            include '../conf/config.php';
+            // Geting DB information
+            include_once 'DatabaseControl.php';
+            include_once '../conf/config.php';
+            global $dbipv4, $dbuser, $dbpass, $dbname;
+            // Creating class DatabaseControl object
             $database = new DatabaseControl($dbipv4, $dbuser, $dbpass, $dbname);
-            $result = $database->connectToDatabase();
-            if (!$result['rc']) {throw new ErrorException($result['rv']);}
-            $result = $database->sendToDB($sqlString);
-            if ($result['rc'] == false) {throw new ErrorException($result['rv']);}
+            // Connecting to DB
+            $connectionResult = $database->connectToDatabase();
+            if (!$connectionResult['rc']) {throw new ErrorException($connectionResult['rv']);}
+            // Sending sql querry
+            $SendResult = $database->sendToDB($sqlString);
+            if ($SendResult['rc'] == false) {throw new ErrorException($SendResult['rv']);}
+            // Disconnecting DB
             $database->disconnectFromDatabase();
-            $answer = array('rc'=>true, 'rv'=>$result['rv']);
+            // Formating answer
+            $answer = array('rc'=>true, 'rv'=>$SendResult['rv']);
         }
-        catch(ErrorException $error){$answer = array('rc'=>false, 'rv'=>'UserAdministration.->__sendToDatabase'.$error->getMessage());}
+        catch(ErrorException $error){$answer = array('rc'=>false, 'rv'=>'UserAdministration.__sendOneToDatabase->'.$error->getMessage());}
         finally{return $answer;}
         
     }
@@ -42,22 +50,23 @@ class UserAdministration {
 
     /**@brief Get user spice
      * @param string $userName User mail address
-     * @return array(rc:true,rv:array(0:string,pepper:string,1:string,salt:string))
+     * @return array(rc:true,rv:array(0:string,pepper:string,1:string,salt:string))||array(rc:true,rv:false)
      * @except array(rc:false,rv:string)
      */
     protected function __getSpice($userName) {
         try{
             $result = $this->__sendOneToDatabase("SELECT pepper, salt FROM lehrer WHERE mail='".$userName."'");
-            if ($result['rc'] == false) {throw new ErrorException($result['rv']);}
+            if (!$result['rc']) {throw new ErrorException($result['rv']);}
+            if ($result['rv']==array()) {$answer = array('rc'=>true,'rv'=>false);Return;}
             $answer = array(
                 'rc'=>true,
                 'rv'=>array(
-                    'pepper'=>$result['rv']['pepper'],
-                    'salt'=>$result['rv']['salt']
+                    'pepper'=>$result['rv'][0]['pepper'],
+                    'salt'=>$result['rv'][0]['salt']
                 )
-            );
+            );            
         }
-        catch(ErrorException $error){$answer = array('rc'=>true, 'rv'=>'UserAdministration.__getSpice->'.$error->getMessage());}
+        catch(ErrorException $error){$answer = array('rc'=>false, 'rv'=>'UserAdministration.__getSpice->'.$error->getMessage());}
         finally{return $answer;}
     }
 
@@ -114,7 +123,7 @@ class UserAdministration {
      * @param $newPassword The new password
      * @return array(rc:true,rv:true)||array(rc:false,rv:string)
      */
-    function __changePassword($userName, $newPassword){
+    protected function __changePassword($userName, $newPassword){
         try{
             // Generating spice
             $spice = $this->__makeSpice($userName);
@@ -137,7 +146,8 @@ class UserAdministration {
     /**@breif Returns the user authorisation level
      * @param string $userName The user name
      * @param string $password The user password
-     * @return array(rc:true,rv:boolean)||array(rc:false,rv:string)
+     * @return array(rc:true,rv:boolean) 00 = User Not found, 10 = User not root, 11 = User root
+     * @except array(rc:false,rv:string) rv contains further information
      */
     function authoriseUser($userName, $password){
         try{
@@ -151,6 +161,7 @@ class UserAdministration {
             // Getting spice
             $spice = $this->__getSpice($userName);
             if (!$spice['rc']){throw new ErrorException($spice['rv']);}
+            if (!$spice['rv']){$answer = array('rc'=>false,'rv'=>false);return;}
             $pepper = $spice['rv']['pepper'];
             $salt = $spice['rv']['salt'];
             // Encripting encripted password with spice
@@ -159,8 +170,8 @@ class UserAdministration {
             $password = $passEncodeTwo['rv'];
             $result = $this->__sendOneToDatabase("SELECT isroot FROM lehrer WHERE mail='".$userName."' AND passwort='".$password."'");
             if (!$result['rc']) {throw new ErrorException($result['rv']);}
-            if ($result['rv']['isroot'] == 1) {$answer=array('rc'=>true,'rv'=>true);}
-            elseif ($result['rv']['isroot'] == 0) {$answer=array('rc'=>true,'rv'=>false);}
+            if ($result['rv'][0]['isroot'] == 1) {$answer=array('rc'=>true,'rv'=>true);}
+            elseif ($result['rv'][0]['isroot'] == 0) {$answer=array('rc'=>true,'rv'=>false);}
             else {throw new ErrorException('DB answer not boolean. Is: '.strval($result['rv']['isroot']));}
         }
         catch(ErrorException $error){$answer = array('rc'=>false, 'rv'=>'UserAdministration.__authoriseUser->'.$error->getMessage());}
@@ -168,22 +179,30 @@ class UserAdministration {
     }
 
     /**@brief User login
-     * @details Returns rc:true if user exists else rc:false. If rc:true than rv:true if user is root else rv:false.
      * @param string $userName The user name
      * @param string $password The user password
-     * @return array(rc:boolean,rv:boolean)||array(rc:false,rv:string)
+     * @return array(rc:boolean,rv:boolean)  00 = User Not found, 10 = User not root, 11 = User root
+     * @except array(rc:false,rv:string)
      */
     function loginUser($userName, $password) {
         try {
             $checkUser = $this->authoriseUser($userName, $password);
+            
             if ($checkUser['rc']) {
                 $_SESSION['logedIn'] = true;
                 $_SESSION['usermail'] = $userName;
-                if ($checkUser['rv']) {$_SESSION['userisroot'] = true;}
-                else{$_SESSION['userisroot'] = false;}
-                $answer =  array ('rc'=>true, 'rv'=>true);
+                if ($checkUser['rv']) {
+                    $_SESSION['userisroot'] = true;
+                    $answer =  array ('rc'=>true, 'rv'=>true);
+                }
+                else{
+                    $_SESSION['userisroot'] = false;
+                    $answer =  array ('rc'=>true, 'rv'=>false);
+                }
             }
-            else{$answer =  array ('rc'=>false, 'rv'=>false);}
+            else{
+                $answer =  array ('rc'=>false, 'rv'=>false);
+            }
         } 
         catch (ErrorException $error) {$answer = array ('rc'=>false,'rv'=>'UserAdministration.loginUser->'.$error->getMessage());}
         finally{return $answer;}
@@ -198,6 +217,10 @@ class UserAdministration {
      */
     function addUser($mail, $firstname, $lastname, $stdPassword = 'Administrator'){
         try{
+            // Check if allready exists
+            $userExists = $this->__sendOneToDatabase("SELECT 1 FROM lehrer WHERE mail='".$mail."'");
+            if (!$userExists['rc']) {throw new ErrorException($userExists['rv']);}
+            if ($userExists['rv'] != array()) {$answer=array('rc' => true,'rv' =>false);return;}
             // Generating spice
             $genSpice = $this->__makeSpice($mail);
             if (!$genSpice['rc']) {throw new ErrorException($genSpice['rv']);}
@@ -208,13 +231,14 @@ class UserAdministration {
             if (!$genpass['rc']) {throw new ErrorException($genpass['rv']);}
             $password = $genpass['rv'];
             ## User register
-            $sqlquery_addUser = "
+            $sqlquery_addUser1 = "
             INSERT INTO lehrer(id, mail, vorname, nachname, passwort, isroot, pepper, salt) 
-            VALUES (DEFAULT,'".$mail."','".$firstname."','".$lastname."','".$password."',FALSE,'".$pepper."','".$salt."');
-            SELECT @userid := id FROM lehrer WHERE mail = '".$mail."';
-            INSERT INTO fragen(frage, kategorie, lehrerid) 
-            SELECT frage, kategorie, @userid FROM fragentemplate;";
-            $sqlResult =$this->__sendOneToDatabase($sqlquery_addUser);
+            VALUES (DEFAULT,'".$mail."','".$firstname."','".$lastname."','".$password."',FALSE,'".$pepper."','".$salt."');";
+            $sqlquery_addUser2 = "INSERT INTO fragen(frage, kategorie, lehrerid) 
+            SELECT frage, kategorie, (SELECT id FROM lehrer WHERE mail = '".$mail."') FROM fragentemplate;";
+            $sqlResult =$this->__sendOneToDatabase($sqlquery_addUser1);
+            if (!$sqlResult['rc']) {throw new ErrorException($sqlResult['rv']);}
+            $sqlResult =$this->__sendOneToDatabase($sqlquery_addUser2);
             if (!$sqlResult['rc']) {throw new ErrorException($sqlResult['rv']);}
             $answer = array('rc' => true,'rv' => $stdPassword);
         }
@@ -275,7 +299,7 @@ class UserAdministration {
         finally{return $answer;}
     }
 
-    /**@brief 
+    /**@brief Root password reset
      * @param string $username The root username
      * @param string $password The root password
      * @param string $resetUser The username of the user you want to reset the password
@@ -297,8 +321,23 @@ class UserAdministration {
         catch (ErrorException $error) {$answer = array ('rc'=>false,'rv'=>'UserAdministration.resetPassword->'.$error->getMessage());}
         finally{return $answer;}
     }
-}
 
+    /**@details Logs off current user
+     * @return array('rc'=>true,'rv'=>true)
+     * @except array('rc'=>false,'rv'=>string)
+     */
+    function logoutUser(){
+        try{
+            session_unset();
+            $_SESSION['usermail'] = null;
+            $_SESSION['userisroot'] = false;
+            $_SESSION['logedIn'] = false;
+            $answer = array('rc'=>true,'rv'=>true);
+        }
+        catch (ErrorException $error) {$answer = array ('rc'=>false,'rv'=>'UserAdministration.logoutUser->'.$error->getMessage());}
+        finally{return $answer;}
+    }
+}
 
 // ---------------------------  Legacy  ----------------------------------------------------------------
 /** 

@@ -22,12 +22,7 @@ class DatabaseControl {
      */
     function connectToDatabase() {
         try{
-            $this->link = mysqli_connect(
-                $this->dbIpv4, 
-                $this->dbUser, 
-                $this->dbPass, 
-                $this->dbName
-            );
+            $this->link = mysqli_connect($this->dbIpv4, $this->dbUser, $this->dbPass, $this->dbName);
             if (!$this->link) {throw new ErrorException(mysqli_connect_error());}
             $answer = array('rc'=>true,'rv'=>'connected');
         }
@@ -44,9 +39,11 @@ class DatabaseControl {
     function sendToDB($sqlString) {
         try{
             $sqlquaryResultData=array();
+            ##var_dump($sqlString);
             $sqlquaryResult = mysqli_query($this->link, $sqlString);
-                if (!$sqlquaryResult) {throw new ErrorException($this->link->error);}
-                if ($sqlquaryResult) {$answer=array('rc'=>true,'rv'=>true);return;}
+            ##var_dump($sqlquaryResult);
+            if (!$sqlquaryResult) {throw new ErrorException($this->link->error);}
+            if ($sqlquaryResult===true) {$answer=array('rc'=>true,'rv'=>true);return;}
             for ($i = 0; $i < $sqlquaryResult->num_rows; $i++) {$sqlquaryResultData[$i] = mysqli_fetch_array($sqlquaryResult);}
             $answer = array('rc'=>true,'rv'=>$sqlquaryResultData);
         }
