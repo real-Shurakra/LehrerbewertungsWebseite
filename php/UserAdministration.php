@@ -1,5 +1,4 @@
 <?php
-session_start(); // @note To Main with this!!!
 class UserAdministration {
     function __construct(){}
 
@@ -9,26 +8,19 @@ class UserAdministration {
      */
     protected function __sendOneToDatabase($sqlString){
         try{
-            // Geting DB information
             include_once 'DatabaseControl.php';
             include_once '../conf/config.php';
             global $dbipv4, $dbuser, $dbpass, $dbname;
             // Creating class DatabaseControl object
-            $database = new DatabaseControl($dbipv4, $dbuser, $dbpass, $dbname);
-            // Connecting to DB
-            $connectionResult = $database->connectToDatabase();
-            if (!$connectionResult['rc']) {throw new ErrorException($connectionResult['rv']);}
-            // Sending sql querry
-            $SendResult = $database->sendToDB($sqlString);
-            if ($SendResult['rc'] == false) {throw new ErrorException($SendResult['rv']);}
-            // Disconnecting DB
-            $database->disconnectFromDatabase();
-            // Formating answer
-            $answer = array('rc'=>true, 'rv'=>$SendResult['rv']);
+            $databaseConrtol = new DatabaseControl($dbipv4, $dbuser, $dbpass, $dbname);
+            $dbReturn = $databaseConrtol->sendOneToDatabase($sqlString);
+            if (!$dbReturn['rc']) {throw new ErrorException($dbReturn['rv']);}
+            $answer = array('rc'=>true, 'rv'=>$dbReturn['rv']);
+            ##var_dump($sqlString);
+            ##var_dump($answer);
         }
         catch(ErrorException $error){$answer = array('rc'=>false, 'rv'=>'UserAdministration.__sendOneToDatabase->'.$error->getMessage());}
         finally{return $answer;}
-        
     }
 
     /**@brief String encription
@@ -107,12 +99,12 @@ class UserAdministration {
     protected function __checkPassword($newPassword){
         try{
             // Password need min 8 chars
-            if (strlen($newPassword) < 8) {throw new ErrorException('Password to short');}
+            if (strlen($newPassword) < 8) {$answer=array('rc'=>true, 'rv'=>1);;}
             // Password must not contain spaces
-            if (strpos($newPassword, ' ')) {throw new ErrorException('Password contains space characters');}
+            if (strpos($newPassword, ' ')) {$answer=array('rc'=>true, 'rv'=>2);;}
             // Password must not contain semicolon
-            if (strpos($newPassword, ';')) {throw new ErrorException('Password contains semicolon');}
-            $answer=array('rc'=>true, 'rv'=>'Password ok');
+            if (strpos($newPassword, ';')) {$answer=array('rc'=>true, 'rv'=>3);;}
+            $answer=array('rc'=>true, 'rv'=>0);
         }
         catch(ErrorException $error){$answer = array('rc'=>false, 'rv'=>'UserAdministration.__checkPassword->'.$error->getMessage());}
         finally{return $answer;}
@@ -146,7 +138,13 @@ class UserAdministration {
     /**@breif Returns the user authorisation level
      * @param string $userName The user name
      * @param string $password The user password
-     * @return array(rc:true,rv:boolean) 00 = User Not found, 10 = User not root, 11 = User root
+     * @return array(rc:true,rv:integer)
+     *  0: User not found
+     *  1: User not root
+     *  2: User is root
+     *  3: Password to short
+     *  4: Password contains space characters
+     *  5: Password contains semicolon
      * @except array(rc:false,rv:string) rv contains further information
      */
     function authoriseUser($userName, $password){
@@ -154,25 +152,40 @@ class UserAdministration {
             // Checking password
             $passCheckup = $this->__checkPassword($password);
             if (!$passCheckup['rc']) {throw new ErrorException($passCheckup['rv']);}
+            if ($passCheckup['rv']===1) {$answer=array('rc'=>true,'rv'=>3);return;}
+            if ($passCheckup['rv']===2) {$answer=array('rc'=>true,'rv'=>4);return;}
+            if ($passCheckup['rv']===3) {$answer=array('rc'=>true,'rv'=>5);return;}
             // Encripting clean password
             $passEncodeOne = $this->__encodeString($password);
             if (!$passEncodeOne['rc']) {throw new ErrorException($passEncodeOne['rv']);}
             $password = $passEncodeOne['rv'];
             // Getting spice
             $spice = $this->__getSpice($userName);
+            #echo '<br>hier Spice->->';
+            #var_dump($userName);
+            #var_dump($spice);
+            #echo '<br>';
             if (!$spice['rc']){throw new ErrorException($spice['rv']);}
-            if (!$spice['rv']){$answer = array('rc'=>false,'rv'=>false);return;}
+            if (!$spice['rv']){$answer = array('rc'=>true,'rv'=>0);return;}
             $pepper = $spice['rv']['pepper'];
             $salt = $spice['rv']['salt'];
             // Encripting encripted password with spice
             $passEncodeTwo = $this->__encodeString($password, 'sha512', $pepper, $salt);
             if (!$passEncodeTwo['rc']) {throw new ErrorException($passEncodeTwo['rv']);}
             $password = $passEncodeTwo['rv'];
-            $result = $this->__sendOneToDatabase("SELECT isroot FROM lehrer WHERE mail='".$userName."' AND passwort='".$password."'");
+            // Check if user exists
+            $sqlCheckUser = "SELECT isroot FROM lehrer WHERE mail='".$userName."' AND passwort='".$password."'";
+            $result = $this->__sendOneToDatabase($sqlCheckUser);
+            #echo '<br>UserAdministration.__authoriseUser->$sqlCheckUser';
+            #var_dump($sqlCheckUser);
+            #echo '<br>UserAdministration.__authoriseUser->$result';
+            #var_dump($result);
+            #echo '<br>';
             if (!$result['rc']) {throw new ErrorException($result['rv']);}
-            if ($result['rv'][0]['isroot'] == 1) {$answer=array('rc'=>true,'rv'=>true);}
-            elseif ($result['rv'][0]['isroot'] == 0) {$answer=array('rc'=>true,'rv'=>false);}
-            else {throw new ErrorException('DB answer not boolean. Is: '.strval($result['rv']['isroot']));}
+            if ($result['rv'] === array()) {$answer = array('rc'=>true,'rv'=>0);return;}
+            if ($result['rv'][0]['isroot'] === '1') {$answer=array('rc'=>true,'rv'=>2);}
+            elseif ($result['rv'][0]['isroot'] === '0') {$answer=array('rc'=>true,'rv'=>1);}
+            else {throw new ErrorException('DB answer not boolean. Is: '.strval($result['rv'][0]['isroot']));}
         }
         catch(ErrorException $error){$answer = array('rc'=>false, 'rv'=>'UserAdministration.__authoriseUser->'.$error->getMessage());}
         finally{return $answer;}
@@ -187,24 +200,17 @@ class UserAdministration {
     function loginUser($userName, $password) {
         try {
             $checkUser = $this->authoriseUser($userName, $password);
-            
+            #echo '<br>UserAdministration.loginUser.$checkUser=';
+            #var_dump($checkUser);
+            #echo '<br>';
             if ($checkUser['rc']) {
-                $_SESSION['logedIn'] = true;
-                $_SESSION['usermail'] = $userName;
-                if ($checkUser['rv']) {
-                    $_SESSION['userisroot'] = true;
-                    $answer =  array ('rc'=>true, 'rv'=>true);
-                }
-                else{
-                    $_SESSION['userisroot'] = false;
-                    $answer =  array ('rc'=>true, 'rv'=>false);
-                }
+                if ($checkUser['rv']===1)      {$answer =  array ('rc'=>true, 'rv'=>array('logedIn'=>true, 'usermail'=>$userName, 'userisroot'=>false));}
+                elseif ($checkUser['rv']===2)   {$answer =  array ('rc'=>true, 'rv'=>array('logedIn'=>true, 'usermail'=>$userName, 'userisroot'=>true));}
+                else                        {$answer =  array ('rc'=>true, 'rv'=>null);}
             }
-            else{
-                $answer =  array ('rc'=>false, 'rv'=>false);
-            }
+            else                            {throw new ErrorException($checkUser['rv']);}
         } 
-        catch (ErrorException $error) {$answer = array ('rc'=>false,'rv'=>'UserAdministration.loginUser->'.$error->getMessage());}
+        catch (ErrorException $error)       {$answer = array ('rc'=>false,'rv'=>'UserAdministration.loginUser->'.$error->getMessage());}
         finally{return $answer;}
     }
 
@@ -221,16 +227,37 @@ class UserAdministration {
             $userExists = $this->__sendOneToDatabase("SELECT 1 FROM lehrer WHERE mail='".$mail."'");
             if (!$userExists['rc']) {throw new ErrorException($userExists['rv']);}
             if ($userExists['rv'] != array()) {$answer=array('rc' => true,'rv' =>false);return;}
+            // Checking password
+            $passCheckup = $this->__checkPassword($stdPassword);
+            if (!$passCheckup['rc']) {throw new ErrorException($passCheckup['rv']);}
             // Generating spice
             $genSpice = $this->__makeSpice($mail);
             if (!$genSpice['rc']) {throw new ErrorException($genSpice['rv']);}
             $pepper = $genSpice['rv']['pepper'];
             $salt = $genSpice['rv']['salt'];
-            // Generating password
-            $genpass = $this->__encodeString($stdPassword, 'sha512', $pepper, $salt);
+            // Encripting clean password
+            $passEncodeOne = $this->__encodeString($stdPassword);
+            if (!$passEncodeOne['rc']) {throw new ErrorException($passEncodeOne['rv']);}
+            $password = $passEncodeOne['rv'];
+            // Encripting encripted password with spice
+            $genpass = $this->__encodeString($password, 'sha512', $pepper, $salt);
             if (!$genpass['rc']) {throw new ErrorException($genpass['rv']);}
             $password = $genpass['rv'];
-            ## User register
+            // User register
+            #echo '<br>Output vars:';
+            #echo '<br>$mail:';
+            #var_dump($mail);
+            #echo '<br>$firstname:';
+            #var_dump($firstname);
+            #echo '<br>$lastname:';
+            #var_dump($lastname);
+            #echo '<br>$password:';
+            #var_dump($password);
+            #echo '<br>$pepper:';
+            #var_dump($pepper);
+            #echo '<br>$salt:';
+            #var_dump($salt);
+            #echo '<br>Output vars END';
             $sqlquery_addUser1 = "
             INSERT INTO lehrer(id, mail, vorname, nachname, passwort, isroot, pepper, salt) 
             VALUES (DEFAULT,'".$mail."','".$firstname."','".$lastname."','".$password."',FALSE,'".$pepper."','".$salt."');";
@@ -328,13 +355,17 @@ class UserAdministration {
      */
     function logoutUser(){
         try{
-            session_unset();
-            $_SESSION['usermail'] = null;
-            $_SESSION['userisroot'] = false;
-            $_SESSION['logedIn'] = false;
             $answer = array('rc'=>true,'rv'=>true);
         }
         catch (ErrorException $error) {$answer = array ('rc'=>false,'rv'=>'UserAdministration.logoutUser->'.$error->getMessage());}
+        finally{return $answer;}
+    }
+
+    function checkLogin($loginflag){
+        try{
+            $answer = array('rc'=>true,'rv'=>$loginflag);
+        }
+        catch (ErrorException $error) {$answer = array ('rc'=>false,'rv'=>'UserAdministration.checkLogin->'.$error->getMessage());}
         finally{return $answer;}
     }
 }
@@ -479,7 +510,7 @@ class UserAdministration {
         }
         catch(Exception $error){$answer = array('rc' => false,'rv' => $error);}
         finally{return $answer;}
-    } X
+    } O
 
     set std password (root)
 */

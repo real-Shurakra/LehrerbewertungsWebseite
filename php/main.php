@@ -12,12 +12,12 @@ class main {
         $_REQUEST = self::checkSemicolon($_REQUEST);
         switch ($_REQUEST['mode']) {
             ## Modes for nutzerverwaltung
-            case  'loginUser':                                                  echo json_encode(nutzerverwaltung::loginUser($_REQUEST['mail'], $_REQUEST['passwort']));                                                                    break;
-            case  'changePasswort':         if ($_SESSION['usermail'] != NULL) {echo json_encode(nutzerverwaltung::changePasswort($_REQUEST['oldPasswort'], $_REQUEST['newPasswort']));}                                                    break;
-            case  'addUser':                                                    echo json_encode(nutzerverwaltung::addUser($_REQUEST['mail'], $_REQUEST['firstname'], $_REQUEST['lastname']));                                              break;
+            ##case  'loginUser':                                                  echo json_encode(nutzerverwaltung::loginUser($_REQUEST['mail'], $_REQUEST['passwort']));                                                                    break;
+            ##case  'changePasswort':         if ($_SESSION['usermail'] != NULL) {echo json_encode(nutzerverwaltung::changePasswort($_REQUEST['oldPasswort'], $_REQUEST['newPasswort']));}                                                    break;
+            ##case  'addUser':                                                    echo json_encode(nutzerverwaltung::addUser($_REQUEST['mail'], $_REQUEST['firstname'], $_REQUEST['lastname']));                                              break;
             // @note checkPermission durch authoriseUser ersetzen!
-            case  'checkPermission':                                            echo json_encode(nutzerverwaltung::checkPermission($_REQUEST['passwort']));                                                                                 break;
-            case  'deleteUser':             if ($_SESSION['usermail'] != NULL) {echo json_encode(nutzerverwaltung::deleteUser($_REQUEST['passwort'], $_REQUEST['mail']));}                                                                  break;
+            ##case  'checkPermission':                                            echo json_encode(nutzerverwaltung::checkPermission($_REQUEST['passwort']));                                                                                 break;
+            ##case  'deleteUser':             if ($_SESSION['usermail'] != NULL) {echo json_encode(nutzerverwaltung::deleteUser($_REQUEST['passwort'], $_REQUEST['mail']));}                                                                  break;
             ## Modes for FragenVerwaltung
             case  'askAlleFragen':          if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::askAlleFragen());}                                                                                                       break;
             case  'addFrage':               if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::addFrage($_REQUEST['frage'], $_REQUEST['kategorie']));}                                                                  break;
@@ -37,7 +37,7 @@ class main {
             case  'deleteAllCodes':         if ($_SESSION['usermail'] != NULL) {echo json_encode(FragenVerwaltung::deleteAllCodes($_REQUEST['fbId']));}                                                                                     break;
             case  'getQuestions':           if ($_SESSION['usermail'] != NULL) {echo json_encode(FragenVerwaltung::getQuestions());}                                                                                                        break;
             ## Other modes
-            case  'checkLogin':                                                 echo json_encode(self::checkLogin());break;
+            ##case  'checkLogin':                                                 echo json_encode(self::checkLogin());break;
             case  'aecd587fdc09':                                               echo json_encode(self::hilfe());break;
             default:                                                            echo json_encode(array('returncode'=>1, 'Returnvalue'=>'<strong>Programmfehler Fehlercode: ##PHPMAIN_aktivierungJS_wv</strong><br>mode-Wert fehlerhaft. $_REQUEST[\'mode\'] = ' . strval($_REQUEST['mode'])));break;
         }
@@ -91,15 +91,6 @@ class main {
         {
             return $var;
         }
-    }
-
-    static function checkLogin(){
-        try{
-            if ($_SESSION['usermail'] != Null) {return true;}
-            else {return false;}
-        }
-        catch (ErrorException $error) {return false;}
-
     }
 }
 
@@ -527,26 +518,7 @@ class FragenVerwaltung {
         );
     }
 
-    public static function getAlleSchulklassen() {
-        global $link;
-        $sqlquery_getAlleSchulklassen = "SELECT name FROM klasse";
-        $sqlquery_getAlleSchulklassen_Result = mysqli_query($link, $sqlquery_getAlleSchulklassen);
-        if ($sqlquery_getAlleSchulklassen_Result->num_rows == 0) {
-            return array(
-                'returncode'=>-1,
-                'returnvalue'=>main::toDE('<strong>Keine Klassen gefunden</strong><br>Es wurden keine Schulklassen in der Datenbank gefunden.')
-            );
-        }
-        $answer = array();
-        for ($i=0; $i < $sqlquery_getAlleSchulklassen_Result->num_rows; $i++) { 
-            $sqlquery_getAlleSchulklassen_Result_Data[$i] = mysqli_fetch_array($sqlquery_getAlleSchulklassen_Result);
-            array_push($answer, $sqlquery_getAlleSchulklassen_Result_Data[$i]['name']);
-        }
-        return array(
-            'returncode'=>0,
-            'returnvalue'=>$answer
-        );
-    }
+    
 
     public static function deleteCode($codehash) {
         global $link;
@@ -562,26 +534,7 @@ class FragenVerwaltung {
         else {return false;}
     }
 
-    public static function getAllSubjects(){
-        global $link;
-        $sqlquery_getAlleSchulklassen = "SELECT name FROM fach";
-        $sqlquery_getAlleSchulklassen_Result = mysqli_query($link, $sqlquery_getAlleSchulklassen);
-        if ($sqlquery_getAlleSchulklassen_Result->num_rows == 0) {
-            return array(
-                'returncode'=>-1,
-                'returnvalue'=>main::toDE('<strong>Keine Fächer gefunden</strong><br>Es wurden keine Fächer in der Datenbank gefunden.')
-            );
-        }
-        $answer = array();
-        for ($i=0; $i < $sqlquery_getAlleSchulklassen_Result->num_rows; $i++) { 
-            $sqlquery_getAlleSchulklassen_Result_Data[$i] = mysqli_fetch_array($sqlquery_getAlleSchulklassen_Result);
-            array_push($answer, $sqlquery_getAlleSchulklassen_Result_Data[$i]['name']);
-        }
-        return array(
-            'returncode'=>0,
-            'returnvalue'=>$answer
-        );
-    }
+   
 
     public static function alterQuestion($frageId, $neuFrage) {
         try{

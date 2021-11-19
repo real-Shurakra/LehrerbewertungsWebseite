@@ -44,20 +44,16 @@ include 'DatabaseControl.php';
 $databaseControl = new DatabaseControl("localhost", "root", "", "lehrerbewertungsdatenbank");
 schreib('Created new DatabaseControl object.', 'ok', true);
 
-echo '----------------------------------------- Database connection test -------------------------------------<br>';
-$testConnectResult = $databaseControl->connectToDatabase();
-if ($testConnectResult['rc'] != true){schreib('Error while connecting to database:', 'err', $testConnectResult);}
-else{schreib('Database connection established.', 'ok', $testConnectResult);}
-
 echo '----------------------------------------- Database send test -------------------------------------------<br>';
-$testSendResult = $databaseControl->sendToDB('SELECT * FROM fach');
-if ($testSendResult['rc'] != true){schreib('Error while sending to database:', 'err', $testSendResult);}
-else{schreib('Database send succsessfully.','ok', $testSendResult);}
-
-echo '----------------------------------------- Database disconnetion test -----------------------------------<br>';
-$testDisconnectResult = $databaseControl->disconnectFromDatabase();
-if ($testDisconnectResult['rc'] != true){schreib('Error while disconnecting from database:', 'err', $testDisconnectResult);}
-else{schreib('Database succsessfully disconected.', 'ok', $testDisconnectResult);}
+$testSendResult = $databaseControl->sendOneToDatabase('SELECT * FROM fach');
+if (
+    $testSendResult['rc'] != true
+){
+    schreib('Error while sending to database:', 'err', $testSendResult);
+}
+else{
+    schreib('Database send succsessfully.','ok', $testSendResult);
+}
 
 echo '--------------------------------------------------------------------------------------------------------<br>';
 echo '<h2>Testing UserAuthentification.php</h2>';
@@ -69,79 +65,177 @@ schreib('Created new UserAdministration object', 'ok', true);
 
 echo '----------------------------------------- Autentification Test: normal ---------------------------------<br>';
 $lauthoriseUserResult1 = $userAdministration->authoriseUser('l.eerer@schule.de', 'Admin123');
-if ($lauthoriseUserResult1['rc']&&!$lauthoriseUserResult1['rv']){schreib('Normal autentification test succsessfull.', 'ok', $lauthoriseUserResult1);}
-else{schreib('Normal autentification test fail.', 'err', $lauthoriseUserResult1);}
+if (
+    $lauthoriseUserResult1['rc']&&
+    $lauthoriseUserResult1['rv']===1
+){
+    schreib('Normal autentification test succsessfull.', 'ok', $lauthoriseUserResult1);
+}
+else{
+    schreib('Normal autentification test fail.', 'err', $lauthoriseUserResult1);
+}
 
 echo '----------------------------------------- Autentification Test: root -----------------------------------<br>';
 $lauthoriseUserResult2 = $userAdministration->authoriseUser('temp.dump@hotmail.com', 'Admin123');
-if ($lauthoriseUserResult2['rc']&&$lauthoriseUserResult2['rv']){schreib('Normal autentification test succsessfull.', 'ok', $lauthoriseUserResult2);}
-else{schreib('Normal autentification test fail.', 'err', $lauthoriseUserResult2);}
+if (
+    $lauthoriseUserResult2['rc']&&
+    $lauthoriseUserResult2['rv']===2
+){
+    schreib('Normal autentification test succsessfull.', 'ok', $lauthoriseUserResult2);
+}
+else{
+    schreib('Normal autentification test fail.', 'err', $lauthoriseUserResult2);
+}
 
 echo '----------------------------------------- Autentification Test: No User --------------------------------<br>';
 $lauthoriseUserResult3 = $userAdministration->authoriseUser('Nope!', 'Admin123');
-if (!$lauthoriseUserResult3['rc']&&!$lauthoriseUserResult3['rv']){schreib('Normal autentification test succsessfull.', 'ok', $lauthoriseUserResult3);}
-else{schreib('Normal autentification test fail.', 'err', $lauthoriseUserResult3);}
+if (
+    $lauthoriseUserResult3['rc']&&
+    $lauthoriseUserResult3['rv']===0
+){
+    schreib('Normal autentification test succsessfull.', 'ok', $lauthoriseUserResult3);
+}
+else{
+    schreib('Normal autentification test fail.', 'err', $lauthoriseUserResult3);
+}
+
+echo '----------------------------------------- Autentification Test: Wrong Password -------------------------<br>';
+$lauthoriseUserResult3 = $userAdministration->authoriseUser('temp.dump@hotmail.com', 'qwertz00');
+if (
+    $lauthoriseUserResult3['rc']&&
+    $lauthoriseUserResult3['rv']===0
+){
+    schreib('Normal autentification test succsessfull.', 'ok', $lauthoriseUserResult3);
+}
+else{
+    schreib('Normal autentification test fail.', 'err', $lauthoriseUserResult3);
+}
 
 echo '----------------------------------------- Login Test: normal -------------------------------------------<br>';
 $loginResult1 = $userAdministration->loginUser('l.eerer@schule.de', 'Admin123');
-if ($loginResult1['rc']&&!$loginResult1['rv']&&$_SESSION['usermail']=='l.eerer@schule.de'&&!$_SESSION['userisroot']&&$_SESSION['logedIn']){
-    schreib('Normal login test succsessfull', 'ok', array($loginResult1, $_SESSION));
+if ($loginResult1['rc']&&$loginResult1['rv']['usermail']=='l.eerer@schule.de'&&!$loginResult1['rv']['userisroot']&&$loginResult1['rv']['logedIn']){
+    schreib('Normal login test succsessfull', 'ok', $loginResult1);
 }
-else{schreib('Normal login test fail.', 'err', array($loginResult1, $_SESSION));}
+else{schreib('Normal login test fail.', 'err', $loginResult1);}
 
 echo '----------------------------------------- Logout Test: normal ------------------------------------------<br>';
 $logoutResult1 = $userAdministration->logoutUser();
-if ($logoutResult1['rc']&&$logoutResult1['rv']&&$_SESSION['usermail']==null&&!$_SESSION['userisroot']&&!$_SESSION['logedIn']){
-    schreib('Normal logout test succsessfull', 'ok', array($logoutResult1, $_SESSION));
+if (
+    $logoutResult1['rc']&&
+    $logoutResult1['rv']
+){
+    schreib('Normal logout test succsessfull', 'ok', $logoutResult1);
 }
-else{schreib('Normal logout test fail.', 'err', array($logoutResult1, $_SESSION));}
+else{
+    schreib('Normal logout test fail.', 'err', $logoutResult1);
+}
 
 echo '----------------------------------------- Login Test: root ---------------------------------------------<br>';
 $loginResult2 = $userAdministration->loginUser('temp.dump@hotmail.com', 'Admin123');
-if ($loginResult2['rc']&&$loginResult2['rv']&&$_SESSION['usermail']=='temp.dump@hotmail.com'&&$_SESSION['userisroot']&&$_SESSION['logedIn']){
-    schreib('Root login test succsessfull', 'ok', array($loginResult2, $_SESSION));
+if (
+    $loginResult2['rc']&&
+    $loginResult2['rv']['usermail']=='temp.dump@hotmail.com'&&
+    $loginResult2['rv']['userisroot']&&
+    $loginResult2['rv']['logedIn']
+){
+    schreib('Root login test succsessfull', 'ok', $loginResult2);
 }
-else{schreib('Root login test fail.', 'err', array($loginResult2, $_SESSION));}
+else{
+    schreib('Root login test fail.', 'err', $loginResult2);
+}
 
 echo '----------------------------------------- Logout Test: root --------------------------------------------<br>';
 $logoutResult2 = $userAdministration->logoutUser();
-if ($logoutResult2['rc']&&$logoutResult2['rv']&&$_SESSION['usermail']==null&&!$_SESSION['userisroot']&&!$_SESSION['logedIn']){
-    schreib('Root logout test succsessfull', 'ok', array($logoutResult2, $_SESSION));
+if (
+    $logoutResult2['rc']&&
+    $logoutResult2['rv']
+){
+    schreib('Root logout test succsessfull', 'ok', $logoutResult2);
 }
-else{schreib('Root logout test fail.', 'err', array($logoutResult2, $_SESSION));}
+else{
+    schreib('Root logout test fail.', 'err', $logoutResult2);
+}
 
 echo '----------------------------------------- Login Test: No user ------------------------------------------<br>';
 $loginResult3 = $userAdministration->loginUser('Nope!', '123456789');
-if (!$loginResult3['rc']&&!$loginResult3['rv']&&$_SESSION['usermail']==null&&!$_SESSION['userisroot']&&!$_SESSION['logedIn']){
-    schreib('No user login test succsessfull.', 'ok', array($loginResult3, $_SESSION));
+if (
+    $loginResult3['rc']&&
+    $loginResult3['rv']==null
+){
+    schreib('No user login test succsessfull.', 'ok', $loginResult3);
 }
-else{schreib('No user login test fail.', 'err', array($loginResult3, $_SESSION));}
+else{
+    schreib('No user login test fail.', 'err', $loginResult3);
+}
 
-echo '----------------------------------------- Add user: User exists--------------------------------------------------------------<br>';
+echo '----------------------------------------- Login Test: Wrong password -----------------------------------<br>';
+$loginResult3 = $userAdministration->loginUser('temp.dump@hotmail.com', '123456789');
+if (
+    $loginResult3['rc']&&
+    $loginResult3['rv']==null
+){
+    schreib('No user login test succsessfull.', 'ok', $loginResult3);
+}
+else{
+    schreib('No user login test fail.', 'err', $loginResult3);
+}
+
+echo '----------------------------------------- Add user: User exists ----------------------------------------<br>';
 $addUserResult1 = $userAdministration->addUser('l.eerer@schule.de', 'Larry', 'Eerer', $stdPassword = 'Administrator');
-if ($addUserResult1['rc']&&!$addUserResult1['rv']){
+if (
+    $addUserResult1['rc']&&
+    !$addUserResult1['rv']
+){
     schreib('Add existing user test succsessfull.', 'ok', $addUserResult1);
 }
-else{schreib('Add existing user test fail.', 'err', $addUserResult1);}
+else{
+    schreib('Add existing user test fail.', 'err', $addUserResult1);
+}
 
 echo '----------------------------------------- Add User Test: Adding new user -------------------------------<br>';
 $addUserResult1 = $userAdministration->addUser('test', 'test', 'test', $stdPassword = 'Administrator');
-if ($addUserResult1['rc']&&$addUserResult1['rv']=='Administrator'){
+if (
+    $addUserResult1['rc']&&
+    $addUserResult1['rv']=='Administrator'
+){
     schreib('Add new user test succsessfull.', 'ok', $addUserResult1);
 }
-else{schreib('Add new user test fail.', 'err', $addUserResult1);}
+else{
+    schreib('Add new user test fail.', 'err', $addUserResult1);
+}
 
 echo '----------------------------------------- Add User Test: Login -----------------------------------------<br>';
 $loginResult1 = $userAdministration->loginUser('test', 'Administrator');
-if ($loginResult1['rc']&&!$loginResult1['rv']&&$_SESSION['usermail']=='test'&&!$_SESSION['userisroot']&&$_SESSION['logedIn']){
-    schreib('New user login test succsessfull', 'ok', array($loginResult1, $_SESSION));
+if (
+    $loginResult1['rc']&&
+    $loginResult1['rv']['usermail']=='test'&&
+    !$loginResult1['rv']['userisroot']&&
+    $loginResult1['rv']['logedIn']
+){
+    schreib('New user login test succsessfull', 'ok', $loginResult1);
 }
-else{schreib('New user login test fail.', 'err', array($loginResult1, $_SESSION));}
+else{schreib('New user login test fail.', 'err', $loginResult1);}
 
 echo '----------------------------------------- change Password Test: Wrong Password -------------------------<br>';
+$changePasswordWrongOldPasswordResult = $userAdministration->changePassword('test', 'qwertz00', 'Admin123');
+if (
+    $changePasswordWrongOldPasswordResult['rcc']&&
+    $changePasswordWrongOldPasswordResult['rv']
+)
+
 echo '----------------------------------------- change Password Test: Bad Password. To short -----------------<br>';
+
+
 echo '----------------------------------------- change Password Test: Bad Password. Space --------------------<br>';
+
+
 echo '----------------------------------------- change Password Test: Bad Password. Semicolon ----------------<br>';
+
+
 echo '----------------------------------------- change Password Test: Password ok ----------------------------<br>';
+
+
 echo '----------------------------------------- Delete User Test: Deleting user ------------------------------<br>';
+
+
 echo '----------------------------------------- Delete User Test: Login --------------------------------------<br>';
