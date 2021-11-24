@@ -117,6 +117,12 @@ class UserAdministration {
      */
     protected function __changePassword($userName, $newPassword){
         try{
+            // Checking password
+            $passCheckup = $this->__checkPassword($newPassword);
+            if (!$passCheckup['rc']) {throw new ErrorException($passCheckup['rv']);}
+            if ($passCheckup['rv']===1) {$answer=array('rc'=>true,'rv'=>3);return;}
+            if ($passCheckup['rv']===2) {$answer=array('rc'=>true,'rv'=>4);return;}
+            if ($passCheckup['rv']===3) {$answer=array('rc'=>true,'rv'=>5);return;}
             // Generating spice
             $spice = $this->__makeSpice($userName);
             if (!$spice['rc']) {throw new ErrorException($spice['rv']);}
@@ -318,8 +324,10 @@ class UserAdministration {
         try{
             $checkAutUser = $this->authoriseUser($userName, $oldPassword);
             if (!$checkAutUser['rc']) {throw new ErrorException($checkAutUser['rv']);}
+            if ($checkAutUser['rv'] != 1 || $checkAutUser['rv'] != 2){$answer=array('rc'=>true,'rv'=>$checkAutUser['rv']);return;}
             $chPwResult = $this->__changePassword($userName, $newPassword);
             if (!$chPwResult['rc']) {throw new ErrorException($chPwResult['rv']);}
+            if ($checkAutUser['rv'] != true){$answer=array('rc'=>true,'rv'=>$checkAutUser['rv']);return;}
             $answer = array('rc'=>true,'rv'=>true);
         }
         catch (ErrorException $error) {$answer = array ('rc'=>false,'rv'=>'UserAdministration.changePassword->'.$error->getMessage());}

@@ -217,20 +217,44 @@ if (
 else{schreib('New user login test fail.', 'err', $loginResult1);}
 
 echo '----------------------------------------- change Password Test: Wrong Password -------------------------<br>';
-$changePasswordWrongOldPasswordResult = $userAdministration->changePassword('test', 'qwertz00', 'Admin123');
+$changePassword_WrongOldPassword_Result = $userAdministration->changePassword('test', '12345678', 'Admin123');
 if (
-    $changePasswordWrongOldPasswordResult['rcc']&&
-    $changePasswordWrongOldPasswordResult['rv']
-)
+    $changePassword_WrongOldPassword_Result['rc']&&
+    $changePassword_WrongOldPassword_Result['rv']
+){
+    schreib('Wrong password test succsessfull', 'ok', $changePassword_WrongOldPassword_Result);
+}
+else{schreib('Wrong password test failed', 'err', $changePassword_WrongOldPassword_Result);}
 
 echo '----------------------------------------- change Password Test: Bad Password. To short -----------------<br>';
-
+$changePassword_ToShort_Result = $userAdministration->changePassword('test', '1234567', 'Admin123');
+if (
+    $changePassword_ToShort_Result['rc']&&
+    $changePassword_ToShort_Result['rv']===3
+){
+    schreib('Password to short test succsessfull', 'ok', $changePassword_ToShort_Result);
+}
+else{schreib('Password test failed', 'err', $changePassword_ToShort_Result);}
 
 echo '----------------------------------------- change Password Test: Bad Password. Space --------------------<br>';
-
+$changePassword_Space_Result = $userAdministration->changePassword('test', '123 567', 'Admin123');
+if (
+    $changePassword_ToShort_Result['rc']&&
+    $changePassword_ToShort_Result['rv']===4
+){
+    schreib('Password to short test succsessfull', 'ok', $changePassword_ToShort_Result);
+}
+else{schreib('Password test failed', 'err', $changePassword_ToShort_Result);}
 
 echo '----------------------------------------- change Password Test: Bad Password. Semicolon ----------------<br>';
-
+$changePassword_ToShort_Result = $userAdministration->changePassword('test', '1234567', 'Admin123');
+if (
+    $changePassword_ToShort_Result['rc']&&
+    $changePassword_ToShort_Result['rv']===5
+){
+    schreib('Password to short test succsessfull', 'ok', $changePassword_ToShort_Result);
+}
+else{schreib('Password test failed', 'err', $changePassword_ToShort_Result);}
 
 echo '----------------------------------------- change Password Test: Password ok ----------------------------<br>';
 
