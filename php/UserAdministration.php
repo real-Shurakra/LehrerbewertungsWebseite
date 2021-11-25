@@ -98,6 +98,7 @@ class UserAdministration {
      */
     protected function __checkPassword($newPassword){
         try{
+            var_dump($newPassword);
             // Password need min 8 chars
             if (strlen($newPassword) < 8) {$answer=array('rc'=>true, 'rv'=>1);;}
             // Password must not contain spaces
@@ -118,26 +119,39 @@ class UserAdministration {
     protected function __changePassword($userName, $newPassword){
         try{
             // Checking password
+            echo'1 ';
             $passCheckup = $this->__checkPassword($newPassword);
             if (!$passCheckup['rc']) {throw new ErrorException($passCheckup['rv']);}
             if ($passCheckup['rv']===1) {$answer=array('rc'=>true,'rv'=>3);return;}
             if ($passCheckup['rv']===2) {$answer=array('rc'=>true,'rv'=>4);return;}
             if ($passCheckup['rv']===3) {$answer=array('rc'=>true,'rv'=>5);return;}
+            var_dump($passCheckup);
+            echo'2 ';
             // Generating spice
             $spice = $this->__makeSpice($userName);
+            echo'3 ';
             if (!$spice['rc']) {throw new ErrorException($spice['rv']);}
+            echo'4 ';
             $pepper = $spice['rv']['pepper'];
+            echo'5 ';
             $salt = $spice['rv']['salt'];
+            echo'6 ';
             // Encripting password
             $password = $this->__encodeString($newPassword, 'sha512', $pepper, $salt);
+            echo'7 ';
             if (!$password['rc']) {throw new ErrorException($password['rv']);}
+            echo'8 ';
             $password = $password['rv'];
+            echo'9 ';
             // Save new password to DB
-            $result = $this->__sendOneToDatabase("UPDATE lehrer SET password='".$password."', pepper='".$pepper."', salt='".$salt."' WHERE mail='".$userName."'");
-            if (!$result['rc']) {throw new ErrorException($spice['rv']);}
+            $result = $this->__sendOneToDatabase("UPDATE lehrer SET passwort='".$password."', pepper='".$pepper."', salt='".$salt."' WHERE mail='".$userName."'");
+            echo'10 ';
+            if (!$result['rc']) {throw new ErrorException($result['rv']);}
+            echo'11 ';
             $answer = array('rc'=>true,'rv'=>true);
+            echo'12 ';
         }
-        catch (ErrorException $error) {$answer = array ('rc'=>false,'rv'=>'UserAdministration.changePassword->'.$error->getMessage());}
+        catch (ErrorException $error) {$answer = array ('rc'=>false,'rv'=>'UserAdministration.__changePassword->'.$error->getMessage());}
         finally{return $answer;}
     }
 
@@ -167,10 +181,6 @@ class UserAdministration {
             $password = $passEncodeOne['rv'];
             // Getting spice
             $spice = $this->__getSpice($userName);
-            #echo '<br>hier Spice->->';
-            #var_dump($userName);
-            #var_dump($spice);
-            #echo '<br>';
             if (!$spice['rc']){throw new ErrorException($spice['rv']);}
             if (!$spice['rv']){$answer = array('rc'=>true,'rv'=>0);return;}
             $pepper = $spice['rv']['pepper'];
@@ -182,16 +192,11 @@ class UserAdministration {
             // Check if user exists
             $sqlCheckUser = "SELECT isroot FROM lehrer WHERE mail='".$userName."' AND passwort='".$password."'";
             $result = $this->__sendOneToDatabase($sqlCheckUser);
-            #echo '<br>UserAdministration.__authoriseUser->$sqlCheckUser';
-            #var_dump($sqlCheckUser);
-            #echo '<br>UserAdministration.__authoriseUser->$result';
-            #var_dump($result);
-            #echo '<br>';
             if (!$result['rc']) {throw new ErrorException($result['rv']);}
             if ($result['rv'] === array()) {$answer = array('rc'=>true,'rv'=>0);return;}
             if ($result['rv'][0]['isroot'] === '1') {$answer=array('rc'=>true,'rv'=>2);}
             elseif ($result['rv'][0]['isroot'] === '0') {$answer=array('rc'=>true,'rv'=>1);}
-            else {throw new ErrorException('DB answer not boolean. Is: '.strval($result['rv'][0]['isroot']));}
+            else {throw new ErrorException('DB answer not mySQL boolean. Is: '.strval($result['rv'][0]['isroot']));}
         }
         catch(ErrorException $error){$answer = array('rc'=>false, 'rv'=>'UserAdministration.__authoriseUser->'.$error->getMessage());}
         finally{return $answer;}
@@ -324,11 +329,15 @@ class UserAdministration {
         try{
             $checkAutUser = $this->authoriseUser($userName, $oldPassword);
             if (!$checkAutUser['rc']) {throw new ErrorException($checkAutUser['rv']);}
-            if ($checkAutUser['rv'] != 1 || $checkAutUser['rv'] != 2){$answer=array('rc'=>true,'rv'=>$checkAutUser['rv']);return;}
-            $chPwResult = $this->__changePassword($userName, $newPassword);
-            if (!$chPwResult['rc']) {throw new ErrorException($chPwResult['rv']);}
-            if ($checkAutUser['rv'] != true){$answer=array('rc'=>true,'rv'=>$checkAutUser['rv']);return;}
-            $answer = array('rc'=>true,'rv'=>true);
+            if ($checkAutUser['rv'] != 1 || $checkAutUser['rv'] != 2){
+                $chPwResult = $this->__changePassword($userName, $newPassword);
+                if (!$chPwResult['rc']) {throw new ErrorException($chPwResult['rv']);}
+                if ($checkAutUser['rv'] != true){$answer=array('rc'=>true,'rv'=>$checkAutUser['rv']);return;}
+                $answer = array('rc'=>true,'rv'=>true);
+            }
+            else{
+                $answer=array('rc'=>true,'rv'=>$checkAutUser['rv']);
+            }
         }
         catch (ErrorException $error) {$answer = array ('rc'=>false,'rv'=>'UserAdministration.changePassword->'.$error->getMessage());}
         finally{return $answer;}
