@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Erstellungszeit: 20. Sep 2021 um 10:58
+-- Erstellungszeit: 26. Nov 2021 um 13:57
 -- Server-Version: 10.4.8-MariaDB
 -- PHP-Version: 7.2.24
 
@@ -52,6 +52,14 @@ CREATE TABLE `codes` (
   `bewertung` tinyint(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+--
+-- Daten für Tabelle `codes`
+--
+
+INSERT INTO `codes` (`codehash`, `fragebogenid`, `kritik`, `bewertung`) VALUES
+('68-13-98-67', 162, 0, 0),
+('69-11-72-04', 162, 0, 0);
+
 -- --------------------------------------------------------
 
 --
@@ -61,15 +69,16 @@ CREATE TABLE `codes` (
 DROP TABLE IF EXISTS `fach`;
 CREATE TABLE `fach` (
   `id` bigint(20) UNSIGNED NOT NULL,
-  `name` varchar(32) NOT NULL
+  `name` varchar(32) NOT NULL,
+  `deleted` tinyint(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Daten für Tabelle `fach`
 --
 
-INSERT INTO `fach` (`id`, `name`) VALUES
-(1, 'ITS');
+INSERT INTO `fach` (`id`, `name`, `deleted`) VALUES
+(1, 'ITS', 0);
 
 -- --------------------------------------------------------
 
@@ -87,6 +96,15 @@ CREATE TABLE `fragebogen` (
   `klassename` varchar(32) NOT NULL,
   `schueleranzahl` smallint(6) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Daten für Tabelle `fragebogen`
+--
+
+INSERT INTO `fragebogen` (`id`, `zeitstempel`, `name`, `lehrerid`, `fachid`, `klassename`, `schueleranzahl`) VALUES
+(159, '2021-10-29 06:28:25', '2510', 1, 1, 'ITB1-19', 25),
+(160, '2021-10-29 06:35:10', '', 1, 1, 'ITB1-19', 25),
+(162, '2021-11-10 07:49:57', 'TestBowgenDingsies', 1, 1, 'ITB1-19', 2);
 
 -- --------------------------------------------------------
 
@@ -145,7 +163,46 @@ INSERT INTO `fragen` (`id`, `frage`, `lehrerid`, `kategorie`, `softdelete`) VALU
 (35, 'Die Beurteilungskriterien sind nachvollziehbar.', 1, 'Leistungsbewertung', 0),
 (36, 'Die Schüler erhalten ausreichend Gelegenheit, sich im Rahmen der sonstigen Mitarbeit zu engagieren.', 1, 'Leistungsbewertung', 0),
 (37, 'Die sonstige Mitarbeit fließt angemessen in die Gesamtnote ein.', 1, 'Leistungsbewertung', 0),
-(38, 'Die Beurteilung ist gerecht, weil alle Schüler gleich behandelt werden.', 1, 'Leistungsbewertung', 0);
+(38, 'Die Beurteilung ist gerecht, weil alle Schüler gleich behandelt werden.', 1, 'Leistungsbewertung', 0),
+(130, 'Hello World', 1, 'Unterricht', 0),
+(194, 'Das Arbeitsklima ermuntert die Schüler zur aktiven Unterrichtsbeteiligung.', NULL, 'Arbeitsklima', 0),
+(195, 'Der Umgang der Schüler untereinander ist ehrlich und aufrichtig.', NULL, 'Arbeitsklima', 0),
+(196, 'Der Unterricht enthalt ausreichend Übungsphasen Unterrichtsergebnisse werden schriftlich festgehalten.', NULL, 'Unterricht', 0),
+(197, 'Der Unterricht ist gut vorbereitet und sorgfaltig geplant.', NULL, 'Unterricht', 0),
+(198, 'Die Arbeitsanweisungen sind klar verständlich.', NULL, 'Unterricht', 0),
+(199, 'Die Arbeitsmaterialien sind übersichtlich und ordentlich aufbereitet.', NULL, 'Unterricht', 0),
+(200, 'Die Aufgabenstellungen sind verständlich formuliert.', NULL, 'Leistungsbewertung', 0),
+(201, 'Die Beurteilung ist gerecht, weil alle Schüler gleich behandelt werden.', NULL, 'Leistungsbewertung', 0),
+(202, 'Die Beurteilungskriterien sind nachvollziehbar.', NULL, 'Leistungsbewertung', 0),
+(203, 'Die Interessen der Schüler werden bei der Unterrichtsplanung berücksichtigt.', NULL, 'Unterricht', 0),
+(204, 'Die Klassenarbeiten entsprechen dem behandelten Stoff.', NULL, 'Leistungsbewertung', 0),
+(205, 'Die Klassenarbeiten verlangen mehr als nur Auswendiglernen.', NULL, 'Leistungsbewertung', 0),
+(206, 'Die Klassenarbeiten werden fair benotet.', NULL, 'Leistungsbewertung', 0),
+(207, 'Die Schüler bearbeiten die Aufgaben im Unterricht konzentriert.', NULL, 'Arbeitsklima', 0),
+(208, 'Die Schüler beteiligen sich angemessen im Unterricht.', NULL, 'Arbeitsklima', 0),
+(209, 'Die Schüler entschuldigen ihre Fehlzelten rechtzeitig und angemessen.', NULL, 'Arbeitsklima', 0),
+(210, 'Die Schüler erhalten ausreichend Gelegenheit, sich im Rahmen der sonstigen Mitarbeit zu engagieren.', NULL, 'Leistungsbewertung', 0),
+(211, 'Die Schüler erledigen ihre Hausaufgaben zuverlässig.', NULL, 'Arbeitsklima', 0),
+(212, 'Die Schüler erscheinen pünktlich zum Unterricht.', NULL, 'Arbeitsklima', 0),
+(213, 'Die Schüler verhalten sich im Unterricht ruhig.', NULL, 'Arbeitsklima', 0),
+(214, 'Die sonstige Mitarbeit fließt angemessen in die Gesamtnote ein.', NULL, 'Leistungsbewertung', 0),
+(215, 'Die Unterrichtsinhalte sind praxisbezogen.', NULL, 'Unterricht', 0),
+(216, 'Die Zusammenarbeit bzw. Absprache zwischen Schule und Betrieben ist angemessen.', NULL, 'Unterricht', 0),
+(217, 'Einzelne Schüler wurden verbal oder mit anderen Mittel von ihren Mitschülern herabgesetzt.', NULL, 'Arbeitsklima', 0),
+(218, 'Er erklärt Unterrichtsinhalte anhand von Beispielen.', NULL, 'Lehrer', 0),
+(219, 'Er fördert selbstständiges Denken und Arbeiten.', NULL, 'Lehrer', 0),
+(220, 'Er ist freundlich und geduldig.', NULL, 'Lehrer', 0),
+(221, 'Er lobt Schüler und ermutigt sie.', NULL, 'Lehrer', 0),
+(222, 'Er lässt Kritik zu und geht darauf ein.', NULL, 'Lehrer', 0),
+(223, 'Er nimmt Ideen der Schüler auf und blockt diese nicht ab.', NULL, 'Lehrer', 0),
+(224, 'Es herrscht ein Arbeitsklima, in dem auch Fehler und abweichende Meinungen zugelassen werden.', NULL, 'Arbeitsklima', 0),
+(225, 'Gruppen- und Einzelarbeiten der Schüler werden abwechslungsreich eingesetzt.', NULL, 'Unterricht', 0),
+(226, 'Im Unterricht werden Bezüge zu aktuellen Themen hergestellt.', NULL, 'Unterricht', 0),
+(227, 'Man fühlt sich ernst genommen.', NULL, 'Arbeitsklima', 0),
+(228, 'Man traut sich, Fragen zu stellen.', NULL, 'Arbeitsklima', 0),
+(229, 'Praxisbezug wird durch Kontakte zu Betrieben und anderen außerschulichen Einrichtungen gewährleistet.', NULL, 'Unterricht', 0),
+(230, 'Tafelbilder und Folien sind gut lesbar.', NULL, 'Unterricht', 0),
+(231, 'Unter den Schülern herrschte Fairness.', NULL, 'Arbeitsklima', 0);
 
 -- --------------------------------------------------------
 
@@ -292,15 +349,16 @@ CREATE TABLE `getquestions` (
 DROP TABLE IF EXISTS `klasse`;
 CREATE TABLE `klasse` (
   `name` varchar(32) NOT NULL,
-  `schueleranzahl` smallint(6) NOT NULL
+  `schueleranzahl` smallint(6) NOT NULL,
+  `softdelete` tinyint(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Daten für Tabelle `klasse`
 --
 
-INSERT INTO `klasse` (`name`, `schueleranzahl`) VALUES
-('ITB1-19', 30);
+INSERT INTO `klasse` (`name`, `schueleranzahl`, `softdelete`) VALUES
+('ITB1-19', 30, 0);
 
 -- --------------------------------------------------------
 
@@ -310,20 +368,23 @@ INSERT INTO `klasse` (`name`, `schueleranzahl`) VALUES
 
 DROP TABLE IF EXISTS `lehrer`;
 CREATE TABLE `lehrer` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `mail` varchar(255) NOT NULL,
-  `vorname` varchar(128) NOT NULL,
-  `nachname` varchar(128) NOT NULL,
-  `passwort` varchar(128) NOT NULL,
-  `isroot` tinyint(1) NOT NULL
+  `id` bigint(20) UNSIGNED NOT NULL COMMENT 'User id',
+  `mail` varchar(255) NOT NULL COMMENT 'User mail adress',
+  `vorname` varchar(128) NOT NULL COMMENT 'User firsname',
+  `nachname` varchar(128) NOT NULL COMMENT 'User lastname',
+  `passwort` varchar(128) NOT NULL COMMENT 'User password. This is the complete, with pepper and salt, encripted password',
+  `isroot` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'Shows if user has root accsses to the database',
+  `pepper` varchar(32) DEFAULT NULL COMMENT 'password pepper',
+  `salt` varchar(32) DEFAULT NULL COMMENT 'password salt'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Daten für Tabelle `lehrer`
 --
 
-INSERT INTO `lehrer` (`id`, `mail`, `vorname`, `nachname`, `passwort`, `isroot`) VALUES
-(1, 'temp.dump@hotmail.com', 'Admin', 'Admin', 'fc5a8d28daaff41f992dd78286e7c7eb58953f138bc67f5f622a7fea035745be97f1ee603aafeabf3a54fad97ba6b8eb2211e5d1635139b38c3ac189d8d8685e', 1);
+INSERT INTO `lehrer` (`id`, `mail`, `vorname`, `nachname`, `passwort`, `isroot`, `pepper`, `salt`) VALUES
+(1, 'temp.dump@hotmail.com', 'Admin', 'Admin', '8c961088a179e47df0ff9a1becedeed84feb4d51a79481a46391516a8425ddcaf7aa516331b76a23dde2b489c539823346ca5780bc16385d94128718bbc01fad', 1, 'ae45f0a9dffd2b3dd79c1624b8c36181', '8436d1dcd1e883cb417bafa96ffe9751'),
+(2, 'l.eerer@schule.de', 'Lenny', 'Eerer', '8c961088a179e47df0ff9a1becedeed84feb4d51a79481a46391516a8425ddcaf7aa516331b76a23dde2b489c539823346ca5780bc16385d94128718bbc01fad', 0, 'ae45f0a9dffd2b3dd79c1624b8c36181', '8436d1dcd1e883cb417bafa96ffe9751');
 
 -- --------------------------------------------------------
 
@@ -336,6 +397,117 @@ CREATE TABLE `nm_frage_fragebogen` (
   `frageid` bigint(20) UNSIGNED NOT NULL,
   `bogenid` bigint(20) UNSIGNED NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Daten für Tabelle `nm_frage_fragebogen`
+--
+
+INSERT INTO `nm_frage_fragebogen` (`frageid`, `bogenid`) VALUES
+(1, 159),
+(1, 160),
+(1, 162),
+(2, 159),
+(2, 160),
+(2, 162),
+(3, 159),
+(3, 160),
+(3, 162),
+(4, 159),
+(4, 160),
+(4, 162),
+(5, 159),
+(5, 160),
+(6, 159),
+(6, 160),
+(7, 159),
+(7, 160),
+(7, 162),
+(8, 159),
+(8, 160),
+(9, 159),
+(9, 160),
+(10, 159),
+(10, 160),
+(10, 162),
+(11, 159),
+(11, 160),
+(11, 162),
+(12, 159),
+(12, 160),
+(12, 162),
+(13, 159),
+(13, 160),
+(13, 162),
+(14, 159),
+(14, 160),
+(15, 159),
+(15, 160),
+(15, 162),
+(16, 159),
+(16, 160),
+(17, 159),
+(17, 160),
+(17, 162),
+(18, 159),
+(18, 160),
+(19, 159),
+(19, 160),
+(19, 162),
+(20, 159),
+(20, 160),
+(20, 162),
+(21, 159),
+(21, 160),
+(21, 162),
+(22, 159),
+(22, 160),
+(22, 162),
+(23, 159),
+(23, 160),
+(23, 162),
+(24, 159),
+(24, 160),
+(24, 162),
+(25, 159),
+(25, 160),
+(25, 162),
+(26, 159),
+(26, 160),
+(27, 159),
+(27, 160),
+(27, 162),
+(28, 159),
+(28, 160),
+(29, 159),
+(29, 160),
+(30, 159),
+(30, 160),
+(30, 162),
+(31, 159),
+(31, 160),
+(31, 162),
+(32, 159),
+(32, 160),
+(32, 162),
+(33, 159),
+(33, 160),
+(33, 162),
+(34, 159),
+(34, 160),
+(34, 162),
+(35, 159),
+(35, 160),
+(35, 162),
+(36, 159),
+(36, 160),
+(36, 162),
+(37, 159),
+(37, 160),
+(37, 162),
+(38, 159),
+(38, 160),
+(38, 162),
+(130, 162);
 
 -- --------------------------------------------------------
 
@@ -503,7 +675,7 @@ ALTER TABLE `verbesserungen`
 -- AUTO_INCREMENT für Tabelle `bewertungen`
 --
 ALTER TABLE `bewertungen`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=62;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=101;
 
 --
 -- AUTO_INCREMENT für Tabelle `fach`
@@ -515,25 +687,25 @@ ALTER TABLE `fach`
 -- AUTO_INCREMENT für Tabelle `fragebogen`
 --
 ALTER TABLE `fragebogen`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=127;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=165;
 
 --
 -- AUTO_INCREMENT für Tabelle `fragen`
 --
 ALTER TABLE `fragen`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=130;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5890;
 
 --
 -- AUTO_INCREMENT für Tabelle `lehrer`
 --
 ALTER TABLE `lehrer`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'User id', AUTO_INCREMENT=95;
 
 --
 -- AUTO_INCREMENT für Tabelle `verbesserungen`
 --
 ALTER TABLE `verbesserungen`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- Constraints der exportierten Tabellen
