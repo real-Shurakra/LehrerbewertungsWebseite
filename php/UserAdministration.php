@@ -2,24 +2,35 @@
 class UserAdministration {
     function __construct(){}
 
+    private function debugNote($note){
+        echo'<br>';
+        echo '<a style="color:orange"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-exclamation-circle" viewBox="0 0 16 16">
+        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+        <path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z"/>
+      </svg> '.debug_backtrace()[1]['class'].'.'.debug_backtrace()[1]['function'].' at '.debug_backtrace()[0]['file'].' line '.debug_backtrace()[0]['line'].': ';
+        var_dump($note);
+        echo'</a><br>';
+    }
+
     /**@brief Database interface
      * @param string $sqlString SQL formated string
      * @return array(rc:true,rv:array(mixed))||array(rc:false,rv:string)
      */
-    protected function __sendOneToDatabase($sqlString){
+    protected function __sendOneToDatabase($sqlString, $moreThanOne=false){
         try{
             include_once 'DatabaseControl.php';
             include_once '../conf/config.php';
             global $dbipv4, $dbuser, $dbpass, $dbname;
             // Creating class DatabaseControl object
             $databaseConrtol = new DatabaseControl($dbipv4, $dbuser, $dbpass, $dbname);
-            $dbReturn = $databaseConrtol->sendOneToDatabase($sqlString);
+            if ($moreThanOne) {$dbReturn = $databaseConrtol->sendOneToDatabase($sqlString);}
+            else{$dbReturn = $databaseConrtol->sendMultipleToDatabase($sqlString);}
             if (!$dbReturn['rc']) {throw new ErrorException($dbReturn['rv']);}
             $answer = array('rc'=>true, 'rv'=>$dbReturn['rv']);
-            ##var_dump($sqlString);
-            ##var_dump($answer);
+            ##$this->debugNote($sqlString);
+            ##$this->debugNote($answer);
         }
-        catch(ErrorException $error){$answer = array('rc'=>false, 'rv'=>'UserAdministration.__sendOneToDatabase->'.$error->getMessage());}
+        catch(ErrorException $error){$answer = array('rc'=>false, 'rv'=>strval(debug_backtrace()[0]['line']).': '.debug_backtrace()[0]['class'].'.'.debug_backtrace()[0]['function'].debug_backtrace()[0]['type'].$error->getMessage());}
         finally{return $answer;}
     }
 
@@ -36,7 +47,7 @@ class UserAdministration {
             $hash = hash($encription, $pepper . $cleanPassword . $salt);
             $answer = array('rc'=>true, 'rv'=>$hash);
         }
-        catch(ErrorException $error){$answer = array('rc'=>false, 'rv'=>'UserAdministration.__encodeString->'.$error->getMessage());}
+        catch(ErrorException $error){$answer = array('rc'=>false, 'rv'=>strval(debug_backtrace()[0]['line']).': '.debug_backtrace()[0]['class'].'.'.debug_backtrace()[0]['function'].debug_backtrace()[0]['type'].$error->getMessage());}
         finally{return $answer;}
     }
 
@@ -58,7 +69,7 @@ class UserAdministration {
                 )
             );            
         }
-        catch(ErrorException $error){$answer = array('rc'=>false, 'rv'=>'UserAdministration.__getSpice->'.$error->getMessage());}
+        catch(ErrorException $error){$answer = array('rc'=>false, 'rv'=>strval(debug_backtrace()[0]['line']).': '.debug_backtrace()[0]['class'].'.'.debug_backtrace()[0]['function'].debug_backtrace()[0]['type'].$error->getMessage());}
         finally{return $answer;}
     }
 
@@ -88,7 +99,7 @@ class UserAdministration {
                 )
             );
         }
-        catch(ErrorException $error){$answer = array('rc'=>false, 'rv'=>'UserAdministration.__makeSpice->'.$error->getMessage());}
+        catch(ErrorException $error){$answer = array('rc'=>false, 'rv'=>strval(debug_backtrace()[0]['line']).': '.debug_backtrace()[0]['class'].'.'.debug_backtrace()[0]['function'].debug_backtrace()[0]['type'].$error->getMessage());}
         finally{return $answer;}
     }
 
@@ -98,16 +109,17 @@ class UserAdministration {
      */
     protected function __checkPassword($newPassword){
         try{
-            var_dump($newPassword);
+            ##$this->debugNote($newPassword);
+            ##$this->debugNote(strlen($newPassword));
             // Password need min 8 chars
-            if (strlen($newPassword) < 8) {$answer=array('rc'=>true, 'rv'=>1);;}
+            if (strlen($newPassword) < 8) {$answer=array('rc'=>true, 'rv'=>1);return;}
             // Password must not contain spaces
-            if (strpos($newPassword, ' ')) {$answer=array('rc'=>true, 'rv'=>2);;}
+            if (strpos($newPassword, ' ')) {$answer=array('rc'=>true, 'rv'=>2);return;}
             // Password must not contain semicolon
-            if (strpos($newPassword, ';')) {$answer=array('rc'=>true, 'rv'=>3);;}
+            if (strpos($newPassword, ';')) {$answer=array('rc'=>true, 'rv'=>3);return;}
             $answer=array('rc'=>true, 'rv'=>0);
         }
-        catch(ErrorException $error){$answer = array('rc'=>false, 'rv'=>'UserAdministration.__checkPassword->'.$error->getMessage());}
+        catch(ErrorException $error){$answer = array('rc'=>false, 'rv'=>strval(debug_backtrace()[0]['line']).': '.debug_backtrace()[0]['class'].'.'.debug_backtrace()[0]['function'].debug_backtrace()[0]['type'].$error->getMessage());}
         finally{return $answer;}
     }
 
@@ -119,39 +131,28 @@ class UserAdministration {
     protected function __changePassword($userName, $newPassword){
         try{
             // Checking password
-            echo'1 ';
             $passCheckup = $this->__checkPassword($newPassword);
             if (!$passCheckup['rc']) {throw new ErrorException($passCheckup['rv']);}
             if ($passCheckup['rv']===1) {$answer=array('rc'=>true,'rv'=>3);return;}
             if ($passCheckup['rv']===2) {$answer=array('rc'=>true,'rv'=>4);return;}
             if ($passCheckup['rv']===3) {$answer=array('rc'=>true,'rv'=>5);return;}
-            var_dump($passCheckup);
-            echo'2 ';
+            #$this->debugNote($passCheckup);
             // Generating spice
             $spice = $this->__makeSpice($userName);
-            echo'3 ';
             if (!$spice['rc']) {throw new ErrorException($spice['rv']);}
-            echo'4 ';
             $pepper = $spice['rv']['pepper'];
-            echo'5 ';
             $salt = $spice['rv']['salt'];
-            echo'6 ';
             // Encripting password
             $password = $this->__encodeString($newPassword, 'sha512', $pepper, $salt);
-            echo'7 ';
             if (!$password['rc']) {throw new ErrorException($password['rv']);}
-            echo'8 ';
             $password = $password['rv'];
-            echo'9 ';
             // Save new password to DB
             $result = $this->__sendOneToDatabase("UPDATE lehrer SET passwort='".$password."', pepper='".$pepper."', salt='".$salt."' WHERE mail='".$userName."'");
-            echo'10 ';
+            #$this->debugNote($result);
             if (!$result['rc']) {throw new ErrorException($result['rv']);}
-            echo'11 ';
             $answer = array('rc'=>true,'rv'=>true);
-            echo'12 ';
         }
-        catch (ErrorException $error) {$answer = array ('rc'=>false,'rv'=>'UserAdministration.__changePassword->'.$error->getMessage());}
+        catch(ErrorException $error){$answer = array('rc'=>false, 'rv'=>strval(debug_backtrace()[0]['line']).': '.debug_backtrace()[0]['class'].'.'.debug_backtrace()[0]['function'].debug_backtrace()[0]['type'].$error->getMessage());}
         finally{return $answer;}
     }
 
@@ -198,7 +199,7 @@ class UserAdministration {
             elseif ($result['rv'][0]['isroot'] === '0') {$answer=array('rc'=>true,'rv'=>1);}
             else {throw new ErrorException('DB answer not mySQL boolean. Is: '.strval($result['rv'][0]['isroot']));}
         }
-        catch(ErrorException $error){$answer = array('rc'=>false, 'rv'=>'UserAdministration.__authoriseUser->'.$error->getMessage());}
+        catch(ErrorException $error){$answer = array('rc'=>false, 'rv'=>strval(debug_backtrace()[0]['line']).': '.debug_backtrace()[0]['class'].'.'.debug_backtrace()[0]['function'].debug_backtrace()[0]['type'].$error->getMessage());}
         finally{return $answer;}
     }
 
@@ -211,17 +212,15 @@ class UserAdministration {
     function loginUser($userName, $password) {
         try {
             $checkUser = $this->authoriseUser($userName, $password);
-            #echo '<br>UserAdministration.loginUser.$checkUser=';
-            #var_dump($checkUser);
-            #echo '<br>';
+            #$this->debugNote($checkUser);
             if ($checkUser['rc']) {
-                if ($checkUser['rv']===1)      {$answer =  array ('rc'=>true, 'rv'=>array('logedIn'=>true, 'usermail'=>$userName, 'userisroot'=>false));}
-                elseif ($checkUser['rv']===2)   {$answer =  array ('rc'=>true, 'rv'=>array('logedIn'=>true, 'usermail'=>$userName, 'userisroot'=>true));}
-                else                        {$answer =  array ('rc'=>true, 'rv'=>null);}
+                if ($checkUser['rv']===1){$answer =  array ('rc'=>true, 'rv'=>array('logedIn'=>true, 'usermail'=>$userName, 'userisroot'=>false));}
+                elseif($checkUser['rv']===2){$answer =  array ('rc'=>true, 'rv'=>array('logedIn'=>true, 'usermail'=>$userName, 'userisroot'=>true));}
+                else{$answer =  array ('rc'=>true, 'rv'=>null);}
             }
-            else                            {throw new ErrorException($checkUser['rv']);}
+            else{throw new ErrorException($checkUser['rv']);}
         } 
-        catch (ErrorException $error)       {$answer = array ('rc'=>false,'rv'=>'UserAdministration.loginUser->'.$error->getMessage());}
+        catch(ErrorException $error){$answer = array('rc'=>false, 'rv'=>strval(debug_backtrace()[0]['line']).': '.debug_backtrace()[0]['class'].'.'.debug_backtrace()[0]['function'].debug_backtrace()[0]['type'].$error->getMessage());}
         finally{return $answer;}
     }
 
@@ -255,20 +254,6 @@ class UserAdministration {
             if (!$genpass['rc']) {throw new ErrorException($genpass['rv']);}
             $password = $genpass['rv'];
             // User register
-            #echo '<br>Output vars:';
-            #echo '<br>$mail:';
-            #var_dump($mail);
-            #echo '<br>$firstname:';
-            #var_dump($firstname);
-            #echo '<br>$lastname:';
-            #var_dump($lastname);
-            #echo '<br>$password:';
-            #var_dump($password);
-            #echo '<br>$pepper:';
-            #var_dump($pepper);
-            #echo '<br>$salt:';
-            #var_dump($salt);
-            #echo '<br>Output vars END';
             $sqlquery_addUser1 = "
             INSERT INTO lehrer(id, mail, vorname, nachname, passwort, isroot, pepper, salt) 
             VALUES (DEFAULT,'".$mail."','".$firstname."','".$lastname."','".$password."',FALSE,'".$pepper."','".$salt."');";
@@ -280,7 +265,7 @@ class UserAdministration {
             if (!$sqlResult['rc']) {throw new ErrorException($sqlResult['rv']);}
             $answer = array('rc' => true,'rv' => $stdPassword);
         }
-        catch (ErrorException $error) {$answer = array ('rc'=>false,'rv'=>'UserAdministration.addUser->'.$error->getMessage());}
+        catch(ErrorException $error){$answer = array('rc'=>false, 'rv'=>strval(debug_backtrace()[0]['line']).': '.debug_backtrace()[0]['class'].'.'.debug_backtrace()[0]['function'].debug_backtrace()[0]['type'].$error->getMessage());}
         finally{return $answer;}
     } 
 
@@ -295,10 +280,9 @@ class UserAdministration {
             ## Check permission
             $authUser = $this->authoriseUser($userName, $password);
             if ($authUser['rc']) {
-                if ($authUser['rv']){
+                if ($authUser['rv'] === 2){
                     $sqlquery_addUser = "
                     SELECT @userid := id FROM lehrer WHERE mail = '".$deleteThis."';
-
                     DELETE nm_frage_fragebogen FROM nm_frage_fragebogen LEFT JOIN fragebogen ON nm_frage_fragebogen.bogenid = fragebogen.id WHERE lehrerid = @userid;
                     DELETE bewertungen FROM bewertungen LEFT JOIN fragebogen ON bewertungen.bogenid = fragebogen.id WHERE lehrerid = @userid;
                     DELETE nm_frage_fragebogen FROM nm_frage_fragebogen LEFT JOIN  fragebogen ON nm_frage_fragebogen.bogenid = fragebogen.id WHERE lehrerid = @userid;
@@ -307,15 +291,15 @@ class UserAdministration {
                     DELETE FROM fragebogen WHERE lehrerid = @userid;
                     DELETE FROM fragen WHERE lehrerid = @userid;
                     DELETE FROM lehrer WHERE id = @userid;";
-                    $sqlResult = $this->__sendOneToDatabase($sqlquery_addUser);
+                    $sqlResult = $this->__sendOneToDatabase($sqlquery_addUser, true);
                     if (!$sqlResult['rc']){throw new ErrorException($sqlResult['rv']);}
                     $answer = array('rc'=>true,'rv'=>true);
                 }
-                else{$answer=array('rc'=>true,'rv'=>false);}
+                else{$answer=array('rc'=>true,'rv'=>$authUser['rv']);}
             }
             else{throw new ErrorException($authUser['rv']);}
         }
-        catch (ErrorException $error) {$answer = array ('rc'=>false,'rv'=>'UserAdministration.deleteUser->'.$error->getMessage());}
+        catch(ErrorException $error){$answer = array('rc'=>false, 'rv'=>strval(debug_backtrace()[0]['line']).': '.debug_backtrace()[0]['class'].'.'.debug_backtrace()[0]['function'].debug_backtrace()[0]['type'].$error->getMessage());}
         finally{return $answer;}
     } 
 
@@ -328,18 +312,20 @@ class UserAdministration {
     function changePassword($userName, $oldPassword, $newPassword){
         try{
             $checkAutUser = $this->authoriseUser($userName, $oldPassword);
+            #$this->debugNote($checkAutUser);
             if (!$checkAutUser['rc']) {throw new ErrorException($checkAutUser['rv']);}
-            if ($checkAutUser['rv'] != 1 || $checkAutUser['rv'] != 2){
+            if ($checkAutUser['rv'] == 1 || $checkAutUser['rv'] == 2){
                 $chPwResult = $this->__changePassword($userName, $newPassword);
-                if (!$chPwResult['rc']) {throw new ErrorException($chPwResult['rv']);}
-                if ($checkAutUser['rv'] != true){$answer=array('rc'=>true,'rv'=>$checkAutUser['rv']);return;}
-                $answer = array('rc'=>true,'rv'=>true);
+                #$this->debugNote($chPwResult);
+                if (!$chPwResult['rc']){throw new ErrorException($chPwResult['rv']);}
+                if ($chPwResult['rv'] == 3 || $chPwResult['rv'] == 4 || $chPwResult['rv'] ==5){$answer=array('rc'=>true,'rv'=>$chPwResult['rv']);return;}
+                else {$answer = array('rc'=>true,'rv'=>true);}
             }
             else{
                 $answer=array('rc'=>true,'rv'=>$checkAutUser['rv']);
             }
         }
-        catch (ErrorException $error) {$answer = array ('rc'=>false,'rv'=>'UserAdministration.changePassword->'.$error->getMessage());}
+        catch(ErrorException $error){$answer = array('rc'=>false, 'rv'=>strval(debug_backtrace()[0]['line']).': '.debug_backtrace()[0]['class'].'.'.debug_backtrace()[0]['function'].debug_backtrace()[0]['type'].$error->getMessage());}
         finally{return $answer;}
     }
 
@@ -362,7 +348,7 @@ class UserAdministration {
             }
             else{throw new ErrorException($authResult['rv']);}
         }
-        catch (ErrorException $error) {$answer = array ('rc'=>false,'rv'=>'UserAdministration.resetPassword->'.$error->getMessage());}
+        catch(ErrorException $error){$answer = array('rc'=>false, 'rv'=>strval(debug_backtrace()[0]['line']).': '.debug_backtrace()[0]['class'].'.'.debug_backtrace()[0]['function'].debug_backtrace()[0]['type'].$error->getMessage());}
         finally{return $answer;}
     }
 
@@ -374,7 +360,7 @@ class UserAdministration {
         try{
             $answer = array('rc'=>true,'rv'=>true);
         }
-        catch (ErrorException $error) {$answer = array ('rc'=>false,'rv'=>'UserAdministration.logoutUser->'.$error->getMessage());}
+        catch(ErrorException $error){$answer = array('rc'=>false, 'rv'=>strval(debug_backtrace()[0]['line']).': '.debug_backtrace()[0]['class'].'.'.debug_backtrace()[0]['function'].debug_backtrace()[0]['type'].$error->getMessage());}
         finally{return $answer;}
     }
 
@@ -382,7 +368,7 @@ class UserAdministration {
         try{
             $answer = array('rc'=>true,'rv'=>$loginflag);
         }
-        catch (ErrorException $error) {$answer = array ('rc'=>false,'rv'=>'UserAdministration.checkLogin->'.$error->getMessage());}
+        catch(ErrorException $error){$answer = array('rc'=>false, 'rv'=>strval(debug_backtrace()[0]['line']).': '.debug_backtrace()[0]['class'].'.'.debug_backtrace()[0]['function'].debug_backtrace()[0]['type'].$error->getMessage());}
         finally{return $answer;}
     }
 }

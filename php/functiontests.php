@@ -44,8 +44,21 @@ include 'DatabaseControl.php';
 $databaseControl = new DatabaseControl("localhost", "root", "", "lehrerbewertungsdatenbank");
 schreib('Created new DatabaseControl object.', 'ok', true);
 
-echo '----------------------------------------- Database send test -------------------------------------------<br>';
-$testSendResult = $databaseControl->sendOneToDatabase('SELECT * FROM fach');
+echo '----------------------------------------- Database send one test ---------------------------------------<br>';
+$testSendResult = $databaseControl->sendOneToDatabase('SELECT * FROM fach', false);
+if (
+    $testSendResult['rc'] != true
+){
+    schreib('Error while sending to database:', 'err', $testSendResult);
+}
+else{
+    schreib('Database send succsessfully.','ok', $testSendResult);
+}
+
+echo '--------------------------------------------------------------------------------------------------------<br>';
+
+echo '----------------------------------------- Database send multiple test ----------------------------------<br>';
+$testSendResult = $databaseControl->sendOneToDatabase('SELECT * FROM fach', false);
 if (
     $testSendResult['rc'] != true
 ){
@@ -247,7 +260,7 @@ if (
 else{schreib('Password space test failed', 'err', $changePassword_Space_Result);}
 
 echo '----------------------------------------- change Password Test: Bad Password. Semicolon ----------------<br>';
-$changePassword_ToShort_Result = $userAdministration->changePassword('test', 'Administrator', 'Admi;123');
+$changePassword_Semicolon_Result = $userAdministration->changePassword('test', 'Administrator', 'Admi;123');
 if (
     $changePassword_Semicolon_Result['rc']&&
     $changePassword_Semicolon_Result['rv']===5
@@ -257,9 +270,33 @@ if (
 else{schreib('Password semicolon test failed', 'err', $changePassword_Semicolon_Result);}
 
 echo '----------------------------------------- change Password Test: Password ok ----------------------------<br>';
+$changePassword_OK_Result = $userAdministration->changePassword('test', 'Administrator', 'Admin123');
+if (
+    $changePassword_OK_Result['rc']&&
+    $changePassword_OK_Result['rv']
+){
+    schreib('Password ok test succsessfull', 'ok', $changePassword_OK_Result);
+}
+else{schreib('Password ok test failed', 'err', $changePassword_OK_Result);}
 
+echo '----------------------------------------- Delete User Test: Deleting user no permission ----------------<br>';
+$deleteUser_Result = $userAdministration->deleteUser('temp.dump@hotmail.com', 'Admin223', 'Test');
+if (
+    $deleteUser_Result['rc'] &&
+    $deleteUser_Result['rv'] === 0
+){
+    schreib('Delete user no permission test succsessfull', 'ok', $deleteUser_Result);
+}
+else{schreib('Delete user no permission test failed', 'err', $deleteUser_Result);}
 
 echo '----------------------------------------- Delete User Test: Deleting user ------------------------------<br>';
-
+$deleteUser_Result = $userAdministration->deleteUser('temp.dump@hotmail.com', 'Admin123', 'Test');
+if (
+    $deleteUser_Result['rc'] &&
+    $deleteUser_Result['rv']
+){
+    schreib('Delete user test succsessfull', 'ok', $deleteUser_Result);
+}
+else{schreib('Delete user test failed', 'err', $deleteUser_Result);}
 
 echo '----------------------------------------- Delete User Test: Login --------------------------------------<br>';
