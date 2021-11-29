@@ -94,6 +94,36 @@ class main {
     }
 }
 
+class phpjsinterface{
+
+    /**@brief 
+     * @param string $lognote string to write to error log
+     */
+    protected function writeLog($lognote){
+        $myfile = fopen('ErrorFile_'.date("Y-m-d-H-i-s-ms".'.txt'), "w") or die($lognote);
+        fwrite($myfile, $lognote);
+        fclose($myfile);
+    }
+
+    /**@brief 
+     * 
+     */
+    function userLogin(){
+        include_once 'UserAdministration.php';
+        $userAdministration = new UserAdministration();
+        $userLogin_Result = $userAdministration->loginUser($_REQUEST['mail'], $_REQUEST['passwort']);
+        if (!$userLogin_Result['rc']){
+            $myfile = fopen("newfile.txt", "w") or die("Unable to open file!");
+            $txt = "John Doe\n";
+            fwrite($myfile, $txt);
+            $txt = "Jane Doe\n";
+            fwrite($myfile, $txt);
+            fclose($myfile);
+        }
+
+    }
+}
+
 class FragenVerwaltung {
     
     public static function addFrage($frage, $kategorie) {
