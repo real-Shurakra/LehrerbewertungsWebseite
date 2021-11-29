@@ -51,7 +51,7 @@ class DatabaseControl {
             $sqlquaryResultData=array();
             ##var_dump($sqlString);
             $sqlquaryResult = mysqli_query($this->link, $sqlString);
-            ##var_dump($sqlquaryResult);
+            #var_dump($sqlquaryResult);
             if (!$sqlquaryResult) {throw new ErrorException($this->link->error);}
             if ($sqlquaryResult===true) {$answer=array('rc'=>true,'rv'=>true);return;}
             for ($i = 0; $i < $sqlquaryResult->num_rows; $i++) {$sqlquaryResultData[$i] = mysqli_fetch_array($sqlquaryResult);}
@@ -66,10 +66,11 @@ class DatabaseControl {
             $sqlquaryResultData=array();
             ##var_dump($sqlString);
             $sqlquaryResult = mysqli_multi_query($this->link, $sqlString);
-            ##var_dump($sqlquaryResult);
+            #var_dump($sqlquaryResult);
             if (!$sqlquaryResult) {throw new ErrorException($this->link->error);}
             if ($sqlquaryResult===true) {$answer=array('rc'=>true,'rv'=>true);return;}
-            $answer=array('rc'=>true,'rv'=>true);
+            for ($i = 0; $i < $sqlquaryResult->num_rows; $i++) {$sqlquaryResultData[$i] = mysqli_fetch_array($sqlquaryResult);}
+            $answer = array('rc'=>true,'rv'=>$sqlquaryResultData);
         }
         catch(ErrorException $error){$answer = array('rc'=>false, 'rv'=>strval(debug_backtrace()[0]['line']).': '.debug_backtrace()[0]['class'].'.'.debug_backtrace()[0]['function'].debug_backtrace()[0]['type'].$error->getMessage());}
         finally{return $answer;}
@@ -110,6 +111,7 @@ class DatabaseControl {
         catch(ErrorException $error){$answer = array('rc'=>false, 'rv'=>strval(debug_backtrace()[0]['line']).': '.debug_backtrace()[0]['class'].'.'.debug_backtrace()[0]['function'].debug_backtrace()[0]['type'].$error->getMessage());}
         finally{return $answer;}
     }
+
     function sendMultipleToDatabase($sqlString){
         try{
             // Geting DB information

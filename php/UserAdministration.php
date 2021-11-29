@@ -23,7 +23,7 @@ class UserAdministration {
             global $dbipv4, $dbuser, $dbpass, $dbname;
             // Creating class DatabaseControl object
             $databaseConrtol = new DatabaseControl($dbipv4, $dbuser, $dbpass, $dbname);
-            if ($moreThanOne) {$dbReturn = $databaseConrtol->sendOneToDatabase($sqlString);}
+            if (!$moreThanOne) {$dbReturn = $databaseConrtol->sendOneToDatabase($sqlString);}
             else{$dbReturn = $databaseConrtol->sendMultipleToDatabase($sqlString);}
             if (!$dbReturn['rc']) {throw new ErrorException($dbReturn['rv']);}
             $answer = array('rc'=>true, 'rv'=>$dbReturn['rv']);
@@ -156,6 +156,24 @@ class UserAdministration {
         finally{return $answer;}
     }
 
+    protected function __checkUserExistence($userName){
+        try{
+            $sqlCheckUserExixtence = "SELECT 1 FROM lehrer WHERE mail='".$userName."';";
+            $sqlCheckUserExixtence_Result = $this->__sendOneToDatabase($sqlCheckUserExixtence);
+            if (
+                $sqlCheckUserExixtence_Result['rc']&&
+                $sqlCheckUserExixtence_Result['rv']===array()
+            ){
+                $answer = array('rc'=>true,'rv'=>false);
+            }
+            else{
+                $answer = array('rc'=>true,'rv'=>true);
+            }
+        }
+        catch(ErrorException $error){$answer = array('rc'=>false, 'rv'=>strval(debug_backtrace()[0]['line']).': '.debug_backtrace()[0]['class'].'.'.debug_backtrace()[0]['function'].debug_backtrace()[0]['type'].$error->getMessage());}
+        finally{return $answer;}
+    }
+
     /**@breif Returns the user authorisation level
      * @param string $userName The user name
      * @param string $password The user password
@@ -281,19 +299,32 @@ class UserAdministration {
             $authUser = $this->authoriseUser($userName, $password);
             if ($authUser['rc']) {
                 if ($authUser['rv'] === 2){
-                    $sqlquery_addUser = "
-                    SELECT @userid := id FROM lehrer WHERE mail = '".$deleteThis."';
-                    DELETE nm_frage_fragebogen FROM nm_frage_fragebogen LEFT JOIN fragebogen ON nm_frage_fragebogen.bogenid = fragebogen.id WHERE lehrerid = @userid;
-                    DELETE bewertungen FROM bewertungen LEFT JOIN fragebogen ON bewertungen.bogenid = fragebogen.id WHERE lehrerid = @userid;
-                    DELETE nm_frage_fragebogen FROM nm_frage_fragebogen LEFT JOIN  fragebogen ON nm_frage_fragebogen.bogenid = fragebogen.id WHERE lehrerid = @userid;
-                    DELETE verbesserungen FROM verbesserungen LEFT JOIN fragebogen ON verbesserungen.bogenid = fragebogen.id WHERE lehrerid = @userid;
-                    DELETE codes FROM codes LEFT JOIN fragebogen ON codes.fragebogenid = fragebogen.id WHERE lehrerid = @userid;
-                    DELETE FROM fragebogen WHERE lehrerid = @userid;
-                    DELETE FROM fragen WHERE lehrerid = @userid;
-                    DELETE FROM lehrer WHERE id = @userid;";
-                    $sqlResult = $this->__sendOneToDatabase($sqlquery_addUser, true);
-                    if (!$sqlResult['rc']){throw new ErrorException($sqlResult['rv']);}
-                    $answer = array('rc'=>true,'rv'=>true);
+                    $checkUser = $this->__checkUserExistence($deleteThis);
+                    if ($checkUser['rc']){
+                        if ($checkUser['rv']){
+                            $sqlquery_addUser = "
+                                SELECT @userid := id FROM lehrer WHERE mail = '".$deleteThis."';
+                                DELETE nm_frage_fragebogen FROM nm_frage_fragebogen LEFT JOIN fragebogen ON nm_frage_fragebogen.bogenid = fragebogen.id WHERE lehrerid = @userid;
+                                DELETE bewertungen FROM bewertungen LEFT JOIN fragebogen ON bewertungen.bogenid = fragebogen.id WHERE lehrerid = @userid;
+                                DELETE nm_frage_fragebogen FROM nm_frage_fragebogen LEFT JOIN  fragebogen ON nm_frage_fragebogen.bogenid = fragebogen.id WHERE lehrerid = @userid;
+                                DELETE verbesserungen FROM verbesserungen LEFT JOIN fragebogen ON verbesserungen.bogenid = fragebogen.id WHERE lehrerid = @userid;
+                                DELETE codes FROM codes LEFT JOIN fragebogen ON codes.fragebogenid = fragebogen.id WHERE lehrerid = @userid;
+                                DELETE FROM fragebogen WHERE lehrerid = @userid;
+                                DELETE FROM fragen WHERE lehrerid = @userid;
+                                DELETE FROM lehrer WHERE id = @userid;";
+                            $sqlResult = $this->__sendOneToDatabase($sqlquery_addUser, true);
+                            if (!$sqlResult['rc']){throw new ErrorException($sqlResult['rv']);}
+                            $checkUser = $this->__checkUserExistence($deleteThis);
+                            if ($checkUser['rc']){
+                                if (!$checkUser['rv']){
+                                    $answer = array('rc'=>true,'rv'=>true);
+                                }
+                            }
+                            else{throw new ErrorException($checkUser['rv']);} 
+                        }
+                        else{$answer = array('rc'=>true,'rv'=>false);}
+                    }
+                    else{throw new ErrorException($checkUser['rv']);} 
                 }
                 else{$answer=array('rc'=>true,'rv'=>$authUser['rv']);}
             }

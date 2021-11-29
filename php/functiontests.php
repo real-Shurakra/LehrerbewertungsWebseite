@@ -38,37 +38,6 @@ global $debug;
 if (!$debug) {schreib('Debugmode off', 'warn', $debug);exit();}
 else{schreib('Debugmode on', 'warn', $debug);}
 
-echo '<h2>Testing DatabaseControl.php</h2>';
-echo '----------------------------------------- DatabaseControl creation test --------------------------------<br>';
-include 'DatabaseControl.php';
-$databaseControl = new DatabaseControl("localhost", "root", "", "lehrerbewertungsdatenbank");
-schreib('Created new DatabaseControl object.', 'ok', true);
-
-echo '----------------------------------------- Database send one test ---------------------------------------<br>';
-$testSendResult = $databaseControl->sendOneToDatabase('SELECT * FROM fach', false);
-if (
-    $testSendResult['rc'] != true
-){
-    schreib('Error while sending to database:', 'err', $testSendResult);
-}
-else{
-    schreib('Database send succsessfully.','ok', $testSendResult);
-}
-
-echo '--------------------------------------------------------------------------------------------------------<br>';
-
-echo '----------------------------------------- Database send multiple test ----------------------------------<br>';
-$testSendResult = $databaseControl->sendOneToDatabase('SELECT * FROM fach', false);
-if (
-    $testSendResult['rc'] != true
-){
-    schreib('Error while sending to database:', 'err', $testSendResult);
-}
-else{
-    schreib('Database send succsessfully.','ok', $testSendResult);
-}
-
-echo '--------------------------------------------------------------------------------------------------------<br>';
 echo '<h2>Testing UserAuthentification.php</h2>';
 
 echo '----------------------------------------- UserAuthentification creation test ---------------------------<br>';
@@ -298,5 +267,3 @@ if (
     schreib('Delete user test succsessfull', 'ok', $deleteUser_Result);
 }
 else{schreib('Delete user test failed', 'err', $deleteUser_Result);}
-
-echo '----------------------------------------- Delete User Test: Login --------------------------------------<br>';
