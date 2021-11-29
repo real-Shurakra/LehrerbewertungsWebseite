@@ -156,6 +156,12 @@ class UserAdministration {
         finally{return $answer;}
     }
 
+    /**@brief Checks if user exists
+     * @param string $userName username of the user to check
+     * @return array ('rc'=>true,'rv'=>false) if user don't exists
+     * @return array ('rc'=>true,'rv'=>true) if user exists
+     * @except array('rc'=>false, 'rv'=>string)
+     */
     protected function __checkUserExistence($userName){
         try{
             $sqlCheckUserExixtence = "SELECT 1 FROM lehrer WHERE mail='".$userName."';";
@@ -169,6 +175,62 @@ class UserAdministration {
             else{
                 $answer = array('rc'=>true,'rv'=>true);
             }
+        }
+        catch(ErrorException $error){$answer = array('rc'=>false, 'rv'=>strval(debug_backtrace()[0]['line']).': '.debug_backtrace()[0]['class'].'.'.debug_backtrace()[0]['function'].debug_backtrace()[0]['type'].$error->getMessage());}
+        finally{return $answer;}
+    }
+
+    /**@brief Write entry to user history
+     * @param string $userName username of the current user
+     * @param string $clientIP current client ip adress. IPv4, IPv6 and IPv4-mapped IPv6 address are possible. Max 45 chars.
+     * @param string $action short description of the users action
+     * @return array ('rc'=>true,'rv'=>true)
+     * @except array('rc'=>false,'rv'=>string)
+     */
+    function writeHistorie($userName, $clientIP, $action){
+        try{
+            $sqlInsertHistorie = "
+                INSERT INTO userhistorie
+                (userid, clientip, useraction)
+                VALUES (
+                    (SELECT id FROM lehrer WHERE mail='".$userName."'),
+                    '".$clientIP."',
+                    '".$action."'
+                )";
+            $sqlInsertHistorie_Result = $this->__sendOneToDatabase($sqlInsertHistorie);
+            if (!$sqlInsertHistorie_Result['rc']){throw new ErrorException($sqlInsertHistorie_Result['rv']);}
+            else{$answer = array('rc'=>true,'rv'=>true);}
+        }
+        catch(ErrorException $error){$answer = array('rc'=>false, 'rv'=>strval(debug_backtrace()[0]['line']).': '.debug_backtrace()[0]['class'].'.'.debug_backtrace()[0]['function'].debug_backtrace()[0]['type'].$error->getMessage());}
+        finally{return $answer;}
+    }
+
+    /**@brief get historie of current user
+     * @param string $userName of the current user
+     * @return array ('rc'=>true,'rv'=>array)
+     * @except array('rc'=>false, 'rv'=>string)
+     */
+    function getUserHistorie($userName){
+        try{
+            $sqlGetUserHistorie = "SELECT * FROM getuserhistorie WHERE username='".$userName."'";
+            $sqlGetUserHistorie_Result = $this->__sendOneToDatabase($sqlGetUserHistorie);
+            if (!$sqlGetUserHistorie_Result['rc']){throw new ErrorException($sqlGetUserHistorie_Result['rv']);}
+            else{$answer = array('rc'=>true,'rv'=>$sqlGetUserHistorie_Result['rv']);}
+        }
+        catch(ErrorException $error){$answer = array('rc'=>false, 'rv'=>strval(debug_backtrace()[0]['line']).': '.debug_backtrace()[0]['class'].'.'.debug_backtrace()[0]['function'].debug_backtrace()[0]['type'].$error->getMessage());}
+        finally{return $answer;}
+    }
+
+    /**@brief get historie of all users
+     * @return array ('rc'=>true,'rv'=>array)
+     * @except array('rc'=>false, 'rv'=>string)
+     */
+    function geAllUserHistorie(){
+        try{
+            $sqlGetUserHistorie = "SELECT * FROM getuserhistorie";
+            $sqlGetUserHistorie_Result = $this->__sendOneToDatabase($sqlGetUserHistorie);
+            if (!$sqlGetUserHistorie_Result['rc']){throw new ErrorException($sqlGetUserHistorie_Result['rv']);}
+            else{$answer = array('rc'=>true,'rv'=>$sqlGetUserHistorie_Result['rv']);}
         }
         catch(ErrorException $error){$answer = array('rc'=>false, 'rv'=>strval(debug_backtrace()[0]['line']).': '.debug_backtrace()[0]['class'].'.'.debug_backtrace()[0]['function'].debug_backtrace()[0]['type'].$error->getMessage());}
         finally{return $answer;}
@@ -232,8 +294,8 @@ class UserAdministration {
             $checkUser = $this->authoriseUser($userName, $password);
             #$this->debugNote($checkUser);
             if ($checkUser['rc']) {
-                if ($checkUser['rv']===1){$answer =  array ('rc'=>true, 'rv'=>array('logedIn'=>true, 'usermail'=>$userName, 'userisroot'=>false));}
-                elseif($checkUser['rv']===2){$answer =  array ('rc'=>true, 'rv'=>array('logedIn'=>true, 'usermail'=>$userName, 'userisroot'=>true));}
+                if ($checkUser['rv']===1){$answer =  array ('rc'=>true, 'rv'=>array('logedIn'=>true, 'usermail'=>$userName, 'userisroot'=>false, 'clientIP'=>$_SERVER['REMOTE_ADDR']));}
+                elseif($checkUser['rv']===2){$answer =  array ('rc'=>true, 'rv'=>array('logedIn'=>true, 'usermail'=>$userName, 'userisroot'=>true, 'clientIP'=>$_SERVER['REMOTE_ADDR']));}
                 else{$answer =  array ('rc'=>true, 'rv'=>null);}
             }
             else{throw new ErrorException($checkUser['rv']);}
@@ -383,7 +445,7 @@ class UserAdministration {
         finally{return $answer;}
     }
 
-    /**@details Logs off current user
+    /**@brief Logs off current user
      * @return array('rc'=>true,'rv'=>true)
      * @except array('rc'=>false,'rv'=>string)
      */
@@ -395,6 +457,11 @@ class UserAdministration {
         finally{return $answer;}
     }
 
+    /**@brief checks if the current user is still loged in
+     * @param boolean $loginflag the login flag
+     * @return array ('rc'=>true,'rv'=>true) if loged in
+     * @return array ('rc'=>true,'rv'=>false) if not loged in
+      */
     function checkLogin($loginflag){
         try{
             $answer = array('rc'=>true,'rv'=>$loginflag);
