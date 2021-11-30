@@ -2,19 +2,40 @@
 
 use FFI\Exception;
 
-include 'database_connect.php'; session_start();
-
-
+include 'database_connect.php'; 
+session_start();
+include 'UserAdministration.php';
 
 class main {
 
-    function __construct(){
-        $_REQUEST = self::checkSemicolon($_REQUEST);
+    function _construct(){
+        $_REQUEST = $this->_checkSemicolon($_REQUEST);
+        $interface = new phpjsinterface();
         switch ($_REQUEST['mode']) {
+            // This function allready got updated
+            case  'loginUser':
+                echo json_encode($interface->userLogin(
+                    $_REQUEST['mail'], 
+                    $_REQUEST['passwort']
+                ));
+                break;
+            case  'addUser':
+                echo json_encode($interface->addUser(
+                    $_REQUEST['mail'], 
+                    $_REQUEST['firstname'], 
+                    $_REQUEST['lastname'], 
+                    $_SESSION['defaultPassword']
+                ));
+                break;
+            case  'changePasswort':
+                echo json_encode($interface->changePasswort(
+                    $_REQUEST['oldPasswort'], 
+                    $_REQUEST['newPasswort']
+                ));
+                break;
+
+            // This functions still need upgrade
             ## Modes for nutzerverwaltung
-            ##case  'loginUser':                                                  echo json_encode(nutzerverwaltung::loginUser($_REQUEST['mail'], $_REQUEST['passwort']));                                                                    break;
-            ##case  'changePasswort':         if ($_SESSION['usermail'] != NULL) {echo json_encode(nutzerverwaltung::changePasswort($_REQUEST['oldPasswort'], $_REQUEST['newPasswort']));}                                                    break;
-            ##case  'addUser':                                                    echo json_encode(nutzerverwaltung::addUser($_REQUEST['mail'], $_REQUEST['firstname'], $_REQUEST['lastname']));                                              break;
             // @note checkPermission durch authoriseUser ersetzen!
             ##case  'checkPermission':                                            echo json_encode(nutzerverwaltung::checkPermission($_REQUEST['passwort']));                                                                                 break;
             ##case  'deleteUser':             if ($_SESSION['usermail'] != NULL) {echo json_encode(nutzerverwaltung::deleteUser($_REQUEST['passwort'], $_REQUEST['mail']));}                                                                  break;
@@ -38,8 +59,24 @@ class main {
             case  'getQuestions':           if ($_SESSION['usermail'] != NULL) {echo json_encode(FragenVerwaltung::getQuestions());}                                                                                                        break;
             ## Other modes
             ##case  'checkLogin':                                                 echo json_encode(self::checkLogin());break;
-            case  'aecd587fdc09':                                               echo json_encode(self::hilfe());break;
+            case  'aecd587fdc09':                                               echo json_encode($this->_phpHelp);break;
             default:                                                            echo json_encode(array('returncode'=>1, 'Returnvalue'=>'<strong>Programmfehler Fehlercode: ##PHPMAIN_aktivierungJS_wv</strong><br>mode-Wert fehlerhaft. $_REQUEST[\'mode\'] = ' . strval($_REQUEST['mode'])));break;
+        }
+    }
+
+    /**@brief Get the Value of a given session var
+     * @param string $infoKey Varname to get
+     * @return mixed Value or false
+     */
+    private function _getInfoVar($infoKey){
+        if (
+            isset($_SESSION[$infoKey])&&
+            $_SESSION['usermail'] != Null
+        ){
+            return $_SESSION[$infoKey];
+        }
+        else{
+            return false;
         }
     }
 
@@ -59,7 +96,7 @@ class main {
         return $string;
     }
     
-    public static function hilfe() {
+    private function _phpHelp() {
         return array
         (
             'SESSION'=>$_SESSION,
@@ -73,7 +110,7 @@ class main {
         );
     }
        
-    static function checkSemicolon($var) {
+    private function _checkSemicolon($var) {
         
         if (is_string($var))
         {
@@ -83,7 +120,7 @@ class main {
         {
             $var_Keys = array_keys($var);
             for ($i = 0; $i < count($var); $i++) {
-                $var[$var_Keys[$i]] = self::checkSemicolon($var[$var_Keys[$i]]);
+                $var[$var_Keys[$i]] = $this->_checkSemicolon($var[$var_Keys[$i]]);
             }
             return $var;
         }
@@ -96,31 +133,109 @@ class main {
 
 class phpjsinterface{
 
-    /**@brief 
+    /**@brief Creates errorlog file
      * @param string $lognote string to write to error log
      */
-    protected function writeLog($lognote){
-        $myfile = fopen('ErrorFile_'.date("Y-m-d-H-i-s-ms".'.txt'), "w") or die($lognote);
+    private function _writeLog($lognote){
+        $fileName = 'ErrorFile_'.date("Y-m-d-H-i-s-ms").'.txt';
+        $myfile = fopen('../logs/'.$fileName, "w") or die($lognote);
         fwrite($myfile, $lognote);
         fclose($myfile);
+        return $fileName;
+    }
+
+    /**@brief user login
+     * @param string $userName the users username
+     * @param string $password the users password
+     * @return array ('returncode'=>true,'returnvalue'=>false)
+     * @return array ('returncode'=>true, 'returnvalue'=>true)
+     * @except array ('returncode'=>false, 'returnvalue'=>string)
+     */
+    function userLogin($userName, $password){
+        try{
+            include_once 'UserAdministration.php';
+            $userAdministration = new UserAdministration();
+            $userLogin_Result = $userAdministration->loginUser($userName, $password);
+            if (!$userLogin_Result['rc']){throw new ErrorException($userLogin_Result['rv']);}
+            else{
+                if ($userLogin_Result['rv'] === null){$answer =  array('returncode'=>true,'returnvalue'=>false);return;}
+                else{
+                    // Set session vars
+                    $_SESSION['usermail']   = $userLogin_Result['rv']['usermail'];
+                    $_SESSION['userisroot'] = $userLogin_Result['rv']['userisroot'];
+                    $_SESSION['logedIn']    = $userLogin_Result['rv']['logedIn'];
+                    $_SESSION['clientIp']   = $userLogin_Result['rv']['clientIP'];
+                    // get last login
+                    $lastLogin = $userAdministration->getLastLogin($_SESSION['usermail']);
+                    if (!$lastLogin['rc']){throw new ErrorException($lastLogin['rc']);}
+                    // write to historie
+                    $userAdministration->writeHistorie($_SESSION['usermail'], $_SESSION['clientIp'], 'Login');
+                    if (!$userAdministration['rc']){throw new ErrorException($userAdministration['rv']);}
+                    $answer = array('returncode'=>true, 'returnvalue'=>$lastLogin);
+                }
+            }
+        }
+        catch(ErrorException $error){
+            $logNote = strval(debug_backtrace()[0]['line']).': '.debug_backtrace()[0]['class'].'.'.debug_backtrace()[0]['function'].debug_backtrace()[0]['type'].$error->getMessage();
+            $fileName = $this->_writeLog($logNote);
+            $answer = array('returncode'=>false, 'returnvalue'=>$fileName);
+        }
+        finally{return $answer;}
+
+    }
+
+    /**@brief adding new user to database
+     * @param string $userName new user username
+     * @param string $firstName new user firstname
+     * @param string $lastName new user lastname
+     * @param string $password default password
+     * @return array ('returncode'=>true,'returnvalue'=>true)
+     * @return array ('returncode'=>true,'returnvalue'=>false)
+     * @except array('returncode'=>false, 'returnvalue'=>string)
+     */
+    function addUser($userName, $firstName, $lastName, $password){
+        try{
+            if (!$_SESSION['userisroot']){$answer = false;return;}
+            include_once 'UserAdministration.php';
+            $userAdministration = new UserAdministration();
+            $addUser_Result = $userAdministration->addUser($userName, $firstName, $lastName, $password);
+            if (!$addUser_Result['rc']){throw new ErrorException($addUser_Result['rv']);}
+            else{
+                if (!$addUser_Result['rv']){$answer = array('returncode'=>true,'returnvalue'=>false);}
+                elseif ($addUser_Result['rv']){
+                    $answer = array('returncode'=>true,'returnvalue'=>true);
+                    $userAdministration->writeHistorie($_SESSION['usermail'], $_SESSION['clientIp'], 'Added user '.$userName);
+                }
+                else{throw new ErrorException($addUser_Result);}
+            } 
+        }
+        catch(ErrorException $error){
+            $logNote = strval(debug_backtrace()[0]['line']).': '.debug_backtrace()[0]['class'].'.'.debug_backtrace()[0]['function'].debug_backtrace()[0]['type'].$error->getMessage();
+            $fileName = $this->_writeLog($logNote);
+            $answer = array('returncode'=>false, 'returnvalue'=>$fileName);
+        }
+        finally{return $answer;}
     }
 
     /**@brief 
-     * 
+     * @param string $oldPasswort The users old password
+     * @param string $newPasswort The users new password
+     * @return array ('returncode'=>true,'returnvalue'=>boolean)
+     * @except array('returncode'=>false, 'returnvalue'=>string)
      */
-    function userLogin(){
-        include_once 'UserAdministration.php';
-        $userAdministration = new UserAdministration();
-        $userLogin_Result = $userAdministration->loginUser($_REQUEST['mail'], $_REQUEST['passwort']);
-        if (!$userLogin_Result['rc']){
-            $myfile = fopen("newfile.txt", "w") or die("Unable to open file!");
-            $txt = "John Doe\n";
-            fwrite($myfile, $txt);
-            $txt = "Jane Doe\n";
-            fwrite($myfile, $txt);
-            fclose($myfile);
+    function changePasswort($oldPasswort, $newPasswort){
+        try{
+            include_once 'UserAdministration.php';
+            $userAdministration = new UserAdministration();
+            $changePassword_Result = $userAdministration->changePassword($_SESSION['usermail'], $oldPasswort, $newPasswort);
+            if (!$changePassword_Result['rc']) {throw new ErrorException($changePassword_Result['rv']);}
+            else{
+                if ($changePassword_Result['rv']==true){$answer = array('returncode'=>true,'returnvalue'=>true);}
+                else{$answer = array('returncode'=>true,'returnvalue'=>false);} 
+            }
         }
-
+        catch(ErrorException $error){$answer = array('returncode'=>false, 'returnvalue'=>strval(debug_backtrace()[0]['line']).': '.debug_backtrace()[0]['class'].'.'.debug_backtrace()[0]['function'].debug_backtrace()[0]['type'].$error->getMessage());}
+        finally{return $answer;}
     }
 }
 

@@ -1,6 +1,6 @@
 <?php
 class UserAdministration {
-    function __construct(){}
+    function _construct(){}
 
     private function debugNote($note){
         echo'<br>';
@@ -16,7 +16,7 @@ class UserAdministration {
      * @param string $sqlString SQL formated string
      * @return array(rc:true,rv:array(mixed))||array(rc:false,rv:string)
      */
-    protected function __sendOneToDatabase($sqlString, $moreThanOne=false){
+    protected function _sendOneToDatabase($sqlString, $moreThanOne=false){
         try{
             include_once 'DatabaseControl.php';
             include_once '../conf/config.php';
@@ -42,7 +42,7 @@ class UserAdministration {
      * @param string $salt Password salt
      * @return string $antwort = with Sha512 encripted
      */
-    protected function __encodeString($cleanPassword, $encription='sha512', $pepper='' ,$salt='') {
+    protected function _encodeString($cleanPassword, $encription='sha512', $pepper='' ,$salt='') {
         try{
             $hash = hash($encription, $pepper . $cleanPassword . $salt);
             $answer = array('rc'=>true, 'rv'=>$hash);
@@ -56,9 +56,9 @@ class UserAdministration {
      * @return array(rc:true,rv:array(0:string,pepper:string,1:string,salt:string))||array(rc:true,rv:false)
      * @except array(rc:false,rv:string)
      */
-    protected function __getSpice($userName) {
+    protected function _getSpice($userName) {
         try{
-            $result = $this->__sendOneToDatabase("SELECT pepper, salt FROM lehrer WHERE mail='".$userName."'");
+            $result = $this->_sendOneToDatabase("SELECT pepper, salt FROM lehrer WHERE mail='".$userName."'");
             if (!$result['rc']) {throw new ErrorException($result['rv']);}
             if ($result['rv']==array()) {$answer = array('rc'=>true,'rv'=>false);Return;}
             $answer = array(
@@ -77,18 +77,18 @@ class UserAdministration {
      * @return array(rc:true,rv:array(pepper:string,salt:string))
      * @except array(rc:false,rv:string)
      */
-    protected function __makeSpice($userName){
+    protected function _makeSpice($userName){
         try{
             $numberMin = 10000000000000;
             $numberMax = 99999999999999;
             // Generating pepper hash
             $clearPepper = rand($numberMin, $numberMax) . $userName . rand($numberMin, $numberMax);
-            $pepperhash = $this->__encodeString($clearPepper, 'md5');
+            $pepperhash = $this->_encodeString($clearPepper, 'md5');
             if (!$pepperhash['rc']) {throw new ErrorException($pepperhash['rv']);}
             $pepperhash = $pepperhash['rv'];
             // Generating salt hash
             $clearSalt = rand($numberMin, $numberMax) . $userName . rand($numberMin, $numberMax);
-            $salthash = $this->__encodeString($clearSalt, 'md5');
+            $salthash = $this->_encodeString($clearSalt, 'md5');
             if (!$salthash['rc']) {throw new ErrorException($salthash['rv']);}
             $salthash = $salthash['rv'];
             $answer = array(
@@ -107,7 +107,7 @@ class UserAdministration {
      * @param string $newPassword The new password
      * @return array(rc:bool,rv:string)
      */
-    protected function __checkPassword($newPassword){
+    protected function _checkPassword($newPassword){
         try{
             ##$this->debugNote($newPassword);
             ##$this->debugNote(strlen($newPassword));
@@ -128,26 +128,26 @@ class UserAdministration {
      * @param $newPassword The new password
      * @return array(rc:true,rv:true)||array(rc:false,rv:string)
      */
-    protected function __changePassword($userName, $newPassword){
+    protected function _changePassword($userName, $newPassword){
         try{
             // Checking password
-            $passCheckup = $this->__checkPassword($newPassword);
+            $passCheckup = $this->_checkPassword($newPassword);
             if (!$passCheckup['rc']) {throw new ErrorException($passCheckup['rv']);}
             if ($passCheckup['rv']===1) {$answer=array('rc'=>true,'rv'=>3);return;}
             if ($passCheckup['rv']===2) {$answer=array('rc'=>true,'rv'=>4);return;}
             if ($passCheckup['rv']===3) {$answer=array('rc'=>true,'rv'=>5);return;}
             #$this->debugNote($passCheckup);
             // Generating spice
-            $spice = $this->__makeSpice($userName);
+            $spice = $this->_makeSpice($userName);
             if (!$spice['rc']) {throw new ErrorException($spice['rv']);}
             $pepper = $spice['rv']['pepper'];
             $salt = $spice['rv']['salt'];
             // Encripting password
-            $password = $this->__encodeString($newPassword, 'sha512', $pepper, $salt);
+            $password = $this->_encodeString($newPassword, 'sha512', $pepper, $salt);
             if (!$password['rc']) {throw new ErrorException($password['rv']);}
             $password = $password['rv'];
             // Save new password to DB
-            $result = $this->__sendOneToDatabase("UPDATE lehrer SET passwort='".$password."', pepper='".$pepper."', salt='".$salt."' WHERE mail='".$userName."'");
+            $result = $this->_sendOneToDatabase("UPDATE lehrer SET passwort='".$password."', pepper='".$pepper."', salt='".$salt."' WHERE mail='".$userName."'");
             #$this->debugNote($result);
             if (!$result['rc']) {throw new ErrorException($result['rv']);}
             $answer = array('rc'=>true,'rv'=>true);
@@ -162,10 +162,10 @@ class UserAdministration {
      * @return array ('rc'=>true,'rv'=>true) if user exists
      * @except array('rc'=>false, 'rv'=>string)
      */
-    protected function __checkUserExistence($userName){
+    protected function _checkUserExistence($userName){
         try{
             $sqlCheckUserExixtence = "SELECT 1 FROM lehrer WHERE mail='".$userName."';";
-            $sqlCheckUserExixtence_Result = $this->__sendOneToDatabase($sqlCheckUserExixtence);
+            $sqlCheckUserExixtence_Result = $this->_sendOneToDatabase($sqlCheckUserExixtence);
             if (
                 $sqlCheckUserExixtence_Result['rc']&&
                 $sqlCheckUserExixtence_Result['rv']===array()
@@ -197,9 +197,28 @@ class UserAdministration {
                     '".$clientIP."',
                     '".$action."'
                 )";
-            $sqlInsertHistorie_Result = $this->__sendOneToDatabase($sqlInsertHistorie);
+            $sqlInsertHistorie_Result = $this->_sendOneToDatabase($sqlInsertHistorie);
             if (!$sqlInsertHistorie_Result['rc']){throw new ErrorException($sqlInsertHistorie_Result['rv']);}
             else{$answer = array('rc'=>true,'rv'=>true);}
+        }
+        catch(ErrorException $error){$answer = array('rc'=>false, 'rv'=>strval(debug_backtrace()[0]['line']).': '.debug_backtrace()[0]['class'].'.'.debug_backtrace()[0]['function'].debug_backtrace()[0]['type'].$error->getMessage());}
+        finally{return $answer;}
+    }
+
+    function getLastLogin($userName){
+        try{
+            $sql_getLastLogin = "SELECT timestamp, clientip FROM getuserhistorie WHERE username = '".$userName."' AND useraction = 'Login'";
+            $sql_getLastLogin_Result = $this->_sendOneToDatabase($sql_getLastLogin);
+            if (!$sql_getLastLogin_Result['rc']) {throw new ErrorException($sql_getLastLogin_Result['rv']);}
+            else{
+                $answer = array(
+                    'rc'=>true,
+                    'rv'=>array(
+                        'timestamp'=>$sql_getLastLogin_Result['rv'][0]['timestamp'], 
+                        'clientip'=>$sql_getLastLogin_Result['rv'][0]['clientip']
+                    )
+                );
+            }
         }
         catch(ErrorException $error){$answer = array('rc'=>false, 'rv'=>strval(debug_backtrace()[0]['line']).': '.debug_backtrace()[0]['class'].'.'.debug_backtrace()[0]['function'].debug_backtrace()[0]['type'].$error->getMessage());}
         finally{return $answer;}
@@ -213,7 +232,7 @@ class UserAdministration {
     function getUserHistorie($userName){
         try{
             $sqlGetUserHistorie = "SELECT * FROM getuserhistorie WHERE username='".$userName."'";
-            $sqlGetUserHistorie_Result = $this->__sendOneToDatabase($sqlGetUserHistorie);
+            $sqlGetUserHistorie_Result = $this->_sendOneToDatabase($sqlGetUserHistorie);
             if (!$sqlGetUserHistorie_Result['rc']){throw new ErrorException($sqlGetUserHistorie_Result['rv']);}
             else{$answer = array('rc'=>true,'rv'=>$sqlGetUserHistorie_Result['rv']);}
         }
@@ -228,7 +247,7 @@ class UserAdministration {
     function geAllUserHistorie(){
         try{
             $sqlGetUserHistorie = "SELECT * FROM getuserhistorie";
-            $sqlGetUserHistorie_Result = $this->__sendOneToDatabase($sqlGetUserHistorie);
+            $sqlGetUserHistorie_Result = $this->_sendOneToDatabase($sqlGetUserHistorie);
             if (!$sqlGetUserHistorie_Result['rc']){throw new ErrorException($sqlGetUserHistorie_Result['rv']);}
             else{$answer = array('rc'=>true,'rv'=>$sqlGetUserHistorie_Result['rv']);}
         }
@@ -251,28 +270,28 @@ class UserAdministration {
     function authoriseUser($userName, $password){
         try{
             // Checking password
-            $passCheckup = $this->__checkPassword($password);
+            $passCheckup = $this->_checkPassword($password);
             if (!$passCheckup['rc']) {throw new ErrorException($passCheckup['rv']);}
             if ($passCheckup['rv']===1) {$answer=array('rc'=>true,'rv'=>3);return;}
             if ($passCheckup['rv']===2) {$answer=array('rc'=>true,'rv'=>4);return;}
             if ($passCheckup['rv']===3) {$answer=array('rc'=>true,'rv'=>5);return;}
             // Encripting clean password
-            $passEncodeOne = $this->__encodeString($password);
+            $passEncodeOne = $this->_encodeString($password);
             if (!$passEncodeOne['rc']) {throw new ErrorException($passEncodeOne['rv']);}
             $password = $passEncodeOne['rv'];
             // Getting spice
-            $spice = $this->__getSpice($userName);
+            $spice = $this->_getSpice($userName);
             if (!$spice['rc']){throw new ErrorException($spice['rv']);}
             if (!$spice['rv']){$answer = array('rc'=>true,'rv'=>0);return;}
             $pepper = $spice['rv']['pepper'];
             $salt = $spice['rv']['salt'];
             // Encripting encripted password with spice
-            $passEncodeTwo = $this->__encodeString($password, 'sha512', $pepper, $salt);
+            $passEncodeTwo = $this->_encodeString($password, 'sha512', $pepper, $salt);
             if (!$passEncodeTwo['rc']) {throw new ErrorException($passEncodeTwo['rv']);}
             $password = $passEncodeTwo['rv'];
             // Check if user exists
             $sqlCheckUser = "SELECT isroot FROM lehrer WHERE mail='".$userName."' AND passwort='".$password."'";
-            $result = $this->__sendOneToDatabase($sqlCheckUser);
+            $result = $this->_sendOneToDatabase($sqlCheckUser);
             if (!$result['rc']) {throw new ErrorException($result['rv']);}
             if ($result['rv'] === array()) {$answer = array('rc'=>true,'rv'=>0);return;}
             if ($result['rv'][0]['isroot'] === '1') {$answer=array('rc'=>true,'rv'=>2);}
@@ -314,23 +333,23 @@ class UserAdministration {
     function addUser($mail, $firstname, $lastname, $stdPassword = 'Administrator'){
         try{
             // Check if allready exists
-            $userExists = $this->__sendOneToDatabase("SELECT 1 FROM lehrer WHERE mail='".$mail."'");
+            $userExists = $this->_sendOneToDatabase("SELECT 1 FROM lehrer WHERE mail='".$mail."'");
             if (!$userExists['rc']) {throw new ErrorException($userExists['rv']);}
             if ($userExists['rv'] != array()) {$answer=array('rc' => true,'rv' =>false);return;}
             // Checking password
-            $passCheckup = $this->__checkPassword($stdPassword);
+            $passCheckup = $this->_checkPassword($stdPassword);
             if (!$passCheckup['rc']) {throw new ErrorException($passCheckup['rv']);}
             // Generating spice
-            $genSpice = $this->__makeSpice($mail);
+            $genSpice = $this->_makeSpice($mail);
             if (!$genSpice['rc']) {throw new ErrorException($genSpice['rv']);}
             $pepper = $genSpice['rv']['pepper'];
             $salt = $genSpice['rv']['salt'];
             // Encripting clean password
-            $passEncodeOne = $this->__encodeString($stdPassword);
+            $passEncodeOne = $this->_encodeString($stdPassword);
             if (!$passEncodeOne['rc']) {throw new ErrorException($passEncodeOne['rv']);}
             $password = $passEncodeOne['rv'];
             // Encripting encripted password with spice
-            $genpass = $this->__encodeString($password, 'sha512', $pepper, $salt);
+            $genpass = $this->_encodeString($password, 'sha512', $pepper, $salt);
             if (!$genpass['rc']) {throw new ErrorException($genpass['rv']);}
             $password = $genpass['rv'];
             // User register
@@ -339,9 +358,9 @@ class UserAdministration {
             VALUES (DEFAULT,'".$mail."','".$firstname."','".$lastname."','".$password."',FALSE,'".$pepper."','".$salt."');";
             $sqlquery_addUser2 = "INSERT INTO fragen(frage, kategorie, lehrerid) 
             SELECT frage, kategorie, (SELECT id FROM lehrer WHERE mail = '".$mail."') FROM fragentemplate;";
-            $sqlResult =$this->__sendOneToDatabase($sqlquery_addUser1);
+            $sqlResult =$this->_sendOneToDatabase($sqlquery_addUser1);
             if (!$sqlResult['rc']) {throw new ErrorException($sqlResult['rv']);}
-            $sqlResult =$this->__sendOneToDatabase($sqlquery_addUser2);
+            $sqlResult =$this->_sendOneToDatabase($sqlquery_addUser2);
             if (!$sqlResult['rc']) {throw new ErrorException($sqlResult['rv']);}
             $answer = array('rc' => true,'rv' => $stdPassword);
         }
@@ -361,7 +380,7 @@ class UserAdministration {
             $authUser = $this->authoriseUser($userName, $password);
             if ($authUser['rc']) {
                 if ($authUser['rv'] === 2){
-                    $checkUser = $this->__checkUserExistence($deleteThis);
+                    $checkUser = $this->_checkUserExistence($deleteThis);
                     if ($checkUser['rc']){
                         if ($checkUser['rv']){
                             $sqlquery_addUser = "
@@ -374,9 +393,9 @@ class UserAdministration {
                                 DELETE FROM fragebogen WHERE lehrerid = @userid;
                                 DELETE FROM fragen WHERE lehrerid = @userid;
                                 DELETE FROM lehrer WHERE id = @userid;";
-                            $sqlResult = $this->__sendOneToDatabase($sqlquery_addUser, true);
+                            $sqlResult = $this->_sendOneToDatabase($sqlquery_addUser, true);
                             if (!$sqlResult['rc']){throw new ErrorException($sqlResult['rv']);}
-                            $checkUser = $this->__checkUserExistence($deleteThis);
+                            $checkUser = $this->_checkUserExistence($deleteThis);
                             if ($checkUser['rc']){
                                 if (!$checkUser['rv']){
                                     $answer = array('rc'=>true,'rv'=>true);
@@ -408,7 +427,7 @@ class UserAdministration {
             #$this->debugNote($checkAutUser);
             if (!$checkAutUser['rc']) {throw new ErrorException($checkAutUser['rv']);}
             if ($checkAutUser['rv'] == 1 || $checkAutUser['rv'] == 2){
-                $chPwResult = $this->__changePassword($userName, $newPassword);
+                $chPwResult = $this->_changePassword($userName, $newPassword);
                 #$this->debugNote($chPwResult);
                 if (!$chPwResult['rc']){throw new ErrorException($chPwResult['rv']);}
                 if ($chPwResult['rv'] == 3 || $chPwResult['rv'] == 4 || $chPwResult['rv'] ==5){$answer=array('rc'=>true,'rv'=>$chPwResult['rv']);return;}
@@ -433,7 +452,7 @@ class UserAdministration {
             $authResult = $this->authoriseUser($username, $password);
             if ($authResult['rc']){
                 if ($authResult['rv']){
-                    $chPwResult = $this->__changePassword($resetUser, $stdPassword);
+                    $chPwResult = $this->_changePassword($resetUser, $stdPassword);
                     if (!$chPwResult['rc']) {throw new ErrorException($chPwResult['rv']);}
                     $answer = array('rc'=>true,'rv'=>true);
                 }
@@ -473,70 +492,6 @@ class UserAdministration {
 
 // ---------------------------  Legacy  ----------------------------------------------------------------
 /** 
-    public function loginUserL($mail, $passwort) {
-        try {
-            $answer = array(
-                'returncode'=>false,
-                'returnvalue'=>'<strong>Unknown Error</strong><br>Unbekannter Fehler in /php/main.php -> nutzerverwaaltung.loginUser()<br>Bitte wenden Sie sich an einen Administrator.'
-            );
-            include 'LBWEncription.php';
-            $passwort = LBWEncription::pass_encode($passwort);
-            global $link;
-            $sqlquary_FrageBenutzer = "SELECT isroot FROM lehrer WHERE mail = '" . $mail . "' AND passwort = '" . $passwort . "';";
-            $sqlquary_FrageBenutzer_Result = mysqli_query($link, $sqlquary_FrageBenutzer);
-            if (!$sqlquary_FrageBenutzer_Result) {throw new Exception('Es ist ein SQL-Fehler aufgetreten.');}
-            if ($sqlquary_FrageBenutzer_Result->num_rows == 1) {
-                $sqlquary_FrageBenutzer_Result_Array = mysqli_fetch_array($sqlquary_FrageBenutzer_Result);
-                $_SESSION['usermail'] = $_REQUEST['mail'];
-                if ($sqlquary_FrageBenutzer_Result_Array['isroot'] == 1){$_SESSION['userisroot'] = true;}
-                else{$_SESSION['userisroot'] = false;}
-                $answer =  array ('returncode'=>true, 'returnvalue'=>true);
-            }
-            elseif ($sqlquary_FrageBenutzer_Result->num_rows == 0) {$answer =  array('returncode'=>true,'Returnvalue'=>false);}
-            elseif ($sqlquary_FrageBenutzer_Result->num_rows > 1) {throw new Exception('Der Account mit der Mailadresse '.$mail.' befindet sich mehrmals in der Datenbank.');}
-            elseif ($sqlquary_FrageBenutzer_Result->num_rows < 0) {throw new Exception('Das z&#228;hlen der SQL Resultate ergab einen negativen Wert.');}
-            else {throw new Exception('Beim auswerten des SQL Ergebnisse ist ein Fehler aufgetreten.');}
-        } 
-        catch (Exception $error) {
-             $answer = array (
-                'returncode'=>false, 
-                'Returnvalue'=>'<strong>Error!</strong><br>'.$error.'<br>Bitte wenden Sie sich an einen Administrator');
-        }
-        finally{
-            return $answer;
-        }
-    } O
-
-    public static function addUser($mail, $firstname, $lastname){
-        try{
-            $answer = array('rc' => false,'rv' => '<strong>Unknown-Error at main.php -> FragenVerwaltung.deleteQuestion()</strong><br>Bitte wenden Sie sich an einen Administrator.');
-            global $link;
-            ## User register
-            $sqlquery_addUser = "
-            INSERT INTO lehrer(id, mail, vorname, nachname, passwort, isroot) 
-            VALUES (DEFAULT,'".$mail."','".$firstname."','".$lastname."',Default,FALSE);
-
-            SELECT @userid := id FROM lehrer WHERE mail = '".$mail."';
-
-            INSERT INTO fragen(frage, kategorie, lehrerid) 
-            SELECT frage, kategorie, @userid FROM fragentemplate;";
-            $sqlResult = mysqli_query($link, $sqlquery_addUser);
-            if ($sqlResult == False) throw new Exception('<strong>SQL-Error at nutzerverwaltung.addUser()</strong><br>Bitte wenden Sie sich an einen Administrator.');
-            
-            $answer = array(
-                'rc' => true,
-                'rv' => '<strong>Neuer Benutzer angelegt</strong><br>Nutzername: '.$mail.'<br>Passwort: Admin'
-            );
-        }catch(Exception $error){
-            $answer = array(
-                'rc' => false,
-                'rv' => $error
-            );
-        }finally{
-            return $answer;
-        }
-    } O
-
     public static function changePasswort($oldPasswort, $newPasswort){
         if (self::checkPermission($oldPasswort)['rc'] <= 0) {throw new Exception('<strong>Permission denied!</strong><br>Sie haben keine Zugriffsberechtigung.');}
         try{

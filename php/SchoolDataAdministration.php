@@ -1,12 +1,12 @@
 <?
 class SchoolDataAdministration{
-    function __construct(){}
+    function _construct(){}
 
     /**@brief Database interface
      * @param string $sqlString SQL formated string
      * @return array(rc:true,rv:array(mixed))||array(rc:false,rv:string)
      */
-    protected function __sendOneToDatabase($sqlString){
+    protected function _sendOneToDatabase($sqlString){
         try{
             include_once 'DatabaseControl.php';
             include_once '../conf/config.php';
@@ -15,13 +15,13 @@ class SchoolDataAdministration{
             $databaseConrtol = new DatabaseControl($dbipv4, $dbuser, $dbpass, $dbname);
             return $databaseConrtol->sendOneToDatabase($sqlString);
         }
-        catch(ErrorException $error){$answer = array('rc'=>false, 'rv'=>'SchoolDataAdministration.__sendOneToDatabase->'.$error->getMessage());}
+        catch(ErrorException $error){$answer = array('rc'=>false, 'rv'=>'SchoolDataAdministration._sendOneToDatabase->'.$error->getMessage());}
         finally{return $answer;}
     }
 
     function getAllClasses() {
         try{
-            $sqlResult = $this->__sendOneToDatabase("SELECT name FROM klasse");
+            $sqlResult = $this->_sendOneToDatabase("SELECT name FROM klasse");
             if ($sqlResult->num_rows == 0) {
                 return array(
                     'returncode'=>-1,

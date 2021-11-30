@@ -8,7 +8,7 @@
  * @param string $dbName = Database name
  */
 class DatabaseControl {
-    function __construct($dbIpv4, $dbUser, $dbPass, $dbName){
+    function _construct($dbIpv4, $dbUser, $dbPass, $dbName){
         $this->dbIpv4 = $dbIpv4;
         $this->dbUser = $dbUser;
         $this->dbPass = $dbPass;
@@ -30,7 +30,7 @@ class DatabaseControl {
      * @return array(rc:true,rv:string:"connected")
      * @except array(rc:false,rv:string)
      */
-    protected function __connectToDatabase() {
+    protected function _connectToDatabase() {
         try{
             $this->link = mysqli_connect($this->dbIpv4, $this->dbUser, $this->dbPass, $this->dbName);
             if (!$this->link) {throw new ErrorException(mysqli_connect_error());}
@@ -46,7 +46,7 @@ class DatabaseControl {
      * @return array(rc:true,rv:mixed)
      * @except array(rc:false,rv:string)
      */
-    protected function __sendOneToDB($sqlString) {
+    protected function _sendOneToDB($sqlString) {
         try{
             $sqlquaryResultData=array();
             ##var_dump($sqlString);
@@ -61,7 +61,7 @@ class DatabaseControl {
         finally{return $answer;}
     }
 
-    protected function __sendMoreToDB($sqlString) {
+    protected function _sendMoreToDB($sqlString) {
         try{
             $sqlquaryResultData=array();
             ##var_dump($sqlString);
@@ -81,7 +81,7 @@ class DatabaseControl {
      * @return array(rc:true,rv:string:"disconnected")
      * @except array(rc:false,rv:string)
      */
-    protected function __disconnectFromDatabase() {
+    protected function _disconnectFromDatabase() {
         try{
             $this->link->close();
             $answer = array('rc'=>true,'rv'=>'disconected');
@@ -98,13 +98,13 @@ class DatabaseControl {
         try{
             // Geting DB information
             // Connecting to DB
-            $connectionResult = $this->__connectToDatabase();
+            $connectionResult = $this->_connectToDatabase();
             if (!$connectionResult['rc']) {throw new ErrorException($connectionResult['rv']);}
             // Sending sql querry
-            $SendResult = $this->__sendOneToDB($sqlString);
+            $SendResult = $this->_sendOneToDB($sqlString);
             if ($SendResult['rc'] == false) {throw new ErrorException($SendResult['rv']);}
             // Disconnecting DB
-            $this->__disconnectFromDatabase();
+            $this->_disconnectFromDatabase();
             // Formating answer
             $answer = array('rc'=>true, 'rv'=>$SendResult['rv']);
         }
@@ -116,13 +116,13 @@ class DatabaseControl {
         try{
             // Geting DB information
             // Connecting to DB
-            $connectionResult = $this->__connectToDatabase();
+            $connectionResult = $this->_connectToDatabase();
             if (!$connectionResult['rc']) {throw new ErrorException($connectionResult['rv']);}
             // Sending sql querry
-            $SendResult = $this->__sendMoreToDB($sqlString);
+            $SendResult = $this->_sendMoreToDB($sqlString);
             if ($SendResult['rc'] == false) {throw new ErrorException($SendResult['rv']);}
             // Disconnecting DB
-            $this->__disconnectFromDatabase();
+            $this->_disconnectFromDatabase();
             // Formating answer
             $answer = array('rc'=>true, 'rv'=>$SendResult['rv']);
         }
