@@ -12,7 +12,7 @@ class main {
         $_REQUEST = $this->_checkSemicolon($_REQUEST);
         $interface = new phpjsinterface();
         switch ($_REQUEST['mode']) {
-            // This function allready got updated
+            // This functions allready got updated
             case  'loginUser':
                 echo json_encode($interface->userLogin(
                     $_REQUEST['mail'], 
@@ -28,9 +28,25 @@ class main {
                 ));
                 break;
             case  'changePasswort':
-                echo json_encode($interface->changePasswort(
+                echo json_encode($interface->changePassword(
                     $_REQUEST['oldPasswort'], 
                     $_REQUEST['newPasswort']
+                ));
+                break;
+            case  'resetPassword':
+                echo json_encode($interface->resetPassword(
+                    $_REQUEST['password'], 
+                    $_REQUEST['resetUser'],
+                    $_REQUEST['stdPassword']
+                ));
+                break;
+            case  'checkLogin':
+                echo json_encode($interface->checkLogin());
+                break;
+            case  'deleteUser':
+                echo json_encode($interface->deleteUser(
+                    $_REQUEST['passwort'], 
+                    $_REQUEST['deleteThis']
                 ));
                 break;
 
@@ -73,10 +89,10 @@ class main {
             isset($_SESSION[$infoKey])&&
             $_SESSION['usermail'] != Null
         ){
-            return $_SESSION[$infoKey];
+            return array('returncode'=>true, 'returnvalue'=>$_SESSION[$infoKey]);
         }
         else{
-            return false;
+            return array('returncode'=>false, 'returnvalue'=>$infoKey);
         }
     }
 
@@ -171,7 +187,7 @@ class phpjsinterface{
                     // write to historie
                     $writeHistorie_Result = $userAdministration->writeHistorie($_SESSION['usermail'], $_SESSION['clientIp'], 'Login');
                     if (!$writeHistorie_Result['rc']){throw new ErrorException($writeHistorie_Result['rv']);}
-                    $answer = array('returncode'=>true, 'returnvalue'=>$lastLogin);
+                    $answer = array('returncode'=>true, 'returnvalue'=>$lastLogin['rv']);
                 }
             }
         }
@@ -225,7 +241,7 @@ class phpjsinterface{
      * @return array ('returncode'=>true,'returnvalue'=>boolean)
      * @except array('returncode'=>false, 'returnvalue'=>string)
      */
-    function changePasswort($oldPasswort, $newPasswort){
+    function changePassword($oldPasswort, $newPasswort){
         try{
             include_once 'UserAdministration.php';
             $userAdministration = new UserAdministration();
@@ -240,12 +256,136 @@ class phpjsinterface{
                     $answer = array('returncode'=>true,'returnvalue'=>false);} 
             }
         }
-        catch(ErrorException $error){$answer = array('returncode'=>false, 'returnvalue'=>strval(debug_backtrace()[0]['line']).': '.debug_backtrace()[0]['class'].'.'.debug_backtrace()[0]['function'].debug_backtrace()[0]['type'].$error->getMessage());}
+        catch(ErrorException $error){
+            $logNote = strval(debug_backtrace()[0]['line']).': '.debug_backtrace()[0]['class'].'.'.debug_backtrace()[0]['function'].debug_backtrace()[0]['type'].$error->getMessage();
+            $fileName = $this->_writeLog($logNote);
+            $answer = array('returncode'=>false, 'returnvalue'=>$fileName);
+        }
+        finally{return $answer;}
+    }
+
+    /**@brief Reseting a users password to given password
+     * @param string $password Rootuser password
+     * @param string $resetUser Username of reseting user
+     * @param string $stdPassword New password for reseting user
+     * @return array('returncode'=>true, 'returnvalue'=>true)
+     * @return array('returncode'=>true, 'returnvalue'=>int)
+     * @except array('returncode'=>false, 'returnvalue'=>string)
+     */
+    function resetPassword($password, $resetUser, $stdPassword){
+        try{
+            include_once 'UserAdministration.php';
+            $userAdministration = new UserAdministration();
+            $resetPassword_Result = $userAdministration->resetPassword($_SESSION['usermail'], $password, $resetUser, $stdPassword);
+            if (!$resetPassword_Result['rc']){throw new ErrorException($resetPassword_Result['rv']);}
+            elseif ($resetPassword_Result['rv']!=true){$answer = array('returncode'=>true, 'returnvalue'=>$resetPassword_Result['rv']);}
+            else{
+                // write to historie
+                $writeHistorie_Result = $userAdministration->writeHistorie($_SESSION['usermail'], $_SESSION['clientIp'], 'Reseted passwort for ' . $resetUser);
+                if (!$writeHistorie_Result['rc']){throw new ErrorException($writeHistorie_Result['rv']);}
+                $answer = array('returncode'=>true, 'returnvalue'=>true);
+            }
+        }
+        catch(ErrorException $error){
+            $logNote = strval(debug_backtrace()[0]['line']).': '.debug_backtrace()[0]['class'].'.'.debug_backtrace()[0]['function'].debug_backtrace()[0]['type'].$error->getMessage();
+            $fileName = $this->_writeLog($logNote);
+            $answer = array('returncode'=>false, 'returnvalue'=>$fileName);
+        }
+        finally{return $answer;}
+    }
+
+    /**@brief Checks if user is still loged in
+     * @return array ('returncode'=>true, 'returnvalue'=>boolen)
+     * @except array('returncode'=>false, 'returnvalue'=>string)
+     */
+    function checkLogin(){
+        try{
+            include_once 'UserAdministration.php';
+            $userAdministration = new UserAdministration();
+            $checkLogin_Result = $userAdministration->checkLogin($_SESSION['logedIn']);
+            if (!$checkLogin_Result['rc']){throw new ErrorException($changePassword_Result['rv']);}
+            elseif($checkLogin_Result['rv']){
+                $answer = array('returncode'=>true,'returnvalue'=>true);
+            }
+            else{
+                $answer = array('returncode'=>true,'returnvalue'=>false);
+            }
+        }
+        catch(ErrorException $error){
+            $logNote = strval(debug_backtrace()[0]['line']).': '.debug_backtrace()[0]['class'].'.'.debug_backtrace()[0]['function'].debug_backtrace()[0]['type'].$error->getMessage();
+            $fileName = $this->_writeLog($logNote);
+            $answer = array('returncode'=>false, 'returnvalue'=>$fileName);
+        }
+        finally{return $answer;}
+    }
+    /**@brief Reseting a users password to given password
+     * @param string $password Rootuser password
+     * @param string $deleteThis Username of deleting user
+     * @return array('returncode'=>true, 'returnvalue'=>true)
+     * @return array('returncode'=>true, 'returnvalue'=>int)
+     * @except array('returncode'=>false, 'returnvalue'=>string)
+     */
+    function deleteUser($password, $deleteThis){
+        try{
+            include_once 'UserAdministration.php';
+            $userAdministration = new UserAdministration();
+            $deleteUser_Result = $userAdministration->deleteUser($_SESSION['usermail'], $password, $deleteThis);
+            if (!$deleteUser_Result['rc']){throw new ErrorException($deleteUser_Result['rv']);}
+            elseif ($deleteUser_Result['rv']!=true){$answer = array('returncode'=>true, 'returnvalue'=>$deleteUser_Result['rv']);}
+            else{
+                // write to historie
+                $writeHistorie_Result = $userAdministration->writeHistorie($_SESSION['usermail'], $_SESSION['clientIp'], 'Deleted User ' . $deleteThis);
+                if (!$writeHistorie_Result['rc']){throw new ErrorException($writeHistorie_Result['rv']);}
+                $answer = array('returncode'=>true, 'returnvalue'=>true);
+            }
+        }
+        catch(ErrorException $error){
+            $logNote = strval(debug_backtrace()[0]['line']).': '.debug_backtrace()[0]['class'].'.'.debug_backtrace()[0]['function'].debug_backtrace()[0]['type'].$error->getMessage();
+            $fileName = $this->_writeLog($logNote);
+            $answer = array('returncode'=>false, 'returnvalue'=>$fileName);
+        }
+        finally{return $answer;}
+    }
+
+    /**@brief Checks if user is still loged in
+     * @return array ('returncode'=>true, 'returnvalue'=>boolen)
+     * @except array('returncode'=>false, 'returnvalue'=>string)
+     */
+    function getAllUser(){
+        try{
+            include_once 'UserAdministration.php';
+            $userAdministration = new UserAdministration();
+            $checkLogin_Result = $userAdministration->getAllUser();
+            if (!$checkLogin_Result['rc']){throw new ErrorException($changePassword_Result['rv']);}
+            else{$answer = array('returncode'=>true,'returnvalue'=>$checkLogin_Result['rv']);}
+        }
+        catch(ErrorException $error){
+            $logNote = strval(debug_backtrace()[0]['line']).': '.debug_backtrace()[0]['class'].'.'.debug_backtrace()[0]['function'].debug_backtrace()[0]['type'].$error->getMessage();
+            $fileName = $this->_writeLog($logNote);
+            $answer = array('returncode'=>false, 'returnvalue'=>$fileName);
+        }
         finally{return $answer;}
     }
 }
 
 class FragenVerwaltung {
+
+    public static function softdeleteKlassenUndFaecher($isClass, $nameOfThis){
+        try{
+            include_once 'DatabaseControl.php';
+            include_once '../conf/config.php';
+            global $dbipv4, $dbuser, $dbpass, $dbname;
+            // Creating class DatabaseControl object
+            $databaseConrtol = new DatabaseControl($dbipv4, $dbuser, $dbpass, $dbname);
+            if ($isClass) {$sqlString = "UPDATE klasse SET softdelete =(CASE WHEN softdelete = 0 THEN 1 ELSE 0 END) WHERE name = '".$nameOfThis."';";}
+            else {$sqlString = "UPDATE fach SET softdelete =(CASE WHEN softdelete = 0 THEN 1 ELSE 0 END) WHERE name = '".$nameOfThis."';";}
+            $dbReturn = $databaseConrtol->sendOneToDatabase($sqlString);
+            if (!$dbReturn['rc']) {throw new ErrorException($dbReturn['rv']);}
+            $answer = array('returncode'=>true, 'returnvalue'=>true);
+        }
+        catch(ErrorException $error){$answer = array('returncode'=>false, 'returnvalue'=>$error->getMessage());}
+        finally{return $answer;}
+    }
     
     public static function addFrage($frage, $kategorie) {
         try{
@@ -669,7 +809,26 @@ class FragenVerwaltung {
         );
     }
 
-    
+    public static function getAlleSchulklassen() {
+        global $link;
+        $sqlquery_getAlleSchulklassen = "SELECT name FROM klasse";
+        $sqlquery_getAlleSchulklassen_Result = mysqli_query($link, $sqlquery_getAlleSchulklassen);
+        if ($sqlquery_getAlleSchulklassen_Result->num_rows == 0) {
+            return array(
+                'returncode'=>-1,
+                'returnvalue'=>main::toDE('<strong>Keine Klassen gefunden</strong><br>Es wurden keine Schulklassen in der Datenbank gefunden.')
+            );
+        }
+        $answer = array();
+        for ($i=0; $i < $sqlquery_getAlleSchulklassen_Result->num_rows; $i++) { 
+            $sqlquery_getAlleSchulklassen_Result_Data[$i] = mysqli_fetch_array($sqlquery_getAlleSchulklassen_Result);
+            array_push($answer, $sqlquery_getAlleSchulklassen_Result_Data[$i]['name']);
+        }
+        return array(
+            'returncode'=>0,
+            'returnvalue'=>$answer
+        );
+    }
 
     public static function deleteCode($codehash) {
         global $link;
@@ -685,7 +844,26 @@ class FragenVerwaltung {
         else {return false;}
     }
 
-   
+    public static function getAllSubjects(){
+        global $link;
+        $sqlquery_getAlleSchulklassen = "SELECT name FROM fach";
+        $sqlquery_getAlleSchulklassen_Result = mysqli_query($link, $sqlquery_getAlleSchulklassen);
+        if ($sqlquery_getAlleSchulklassen_Result->num_rows == 0) {
+            return array(
+                'returncode'=>-1,
+                'returnvalue'=>main::toDE('<strong>Keine Fächer gefunden</strong><br>Es wurden keine Fächer in der Datenbank gefunden.')
+            );
+        }
+        $answer = array();
+        for ($i=0; $i < $sqlquery_getAlleSchulklassen_Result->num_rows; $i++) { 
+            $sqlquery_getAlleSchulklassen_Result_Data[$i] = mysqli_fetch_array($sqlquery_getAlleSchulklassen_Result);
+            array_push($answer, $sqlquery_getAlleSchulklassen_Result_Data[$i]['name']);
+        }
+        return array(
+            'returncode'=>0,
+            'returnvalue'=>$answer
+        );
+    }
 
     public static function alterQuestion($frageId, $neuFrage) {
         try{

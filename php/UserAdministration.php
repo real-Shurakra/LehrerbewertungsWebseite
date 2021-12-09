@@ -454,7 +454,8 @@ class UserAdministration {
                 if ($authResult['rv']){
                     $chPwResult = $this->_changePassword($resetUser, $stdPassword);
                     if (!$chPwResult['rc']) {throw new ErrorException($chPwResult['rv']);}
-                    $answer = array('rc'=>true,'rv'=>true);
+                    elseif ($chPwResult['rv']) {$answer = array('rc'=>true,'rv'=>true);}
+                    else{$answer = array('rc'=>true,'rv'=>$chPwResult['rv']);}
                 }
                 else{$answer=array('rc'=>true,'rv'=>false);}
             }
@@ -488,62 +489,19 @@ class UserAdministration {
         catch(ErrorException $error){$answer = array('rc'=>false, 'rv'=>strval(debug_backtrace()[0]['line']).': '.debug_backtrace()[0]['class'].'.'.debug_backtrace()[0]['function'].debug_backtrace()[0]['type'].$error->getMessage());}
         finally{return $answer;}
     }
-}
 
-// ---------------------------  Legacy  ----------------------------------------------------------------
-/** 
-
-    public static function checkPermission($Password){
-        include 'LBWEncription.php';
-        $Password = LBWEncription::pass_encode($Password);
+    /**@brief returns all user
+     * @return array ('rc'=>true,'rv'=>array)
+     * @except array('rc'=>false, 'rv'=>string)
+     */
+    function getAllUser(){
         try{
-            $answer = array('rc' => false,'rv' => '<strong>Unknown-Error at main.php -> FragenVerwaltung.deleteQuestion()</strong><br>Bitte wenden Sie sich an einen Administrator.');
-            global $link;
-            ## User register
-            $sqlquery_addUser = "SELECT isroot FROM lehrer WHERE passwort = ".$Password." AND mail = ".$_SESSION['usermail'].";";
-            $sqlResult = mysqli_query($link, $sqlquery_addUser);
-            if ($sqlResult == False) throw new Exception('<strong>SQL-Error at nutzerverwaltung.checkPermission() #1</strong><br>Bitte wenden Sie sich an einen Administrator.');
-            if ($sqlResult->num_rows != 1) throw new Exception('<strong>Permission denied!</strong><br>Sie haben keine Zugriffsberechtigung.');
-            for ($i = 0; $i < $sqlResult->num_rows; $i++) {
-                $sqlResult_Data[$i] = mysqli_fetch_array($sqlResult);
-            }
-            if ($sqlResult_Data[0][0]) {$answer = array('rc'=>-1, 'rv'=>NULL);}
-            else                       {$answer = array('rc'=> 0, 'rv'=>NULL);}
-        }catch(Exception $error){
-            $answer = array(
-                'rc' => 1,
-                'rv' => $error
-            );
-        }finally{
-            return $answer;
+            $sqlGetUserHistorie = "SELECT * FROM getalluser;";
+            $sqlGetUserHistorie_Result = $this->_sendOneToDatabase($sqlGetUserHistorie);
+            if (!$sqlGetUserHistorie_Result['rc']){throw new ErrorException($sqlGetUserHistorie_Result['rv']);}
+            else{$answer = array('rc'=>true,'rv'=>$sqlGetUserHistorie_Result['rv']);}
         }
-    } O
-
-    public static function deleteUser($rootPassword, $userMail) {
-        try{
-            $answer = array('rc' => false,'rv' => '<strong>Unknown-Error at main.php -> FragenVerwaltung.deleteQuestion()</strong><br>Bitte wenden Sie sich an einen Administrator.');
-            global $link;
-            ## Check permission
-            if (self::checkPermission($rootPassword)['rc'] != -1) {throw new Exception('<strong>Permission denied!</strong><br>Sie haben keine Zugriffsberechtigung.');}
-            $sqlquery_addUser = "
-            SELECT @userid := id FROM lehrer WHERE mail = '".$userMail."';
-
-            DELETE nm_frage_fragebogen FROM nm_frage_fragebogen LEFT JOIN fragebogen ON nm_frage_fragebogen.bogenid = fragebogen.id WHERE lehrerid = @userid;
-            DELETE bewertungen FROM bewertungen LEFT JOIN fragebogen ON bewertungen.bogenid = fragebogen.id WHERE lehrerid = @userid;
-            DELETE nm_frage_fragebogen FROM nm_frage_fragebogen LEFT JOIN  fragebogen ON nm_frage_fragebogen.bogenid = fragebogen.id WHERE lehrerid = @userid;
-            DELETE verbesserungen FROM verbesserungen LEFT JOIN fragebogen ON verbesserungen.bogenid = fragebogen.id WHERE lehrerid = @userid;
-            DELETE codes FROM codes LEFT JOIN fragebogen ON codes.fragebogenid = fragebogen.id WHERE lehrerid = @userid;
-            DELETE FROM fragebogen WHERE lehrerid = @userid;
-            DELETE FROM fragen WHERE lehrerid = @userid;
-            DELETE FROM lehrer WHERE id = @userid;";
-            $sqlResult = mysqli_query($link, $sqlquery_addUser);
-            if ($sqlResult == False) throw new Exception('<strong>SQL-Error at nutzerverwaltung.deleteUser()</strong><br>Bitte wenden Sie sich an einen Administrator.');
-            
-            $answer = array('rc' => true,'rv' => '<strong>Erfolgreich</strong><br>Ihr Passwort wurde gändert.');
-        }
-        catch(Exception $error){$answer = array('rc' => false,'rv' => $error);}
+        catch(ErrorException $error){$answer = array('rc'=>false, 'rv'=>strval(debug_backtrace()[0]['line']).': '.debug_backtrace()[0]['class'].'.'.debug_backtrace()[0]['function'].debug_backtrace()[0]['type'].$error->getMessage());}
         finally{return $answer;}
-    } O
-
-    set std password (root)
-*/
+    }
+}
