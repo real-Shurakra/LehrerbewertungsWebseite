@@ -492,29 +492,6 @@ class UserAdministration {
 
 // ---------------------------  Legacy  ----------------------------------------------------------------
 /** 
-    public static function changePasswort($oldPasswort, $newPasswort){
-        if (self::checkPermission($oldPasswort)['rc'] <= 0) {throw new Exception('<strong>Permission denied!</strong><br>Sie haben keine Zugriffsberechtigung.');}
-        try{
-            $answer = array('rc' => false,'rv' => '<strong>Unknown-Error at main.php -> FragenVerwaltung.deleteQuestion()</strong><br>Bitte wenden Sie sich an einen Administrator.');
-            global $link;
-            include 'LBWEncription.php';
-            $sqlquery_addUser = "UPDATE lehrer SET passwort=".LBWEncription::pass_encode($newPasswort)." WHERE mail = ".$_SESSION['usermail'].";";
-            $sqlResult = mysqli_query($link, $sqlquery_addUser);
-            if ($sqlResult == False) throw new Exception('<strong>SQL-Error at nutzerverwaltung.changePasswort()</strong><br>Bitte wenden Sie sich an einen Administrator.');
-            
-            $answer = array(
-                'rc' => true,
-                'rv' => '<strong>Erfolgreich</strong><br>Ihr Passwort wurde gändert.'
-            );
-        }catch(Exception $error){
-            $answer = array(
-                'rc' => false,
-                'rv' => $error
-            );
-        }finally{
-            return $answer;
-        }
-    } O
 
     public static function checkPermission($Password){
         include 'LBWEncription.php';

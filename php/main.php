@@ -169,8 +169,8 @@ class phpjsinterface{
                     $lastLogin = $userAdministration->getLastLogin($_SESSION['usermail']);
                     if (!$lastLogin['rc']){throw new ErrorException($lastLogin['rc']);}
                     // write to historie
-                    $userAdministration->writeHistorie($_SESSION['usermail'], $_SESSION['clientIp'], 'Login');
-                    if (!$userAdministration['rc']){throw new ErrorException($userAdministration['rv']);}
+                    $writeHistorie_Result = $userAdministration->writeHistorie($_SESSION['usermail'], $_SESSION['clientIp'], 'Login');
+                    if (!$writeHistorie_Result['rc']){throw new ErrorException($writeHistorie_Result['rv']);}
                     $answer = array('returncode'=>true, 'returnvalue'=>$lastLogin);
                 }
             }
@@ -203,10 +203,12 @@ class phpjsinterface{
             else{
                 if (!$addUser_Result['rv']){$answer = array('returncode'=>true,'returnvalue'=>false);}
                 elseif ($addUser_Result['rv']){
+                    // write to historie
+                    $writeHistorie_Result = $userAdministration->writeHistorie($_SESSION['usermail'], $_SESSION['clientIp'], 'Added user: '.$userName);
+                    if (!$writeHistorie_Result['rc']){throw new ErrorException($writeHistorie_Result['rv']);}
                     $answer = array('returncode'=>true,'returnvalue'=>true);
-                    $userAdministration->writeHistorie($_SESSION['usermail'], $_SESSION['clientIp'], 'Added user '.$userName);
                 }
-                else{throw new ErrorException($addUser_Result);}
+                else{throw new ErrorException($addUser_Result['rv']);}
             } 
         }
         catch(ErrorException $error){
@@ -231,7 +233,11 @@ class phpjsinterface{
             if (!$changePassword_Result['rc']) {throw new ErrorException($changePassword_Result['rv']);}
             else{
                 if ($changePassword_Result['rv']==true){$answer = array('returncode'=>true,'returnvalue'=>true);}
-                else{$answer = array('returncode'=>true,'returnvalue'=>false);} 
+                else{
+                    // write to historie
+                    $writeHistorie_Result = $userAdministration->writeHistorie($_SESSION['usermail'], $_SESSION['clientIp'], 'Changed password');
+                    if (!$writeHistorie_Result['rc']){throw new ErrorException($writeHistorie_Result['rv']);}
+                    $answer = array('returncode'=>true,'returnvalue'=>false);} 
             }
         }
         catch(ErrorException $error){$answer = array('returncode'=>false, 'returnvalue'=>strval(debug_backtrace()[0]['line']).': '.debug_backtrace()[0]['class'].'.'.debug_backtrace()[0]['function'].debug_backtrace()[0]['type'].$error->getMessage());}
