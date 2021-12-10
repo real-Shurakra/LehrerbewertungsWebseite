@@ -1,8 +1,35 @@
 <?php
-class UserAdministration {
-    function _construct(){}
+include 'DatabaseControl.php';
 
-    private function debugNote($note){
+class UserAdministration {
+    /**Secondary information about class 
+     * 
+     * Integer returns
+     *  - 0 - User not found.
+     *  - 1 - User is root.
+     *  - 2 - User not root.
+     *  - 3 - Password to short. Min 8 chars.
+     *  - 4 - Password contains space char.
+     *  - 5 - Password contains semicolon char.
+     *  - 6 - Deleting user not found.
+     *  - 7 - Deleting user found after deleting.
+     */
+
+    /**@brief contructor
+     * @param string $dbipv4 Databaseserver IPv4 address
+     * @param string $dbname Database name
+     * @param string $dbuser Database user
+     * @param string $dbpass Database user password
+     */
+    function _construct($dbipv4, $dbname, $dbuser, $dbpass){
+        // Creating class DatabaseControl object
+        $this->databaseConrtol = new DatabaseControl($dbipv4, $dbuser, $dbpass, $dbname);
+    }
+
+    /**@brief
+     * @param string $note
+     */
+    private function _debugNote($note){
         echo'<br>';
         echo '<a style="color:orange"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-exclamation-circle" viewBox="0 0 16 16">
         <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
@@ -14,21 +41,21 @@ class UserAdministration {
 
     /**@brief Database interface
      * @param string $sqlString SQL formated string
-     * @return array(rc:true,rv:array(mixed))||array(rc:false,rv:string)
+     * @param boolean $moreThanOne Set true if send more than one executives in
+     * @return array ('rc'=>true,'rv'=>array)
+     * @except array ('rc'=>false,'rv'=>string)
      */
     protected function _sendOneToDatabase($sqlString, $moreThanOne=false){
         try{
-            include_once 'DatabaseControl.php';
-            include_once '../conf/config.php';
-            global $dbipv4, $dbuser, $dbpass, $dbname;
-            // Creating class DatabaseControl object
-            $databaseConrtol = new DatabaseControl($dbipv4, $dbuser, $dbpass, $dbname);
-            if (!$moreThanOne) {$dbReturn = $databaseConrtol->sendOneToDatabase($sqlString);}
-            else{$dbReturn = $databaseConrtol->sendMultipleToDatabase($sqlString);}
+            if (!$moreThanOne) {
+                $dbReturn = $this->databaseConrtol->sendOneToDatabase($sqlString);
+            }
+            else{
+                $dbReturn = $this->databaseConrtol->sendMultipleToDatabase($sqlString);
+            }
             if (!$dbReturn['rc']) {throw new ErrorException($dbReturn['rv']);}
-            $answer = array('rc'=>true, 'rv'=>$dbReturn['rv']);
-            ##$this->debugNote($sqlString);
-            ##$this->debugNote($answer);
+            else{$answer = array('rc'=>true, 'rv'=>$dbReturn['rv']);}
+            
         }
         catch(ErrorException $error){$answer = array('rc'=>false, 'rv'=>strval(debug_backtrace()[0]['line']).': '.debug_backtrace()[0]['class'].'.'.debug_backtrace()[0]['function'].debug_backtrace()[0]['type'].$error->getMessage());}
         finally{return $answer;}
@@ -293,9 +320,9 @@ class UserAdministration {
             $sqlCheckUser = "SELECT isroot FROM lehrer WHERE mail='".$userName."' AND passwort='".$password."'";
             $result = $this->_sendOneToDatabase($sqlCheckUser);
             if (!$result['rc']) {throw new ErrorException($result['rv']);}
-            if ($result['rv'] === array()) {$answer = array('rc'=>true,'rv'=>0);return;}
-            if ($result['rv'][0]['isroot'] === '1') {$answer=array('rc'=>true,'rv'=>2);}
-            elseif ($result['rv'][0]['isroot'] === '0') {$answer=array('rc'=>true,'rv'=>1);}
+            if ($result['rv'] === array()) {$answer = array('rc'=>true,'rv'=>0);return;} // User not in database
+            if ($result['rv'][0]['isroot'] === '1') {$answer=array('rc'=>true,'rv'=>2);} // User is root
+            elseif ($result['rv'][0]['isroot'] === '0') {$answer=array('rc'=>true,'rv'=>1);} // User not root
             else {throw new ErrorException('DB answer not mySQL boolean. Is: '.strval($result['rv'][0]['isroot']));}
         }
         catch(ErrorException $error){$answer = array('rc'=>false, 'rv'=>strval(debug_backtrace()[0]['line']).': '.debug_backtrace()[0]['class'].'.'.debug_backtrace()[0]['function'].debug_backtrace()[0]['type'].$error->getMessage());}
@@ -395,15 +422,16 @@ class UserAdministration {
                                 DELETE FROM lehrer WHERE id = @userid;";
                             $sqlResult = $this->_sendOneToDatabase($sqlquery_addUser, true);
                             if (!$sqlResult['rc']){throw new ErrorException($sqlResult['rv']);}
-                            $checkUser = $this->_checkUserExistence($deleteThis);
-                            if ($checkUser['rc']){
-                                if (!$checkUser['rv']){
+                            $checkUserAgain = $this->_checkUserExistence($deleteThis);
+                            if ($checkUserAgain['rc']){
+                                if (!$checkUserAgain['rv']){
                                     $answer = array('rc'=>true,'rv'=>true);
                                 }
+                                else{$answer = array('rc'=>true,'rv'=>7);}
                             }
                             else{throw new ErrorException($checkUser['rv']);} 
                         }
-                        else{$answer = array('rc'=>true,'rv'=>false);}
+                        else{$answer = array('rc'=>true,'rv'=>6);}
                     }
                     else{throw new ErrorException($checkUser['rv']);} 
                 }

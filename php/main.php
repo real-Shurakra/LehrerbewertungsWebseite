@@ -66,8 +66,8 @@ class main {
             case  'insertRate':                                                 echo json_encode(FragenVerwaltung::insertRate($_REQUEST['rate'], $_REQUEST['codehash']));                                                                   break;
             case  'insertkritik':                                               echo json_encode(FragenVerwaltung::insertkritik($_REQUEST['fbId'], $_REQUEST['kritik'], $_REQUEST['codehash']));                                            break;
             case  'getkritik':              if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::getkritik($_REQUEST['fbId']));}                                                                                          break;
-            ##case  'getAlleSchulklassen':    if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::getAlleSchulklassen());}                                                                                                 break;
-            ##case  'getAllSubjects':         if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::getAllSubjects());}                                                                                                      break;
+            case  'getAlleSchulklassen':    if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::getAlleSchulklassen());}                                                                                                 break;
+            case  'getAllSubjects':         if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::getAllSubjects());}                                                                                                      break;
             case  'getFbFragenFromCode':                                        echo json_encode(FragenVerwaltung::getFbFragenFromCode($_REQUEST['codehash']));                                                                             break;
             case  'alterQuestion':          if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::alterQuestion($_REQUEST['frageId'], $_REQUEST['neuFrage']));}                                                            break;
             case  'delQuestionnaire':       if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::delQuestionnaire($_REQUEST['fbId']));}                                                                                   break;
@@ -149,6 +149,12 @@ class main {
 
 class phpjsinterface{
 
+    function _construct(){
+        include '../conf/config.php';
+        global $dbipv4, $dbname, $dbuser, $dbpass;
+        $this->userAdministration = new UserAdministration($dbipv4, $dbname, $dbuser, $dbpass);
+    }
+
     /**@brief Creates errorlog file
      * @param string $lognote string to write to error log
      */
@@ -169,9 +175,7 @@ class phpjsinterface{
      */
     function userLogin($userName, $password){
         try{
-            include_once 'UserAdministration.php';
-            $userAdministration = new UserAdministration();
-            $userLogin_Result = $userAdministration->loginUser($userName, $password);
+            $userLogin_Result = $this->userAdministration->loginUser($userName, $password);
             if (!$userLogin_Result['rc']){throw new ErrorException($userLogin_Result['rv']);}
             else{
                 if ($userLogin_Result['rv'] === null){$answer =  array('returncode'=>true,'returnvalue'=>false);return;}
@@ -182,10 +186,10 @@ class phpjsinterface{
                     $_SESSION['logedIn']    = $userLogin_Result['rv']['logedIn'];
                     $_SESSION['clientIp']   = $userLogin_Result['rv']['clientIP'];
                     // get last login
-                    $lastLogin = $userAdministration->getLastLogin($_SESSION['usermail']);
+                    $lastLogin = $this->userAdministration->getLastLogin($_SESSION['usermail']);
                     if (!$lastLogin['rc']){throw new ErrorException($lastLogin['rc']);}
                     // write to historie
-                    $writeHistorie_Result = $userAdministration->writeHistorie($_SESSION['usermail'], $_SESSION['clientIp'], 'Login');
+                    $writeHistorie_Result = $this->userAdministration->writeHistorie($_SESSION['usermail'], $_SESSION['clientIp'], 'Login');
                     if (!$writeHistorie_Result['rc']){throw new ErrorException($writeHistorie_Result['rv']);}
                     $answer = array('returncode'=>true, 'returnvalue'=>$lastLogin['rv']);
                 }
@@ -213,14 +217,14 @@ class phpjsinterface{
         try{
             if (!$_SESSION['userisroot']){$answer = false;return;}
             include_once 'UserAdministration.php';
-            $userAdministration = new UserAdministration();
-            $addUser_Result = $userAdministration->addUser($userName, $firstName, $lastName, $password);
+            $this->userAdministration = new UserAdministration();
+            $addUser_Result = $this->userAdministration->addUser($userName, $firstName, $lastName, $password);
             if (!$addUser_Result['rc']){throw new ErrorException($addUser_Result['rv']);}
             else{
                 if (!$addUser_Result['rv']){$answer = array('returncode'=>true,'returnvalue'=>false);}
                 elseif ($addUser_Result['rv']){
                     // write to historie
-                    $writeHistorie_Result = $userAdministration->writeHistorie($_SESSION['usermail'], $_SESSION['clientIp'], 'Added user: '.$userName);
+                    $writeHistorie_Result = $this->userAdministration->writeHistorie($_SESSION['usermail'], $_SESSION['clientIp'], 'Added user: '.$userName);
                     if (!$writeHistorie_Result['rc']){throw new ErrorException($writeHistorie_Result['rv']);}
                     $answer = array('returncode'=>true,'returnvalue'=>true);
                 }
@@ -235,7 +239,7 @@ class phpjsinterface{
         finally{return $answer;}
     }
 
-    /**@brief 
+    /**@brief changing Password
      * @param string $oldPasswort The users old password
      * @param string $newPasswort The users new password
      * @return array ('returncode'=>true,'returnvalue'=>boolean)
@@ -244,14 +248,14 @@ class phpjsinterface{
     function changePassword($oldPasswort, $newPasswort){
         try{
             include_once 'UserAdministration.php';
-            $userAdministration = new UserAdministration();
-            $changePassword_Result = $userAdministration->changePassword($_SESSION['usermail'], $oldPasswort, $newPasswort);
+            $this->userAdministration = new UserAdministration();
+            $changePassword_Result = $this->userAdministration->changePassword($_SESSION['usermail'], $oldPasswort, $newPasswort);
             if (!$changePassword_Result['rc']) {throw new ErrorException($changePassword_Result['rv']);}
             else{
                 if ($changePassword_Result['rv']==true){$answer = array('returncode'=>true,'returnvalue'=>true);}
                 else{
                     // write to historie
-                    $writeHistorie_Result = $userAdministration->writeHistorie($_SESSION['usermail'], $_SESSION['clientIp'], 'Changed password');
+                    $writeHistorie_Result = $this->userAdministration->writeHistorie($_SESSION['usermail'], $_SESSION['clientIp'], 'Changed password');
                     if (!$writeHistorie_Result['rc']){throw new ErrorException($writeHistorie_Result['rv']);}
                     $answer = array('returncode'=>true,'returnvalue'=>false);} 
             }
@@ -269,19 +273,19 @@ class phpjsinterface{
      * @param string $resetUser Username of reseting user
      * @param string $stdPassword New password for reseting user
      * @return array('returncode'=>true, 'returnvalue'=>true)
-     * @return array('returncode'=>true, 'returnvalue'=>int)
+     * @return array('returncode'=>true, 'returnvalue'=>integer)
      * @except array('returncode'=>false, 'returnvalue'=>string)
      */
     function resetPassword($password, $resetUser, $stdPassword){
         try{
             include_once 'UserAdministration.php';
-            $userAdministration = new UserAdministration();
-            $resetPassword_Result = $userAdministration->resetPassword($_SESSION['usermail'], $password, $resetUser, $stdPassword);
+            $this->userAdministration = new UserAdministration();
+            $resetPassword_Result = $this->userAdministration->resetPassword($_SESSION['usermail'], $password, $resetUser, $stdPassword);
             if (!$resetPassword_Result['rc']){throw new ErrorException($resetPassword_Result['rv']);}
             elseif ($resetPassword_Result['rv']!=true){$answer = array('returncode'=>true, 'returnvalue'=>$resetPassword_Result['rv']);}
             else{
                 // write to historie
-                $writeHistorie_Result = $userAdministration->writeHistorie($_SESSION['usermail'], $_SESSION['clientIp'], 'Reseted passwort for ' . $resetUser);
+                $writeHistorie_Result = $this->userAdministration->writeHistorie($_SESSION['usermail'], $_SESSION['clientIp'], 'Reseted passwort for ' . $resetUser);
                 if (!$writeHistorie_Result['rc']){throw new ErrorException($writeHistorie_Result['rv']);}
                 $answer = array('returncode'=>true, 'returnvalue'=>true);
             }
@@ -301,8 +305,8 @@ class phpjsinterface{
     function checkLogin(){
         try{
             include_once 'UserAdministration.php';
-            $userAdministration = new UserAdministration();
-            $checkLogin_Result = $userAdministration->checkLogin($_SESSION['logedIn']);
+            $this->userAdministration = new UserAdministration();
+            $checkLogin_Result = $this->userAdministration->checkLogin($_SESSION['logedIn']);
             if (!$checkLogin_Result['rc']){throw new ErrorException($changePassword_Result['rv']);}
             elseif($checkLogin_Result['rv']){
                 $answer = array('returncode'=>true,'returnvalue'=>true);
@@ -328,13 +332,13 @@ class phpjsinterface{
     function deleteUser($password, $deleteThis){
         try{
             include_once 'UserAdministration.php';
-            $userAdministration = new UserAdministration();
-            $deleteUser_Result = $userAdministration->deleteUser($_SESSION['usermail'], $password, $deleteThis);
+            $this->userAdministration = new UserAdministration();
+            $deleteUser_Result = $this->userAdministration->deleteUser($_SESSION['usermail'], $password, $deleteThis);
             if (!$deleteUser_Result['rc']){throw new ErrorException($deleteUser_Result['rv']);}
             elseif ($deleteUser_Result['rv']!=true){$answer = array('returncode'=>true, 'returnvalue'=>$deleteUser_Result['rv']);}
             else{
                 // write to historie
-                $writeHistorie_Result = $userAdministration->writeHistorie($_SESSION['usermail'], $_SESSION['clientIp'], 'Deleted User ' . $deleteThis);
+                $writeHistorie_Result = $this->userAdministration->writeHistorie($_SESSION['usermail'], $_SESSION['clientIp'], 'Deleted User ' . $deleteThis);
                 if (!$writeHistorie_Result['rc']){throw new ErrorException($writeHistorie_Result['rv']);}
                 $answer = array('returncode'=>true, 'returnvalue'=>true);
             }
@@ -354,8 +358,8 @@ class phpjsinterface{
     function getAllUser(){
         try{
             include_once 'UserAdministration.php';
-            $userAdministration = new UserAdministration();
-            $checkLogin_Result = $userAdministration->getAllUser();
+            $this->userAdministration = new UserAdministration();
+            $checkLogin_Result = $this->userAdministration->getAllUser();
             if (!$checkLogin_Result['rc']){throw new ErrorException($changePassword_Result['rv']);}
             else{$answer = array('returncode'=>true,'returnvalue'=>$checkLogin_Result['rv']);}
         }
