@@ -1,9 +1,4 @@
 <?php
-// ----------------------------------------------------------
-// Debug configuation
-global $debug;
-$debug = true;
-// ----------------------------------------------------------
 // Database configuation
 // Database globals
 global $dbipv4, $dbuser, $dbpass, $dbname;

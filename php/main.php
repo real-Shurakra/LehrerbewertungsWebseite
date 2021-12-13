@@ -1,26 +1,31 @@
 <?php
 
 use FFI\Exception;
-
-include 'database_connect.php'; 
 session_start();
-include 'UserAdministration.php';
+include 'phpjsinterface.php';
+include 'infomationCenter.php';
+include '../conf/config.php';
 
-class main {
+class Main {
 
-    function _construct(){
-        $_REQUEST = $this->_checkSemicolon($_REQUEST);
-        $interface = new phpjsinterface();
-        switch ($_REQUEST['mode']) {
+    function __construct(){
+        global $dbipv4, $dbname, $dbuser, $dbpass;
+        $this->interface = new phpjsinterface($dbipv4, $dbname, $dbuser, $dbpass);
+        $this->infoCenter = new infomationCenter();
+    }
+
+    function executeOrder($requestMode){
+        switch ($requestMode) {
             // This functions allready got updated
+            // phpjsinterface.php
             case  'loginUser':
-                echo json_encode($interface->userLogin(
+                return json_encode($this->interface->userLogin(
                     $_REQUEST['mail'], 
                     $_REQUEST['passwort']
                 ));
                 break;
             case  'addUser':
-                echo json_encode($interface->addUser(
+                return json_encode($this->interface->addUser(
                     $_REQUEST['mail'], 
                     $_REQUEST['firstname'], 
                     $_REQUEST['lastname'], 
@@ -28,60 +33,69 @@ class main {
                 ));
                 break;
             case  'changePasswort':
-                echo json_encode($interface->changePassword(
+                return json_encode($this->interface->changePassword(
                     $_REQUEST['oldPasswort'], 
                     $_REQUEST['newPasswort']
                 ));
                 break;
             case  'resetPassword':
-                echo json_encode($interface->resetPassword(
+                return json_encode($this->interface->resetPassword(
                     $_REQUEST['password'], 
                     $_REQUEST['resetUser'],
                     $_REQUEST['stdPassword']
                 ));
                 break;
             case  'checkLogin':
-                echo json_encode($interface->checkLogin());
+                return json_encode($this->interface->checkLogin());
                 break;
             case  'deleteUser':
-                echo json_encode($interface->deleteUser(
+                return json_encode($this->interface->deleteUser(
                     $_REQUEST['passwort'], 
                     $_REQUEST['deleteThis']
                 ));
                 break;
+            case  'deleteUser':
+                return json_encode($this->interface->getAllUser(
+                    $_SESSION['userisroot']
+                ));
+                break;
 
+
+
+            // infomationCenter.php
+            case  'getGitShortCut':
+                return json_encode($this->infoCenter->getGitShortCut());
+                break;
+
+
+            
             // This functions still need upgrade
-            ## Modes for nutzerverwaltung
-            // @note checkPermission durch authoriseUser ersetzen!
-            ##case  'checkPermission':                                            echo json_encode(nutzerverwaltung::checkPermission($_REQUEST['passwort']));                                                                                 break;
-            ##case  'deleteUser':             if ($_SESSION['usermail'] != NULL) {echo json_encode(nutzerverwaltung::deleteUser($_REQUEST['passwort'], $_REQUEST['mail']));}                                                                  break;
             ## Modes for FragenVerwaltung
-            case  'addSubject':             if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::addSubject($_REQUEST['subjectName']));}                                                                                  break;
-            case  'changeSubjectDelete':    if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::softdeleteKlassenUndFaecher(false, $_REQUEST['subjectName']));}                                                          break;
-            case  'addClass':               if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::addClass($_REQUEST['className'], $_REQUEST['studentCount']));}                                                           break;
-            case  'changeClassDelete':      if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::softdeleteKlassenUndFaecher(true, $_REQUEST['className']));}                                                             break;
+            case  'addSubject':             if ($_SESSION['usermail'] != Null) {return json_encode(FragenVerwaltung::addSubject($_REQUEST['subjectName']));}                                                                                  break;
+            case  'changeSubjectDelete':    if ($_SESSION['usermail'] != Null) {return json_encode(FragenVerwaltung::softdeleteKlassenUndFaecher(false, $_REQUEST['subjectName']));}                                                          break;
+            case  'addClass':               if ($_SESSION['usermail'] != Null) {return json_encode(FragenVerwaltung::addClass($_REQUEST['className'], $_REQUEST['studentCount']));}                                                           break;
+            case  'changeClassDelete':      if ($_SESSION['usermail'] != Null) {return json_encode(FragenVerwaltung::softdeleteKlassenUndFaecher(true, $_REQUEST['className']));}                                                             break;
 
-            case  'askAlleFragen':          if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::askAlleFragen());}                                                                                                       break;
-            case  'addFrage':               if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::addFrage($_REQUEST['frage'], $_REQUEST['kategorie']));}                                                                  break;
-            case  'getAlleKategorien':      if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::getAlleKategorien());}                                                                                                   break;
-            case  'makeFragebogen':         if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::makeFragebogen($_REQUEST['name'], $_REQUEST['anzahl'], $_REQUEST['klasse'], $_REQUEST['fach'], $_REQUEST['fragen']));}   break;
-            case  'getFragebogens':         if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::getFragebogens());}                                                                                                      break;
-            case  'getCodes':               if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::getCodes($_REQUEST['fbId']));}                                                                                           break;
-            case  'getFbFragen':            if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::getFbFragen($_REQUEST['fbId']));}                                                                                        break;
-            case  'insertRate':                                                 echo json_encode(FragenVerwaltung::insertRate($_REQUEST['rate'], $_REQUEST['codehash']));                                                                   break;
-            case  'insertkritik':                                               echo json_encode(FragenVerwaltung::insertkritik($_REQUEST['fbId'], $_REQUEST['kritik'], $_REQUEST['codehash']));                                            break;
-            case  'getkritik':              if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::getkritik($_REQUEST['fbId']));}                                                                                          break;
-            case  'getAlleSchulklassen':    if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::getAlleSchulklassen());}                                                                                                 break;
-            case  'getAllSubjects':         if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::getAllSubjects());}                                                                                                      break;
-            case  'getFbFragenFromCode':                                        echo json_encode(FragenVerwaltung::getFbFragenFromCode($_REQUEST['codehash']));                                                                             break;
-            case  'alterQuestion':          if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::alterQuestion($_REQUEST['frageId'], $_REQUEST['neuFrage']));}                                                            break;
-            case  'delQuestionnaire':       if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::delQuestionnaire($_REQUEST['fbId']));}                                                                                   break;
-            case  'deleteAllCodes':         if ($_SESSION['usermail'] != NULL) {echo json_encode(FragenVerwaltung::deleteAllCodes($_REQUEST['fbId']));}                                                                                     break;
-            case  'getQuestions':           if ($_SESSION['usermail'] != NULL) {echo json_encode(FragenVerwaltung::getQuestions());}                                                                                                        break;
+            case  'askAlleFragen':          if ($_SESSION['usermail'] != Null) {return json_encode(FragenVerwaltung::askAlleFragen());}                                                                                                       break;
+            case  'addFrage':               if ($_SESSION['usermail'] != Null) {return json_encode(FragenVerwaltung::addFrage($_REQUEST['frage'], $_REQUEST['kategorie']));}                                                                  break;
+            case  'getAlleKategorien':      if ($_SESSION['usermail'] != Null) {return json_encode(FragenVerwaltung::getAlleKategorien());}                                                                                                   break;
+            case  'makeFragebogen':         if ($_SESSION['usermail'] != Null) {return json_encode(FragenVerwaltung::makeFragebogen($_REQUEST['name'], $_REQUEST['anzahl'], $_REQUEST['klasse'], $_REQUEST['fach'], $_REQUEST['fragen']));}   break;
+            case  'getFragebogens':         if ($_SESSION['usermail'] != Null) {return json_encode(FragenVerwaltung::getFragebogens());}                                                                                                      break;
+            case  'getCodes':               if ($_SESSION['usermail'] != Null) {return json_encode(FragenVerwaltung::getCodes($_REQUEST['fbId']));}                                                                                           break;
+            case  'getFbFragen':            if ($_SESSION['usermail'] != Null) {return json_encode(FragenVerwaltung::getFbFragen($_REQUEST['fbId']));}                                                                                        break;
+            case  'insertRate':                                                 return json_encode(FragenVerwaltung::insertRate($_REQUEST['rate'], $_REQUEST['codehash']));                                                                   break;
+            case  'insertkritik':                                               return json_encode(FragenVerwaltung::insertkritik($_REQUEST['fbId'], $_REQUEST['kritik'], $_REQUEST['codehash']));                                            break;
+            case  'getkritik':              if ($_SESSION['usermail'] != Null) {return json_encode(FragenVerwaltung::getkritik($_REQUEST['fbId']));}                                                                                          break;
+            case  'getAlleSchulklassen':    if ($_SESSION['usermail'] != Null) {return json_encode(FragenVerwaltung::getAlleSchulklassen());}                                                                                                 break;
+            case  'getAllSubjects':         if ($_SESSION['usermail'] != Null) {return json_encode(FragenVerwaltung::getAllSubjects());}                                                                                                      break;
+            case  'getFbFragenFromCode':                                        return json_encode(FragenVerwaltung::getFbFragenFromCode($_REQUEST['codehash']));                                                                             break;
+            case  'alterQuestion':          if ($_SESSION['usermail'] != Null) {return json_encode(FragenVerwaltung::alterQuestion($_REQUEST['frageId'], $_REQUEST['neuFrage']));}                                                            break;
+            case  'delQuestionnaire':       if ($_SESSION['usermail'] != Null) {return json_encode(FragenVerwaltung::delQuestionnaire($_REQUEST['fbId']));}                                                                                   break;
+            case  'deleteAllCodes':         if ($_SESSION['usermail'] != NULL) {return json_encode(FragenVerwaltung::deleteAllCodes($_REQUEST['fbId']));}                                                                                     break;
+            case  'getQuestions':           if ($_SESSION['usermail'] != NULL) {return json_encode(FragenVerwaltung::getQuestions());}                                                                                                        break;
             ## Other modes
-            ##case  'checkLogin':                                                 echo json_encode(self::checkLogin());break;
-            case  'aecd587fdc09':                                               echo json_encode($this->_phpHelp);break;
-            default:                                                            echo json_encode(array('returncode'=>1, 'Returnvalue'=>'<strong>Programmfehler Fehlercode: ##PHPMAIN_aktivierungJS_wv</strong><br>mode-Wert fehlerhaft. $_REQUEST[\'mode\'] = ' . strval($_REQUEST['mode'])));break;
+            ##case  'aecd587fdc09':                                               return json_encode($this->_phpHelp);break;
+            default:                                                            return json_encode(array('returncode'=>1, 'Returnvalue'=>'<strong>Programmfehler Fehlercode: ##PHPMAIN_aktivierungJS_wv</strong><br>mode-Wert fehlerhaft. $_REQUEST[\'mode\'] = ' . strval($_REQUEST['mode'])));break;
         }
     }
 
@@ -116,22 +130,22 @@ class main {
         $string = str_replace('ß', '&#223;', $string);
         return $string;
     }
-    
-    private function _phpHelp() {
-        return array
-        (
-            'SESSION'=>$_SESSION,
-            'GET'=>$_GET,
-            'POST'=>$_POST,
-            'REQUEST'=>$_REQUEST,
-            'COOCKIE'=>$_COOKIE,
-            'ENV'=>$_ENV,
-            'FILES'=>$_FILES,
-            'SERVER'=>$_SERVER
-        );
-    }
-       
-    private function _checkSemicolon($var) {
+     
+    #private function _phpHelp() {
+    #    return array
+    #    (
+    #        'SESSION'=>$_SESSION,
+    #        'GET'=>$_GET,
+    #        'POST'=>$_POST,
+    #        'REQUEST'=>$_REQUEST,
+    #        'COOCKIE'=>$_COOKIE,
+    #        'ENV'=>$_ENV,
+    #        'FILES'=>$_FILES,
+    #        'SERVER'=>$_SERVER
+    #    );
+    #}
+
+    function checkSemicolon($var) {
         
         if (is_string($var))
         {
@@ -141,7 +155,7 @@ class main {
         {
             $var_Keys = array_keys($var);
             for ($i = 0; $i < count($var); $i++) {
-                $var[$var_Keys[$i]] = $this->_checkSemicolon($var[$var_Keys[$i]]);
+                $var[$var_Keys[$i]] = $this->checkSemicolon($var[$var_Keys[$i]]);
             }
             return $var;
         }
@@ -152,230 +166,7 @@ class main {
     }
 }
 
-class phpjsinterface{
 
-    function _construct(){
-        include '../conf/config.php';
-        global $dbipv4, $dbname, $dbuser, $dbpass;
-        $this->userAdministration = new UserAdministration($dbipv4, $dbname, $dbuser, $dbpass);
-    }
-
-    /**@brief Creates errorlog file
-     * @param string $lognote string to write to error log
-     */
-    private function _writeLog($lognote){
-        $fileName = 'ErrorFile_'.date("Y-m-d-H-i-s-ms").'.txt';
-        $myfile = fopen('../logs/'.$fileName, "w") or die($lognote);
-        fwrite($myfile, $lognote);
-        fclose($myfile);
-        return $fileName;
-    }
-
-    /**@brief user login
-     * @param string $userName the users username
-     * @param string $password the users password
-     * @return array ('returncode'=>true,'returnvalue'=>false)
-     * @return array ('returncode'=>true, 'returnvalue'=>true)
-     * @except array ('returncode'=>false, 'returnvalue'=>string)
-     */
-    function userLogin($userName, $password){
-        try{
-            $userLogin_Result = $this->userAdministration->loginUser($userName, $password);
-            if (!$userLogin_Result['rc']){throw new ErrorException($userLogin_Result['rv']);}
-            else{
-                if ($userLogin_Result['rv'] === null){$answer =  array('returncode'=>true,'returnvalue'=>false);return;}
-                else{
-                    // Set session vars
-                    $_SESSION['usermail']   = $userLogin_Result['rv']['usermail'];
-                    $_SESSION['userisroot'] = $userLogin_Result['rv']['userisroot'];
-                    $_SESSION['logedIn']    = $userLogin_Result['rv']['logedIn'];
-                    $_SESSION['clientIp']   = $userLogin_Result['rv']['clientIP'];
-                    // get last login
-                    $lastLogin = $this->userAdministration->getLastLogin($_SESSION['usermail']);
-                    if (!$lastLogin['rc']){throw new ErrorException($lastLogin['rc']);}
-                    // write to historie
-                    $writeHistorie_Result = $this->userAdministration->writeHistorie($_SESSION['usermail'], $_SESSION['clientIp'], 'Login');
-                    if (!$writeHistorie_Result['rc']){throw new ErrorException($writeHistorie_Result['rv']);}
-                    $answer = array('returncode'=>true, 'returnvalue'=>$lastLogin['rv']);
-                }
-            }
-        }
-        catch(ErrorException $error){
-            $logNote = strval(debug_backtrace()[0]['line']).': '.debug_backtrace()[0]['class'].'.'.debug_backtrace()[0]['function'].debug_backtrace()[0]['type'].$error->getMessage();
-            $fileName = $this->_writeLog($logNote);
-            $answer = array('returncode'=>false, 'returnvalue'=>$fileName);
-        }
-        finally{return $answer;}
-
-    }
-
-    /**@brief adding new user to database
-     * @param string $userName new user username
-     * @param string $firstName new user firstname
-     * @param string $lastName new user lastname
-     * @param string $password default password
-     * @return array ('returncode'=>true,'returnvalue'=>true)
-     * @return array ('returncode'=>true,'returnvalue'=>false)
-     * @except array('returncode'=>false, 'returnvalue'=>string)
-     */
-    function addUser($userName, $firstName, $lastName, $password){
-        try{
-            if (!$_SESSION['userisroot']){$answer = false;return;}
-            include_once 'UserAdministration.php';
-            $this->userAdministration = new UserAdministration();
-            $addUser_Result = $this->userAdministration->addUser($userName, $firstName, $lastName, $password);
-            if (!$addUser_Result['rc']){throw new ErrorException($addUser_Result['rv']);}
-            else{
-                if (!$addUser_Result['rv']){$answer = array('returncode'=>true,'returnvalue'=>false);}
-                elseif ($addUser_Result['rv']){
-                    // write to historie
-                    $writeHistorie_Result = $this->userAdministration->writeHistorie($_SESSION['usermail'], $_SESSION['clientIp'], 'Added user: '.$userName);
-                    if (!$writeHistorie_Result['rc']){throw new ErrorException($writeHistorie_Result['rv']);}
-                    $answer = array('returncode'=>true,'returnvalue'=>true);
-                }
-                else{throw new ErrorException($addUser_Result['rv']);}
-            } 
-        }
-        catch(ErrorException $error){
-            $logNote = strval(debug_backtrace()[0]['line']).': '.debug_backtrace()[0]['class'].'.'.debug_backtrace()[0]['function'].debug_backtrace()[0]['type'].$error->getMessage();
-            $fileName = $this->_writeLog($logNote);
-            $answer = array('returncode'=>false, 'returnvalue'=>$fileName);
-        }
-        finally{return $answer;}
-    }
-
-    /**@brief changing Password
-     * @param string $oldPasswort The users old password
-     * @param string $newPasswort The users new password
-     * @return array ('returncode'=>true,'returnvalue'=>boolean)
-     * @except array('returncode'=>false, 'returnvalue'=>string)
-     */
-    function changePassword($oldPasswort, $newPasswort){
-        try{
-            include_once 'UserAdministration.php';
-            $this->userAdministration = new UserAdministration();
-            $changePassword_Result = $this->userAdministration->changePassword($_SESSION['usermail'], $oldPasswort, $newPasswort);
-            if (!$changePassword_Result['rc']) {throw new ErrorException($changePassword_Result['rv']);}
-            else{
-                if ($changePassword_Result['rv']==true){$answer = array('returncode'=>true,'returnvalue'=>true);}
-                else{
-                    // write to historie
-                    $writeHistorie_Result = $this->userAdministration->writeHistorie($_SESSION['usermail'], $_SESSION['clientIp'], 'Changed password');
-                    if (!$writeHistorie_Result['rc']){throw new ErrorException($writeHistorie_Result['rv']);}
-                    $answer = array('returncode'=>true,'returnvalue'=>false);} 
-            }
-        }
-        catch(ErrorException $error){
-            $logNote = strval(debug_backtrace()[0]['line']).': '.debug_backtrace()[0]['class'].'.'.debug_backtrace()[0]['function'].debug_backtrace()[0]['type'].$error->getMessage();
-            $fileName = $this->_writeLog($logNote);
-            $answer = array('returncode'=>false, 'returnvalue'=>$fileName);
-        }
-        finally{return $answer;}
-    }
-
-    /**@brief Reseting a users password to given password
-     * @param string $password Rootuser password
-     * @param string $resetUser Username of reseting user
-     * @param string $stdPassword New password for reseting user
-     * @return array('returncode'=>true, 'returnvalue'=>true)
-     * @return array('returncode'=>true, 'returnvalue'=>integer)
-     * @except array('returncode'=>false, 'returnvalue'=>string)
-     */
-    function resetPassword($password, $resetUser, $stdPassword){
-        try{
-            include_once 'UserAdministration.php';
-            $this->userAdministration = new UserAdministration();
-            $resetPassword_Result = $this->userAdministration->resetPassword($_SESSION['usermail'], $password, $resetUser, $stdPassword);
-            if (!$resetPassword_Result['rc']){throw new ErrorException($resetPassword_Result['rv']);}
-            elseif ($resetPassword_Result['rv']!=true){$answer = array('returncode'=>true, 'returnvalue'=>$resetPassword_Result['rv']);}
-            else{
-                // write to historie
-                $writeHistorie_Result = $this->userAdministration->writeHistorie($_SESSION['usermail'], $_SESSION['clientIp'], 'Reseted passwort for ' . $resetUser);
-                if (!$writeHistorie_Result['rc']){throw new ErrorException($writeHistorie_Result['rv']);}
-                $answer = array('returncode'=>true, 'returnvalue'=>true);
-            }
-        }
-        catch(ErrorException $error){
-            $logNote = strval(debug_backtrace()[0]['line']).': '.debug_backtrace()[0]['class'].'.'.debug_backtrace()[0]['function'].debug_backtrace()[0]['type'].$error->getMessage();
-            $fileName = $this->_writeLog($logNote);
-            $answer = array('returncode'=>false, 'returnvalue'=>$fileName);
-        }
-        finally{return $answer;}
-    }
-
-    /**@brief Checks if user is still loged in
-     * @return array ('returncode'=>true, 'returnvalue'=>boolen)
-     * @except array('returncode'=>false, 'returnvalue'=>string)
-     */
-    function checkLogin(){
-        try{
-            include_once 'UserAdministration.php';
-            $this->userAdministration = new UserAdministration();
-            $checkLogin_Result = $this->userAdministration->checkLogin($_SESSION['logedIn']);
-            if (!$checkLogin_Result['rc']){throw new ErrorException($changePassword_Result['rv']);}
-            elseif($checkLogin_Result['rv']){
-                $answer = array('returncode'=>true,'returnvalue'=>true);
-            }
-            else{
-                $answer = array('returncode'=>true,'returnvalue'=>false);
-            }
-        }
-        catch(ErrorException $error){
-            $logNote = strval(debug_backtrace()[0]['line']).': '.debug_backtrace()[0]['class'].'.'.debug_backtrace()[0]['function'].debug_backtrace()[0]['type'].$error->getMessage();
-            $fileName = $this->_writeLog($logNote);
-            $answer = array('returncode'=>false, 'returnvalue'=>$fileName);
-        }
-        finally{return $answer;}
-    }
-    /**@brief Reseting a users password to given password
-     * @param string $password Rootuser password
-     * @param string $deleteThis Username of deleting user
-     * @return array('returncode'=>true, 'returnvalue'=>true)
-     * @return array('returncode'=>true, 'returnvalue'=>int)
-     * @except array('returncode'=>false, 'returnvalue'=>string)
-     */
-    function deleteUser($password, $deleteThis){
-        try{
-            include_once 'UserAdministration.php';
-            $this->userAdministration = new UserAdministration();
-            $deleteUser_Result = $this->userAdministration->deleteUser($_SESSION['usermail'], $password, $deleteThis);
-            if (!$deleteUser_Result['rc']){throw new ErrorException($deleteUser_Result['rv']);}
-            elseif ($deleteUser_Result['rv']!=true){$answer = array('returncode'=>true, 'returnvalue'=>$deleteUser_Result['rv']);}
-            else{
-                // write to historie
-                $writeHistorie_Result = $this->userAdministration->writeHistorie($_SESSION['usermail'], $_SESSION['clientIp'], 'Deleted User ' . $deleteThis);
-                if (!$writeHistorie_Result['rc']){throw new ErrorException($writeHistorie_Result['rv']);}
-                $answer = array('returncode'=>true, 'returnvalue'=>true);
-            }
-        }
-        catch(ErrorException $error){
-            $logNote = strval(debug_backtrace()[0]['line']).': '.debug_backtrace()[0]['class'].'.'.debug_backtrace()[0]['function'].debug_backtrace()[0]['type'].$error->getMessage();
-            $fileName = $this->_writeLog($logNote);
-            $answer = array('returncode'=>false, 'returnvalue'=>$fileName);
-        }
-        finally{return $answer;}
-    }
-
-    /**@brief Checks if user is still loged in
-     * @return array ('returncode'=>true, 'returnvalue'=>boolen)
-     * @except array('returncode'=>false, 'returnvalue'=>string)
-     */
-    function getAllUser(){
-        try{
-            include_once 'UserAdministration.php';
-            $this->userAdministration = new UserAdministration();
-            $checkLogin_Result = $this->userAdministration->getAllUser();
-            if (!$checkLogin_Result['rc']){throw new ErrorException($changePassword_Result['rv']);}
-            else{$answer = array('returncode'=>true,'returnvalue'=>$checkLogin_Result['rv']);}
-        }
-        catch(ErrorException $error){
-            $logNote = strval(debug_backtrace()[0]['line']).': '.debug_backtrace()[0]['class'].'.'.debug_backtrace()[0]['function'].debug_backtrace()[0]['type'].$error->getMessage();
-            $fileName = $this->_writeLog($logNote);
-            $answer = array('returncode'=>false, 'returnvalue'=>$fileName);
-        }
-        finally{return $answer;}
-    }
-}
 
 ## Legacy code
 ## Sry no documentation
@@ -384,7 +175,7 @@ class FragenVerwaltung {
 
     public static function softdeleteKlassenUndFaecher($isClass, $nameOfThis){
         try{
-            if($_SESSION['isroot']){
+            if($_SESSION['userisroot']){
                 include_once 'DatabaseControl.php';
                 include_once '../conf/config.php';
                 global $dbipv4, $dbuser, $dbpass, $dbname;
@@ -404,7 +195,7 @@ class FragenVerwaltung {
 
     public static function addClass($className, $studentCount){
         try{
-            if($_SESSION['isroot']){
+            if($_SESSION['userisroot']){
                 include_once 'DatabaseControl.php';
                 include_once '../conf/config.php';
                 global $dbipv4, $dbuser, $dbpass, $dbname;
@@ -423,7 +214,7 @@ class FragenVerwaltung {
 
     public static function addSubject($subjectName){
         try{
-            if($_SESSION['isroot']){
+            if($_SESSION['userisroot']){
                 include_once 'DatabaseControl.php';
                 include_once '../conf/config.php';
                 global $dbipv4, $dbuser, $dbpass, $dbname;
@@ -980,4 +771,6 @@ class FragenVerwaltung {
     }
 }
 
-$jsablauf = new main();
+$jsablauf = new Main();
+$_REQUEST = $jsablauf->checkSemicolon($_REQUEST);
+echo $jsablauf->executeOrder($_REQUEST['mode']);

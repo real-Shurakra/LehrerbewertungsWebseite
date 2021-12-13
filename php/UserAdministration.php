@@ -522,12 +522,15 @@ class UserAdministration {
      * @return array ('rc'=>true,'rv'=>array)
      * @except array('rc'=>false, 'rv'=>string)
      */
-    function getAllUser(){
+    function getAllUser($rootFlag){
         try{
-            $sqlGetUserHistorie = "SELECT * FROM getalluser;";
-            $sqlGetUserHistorie_Result = $this->_sendOneToDatabase($sqlGetUserHistorie);
-            if (!$sqlGetUserHistorie_Result['rc']){throw new ErrorException($sqlGetUserHistorie_Result['rv']);}
-            else{$answer = array('rc'=>true,'rv'=>$sqlGetUserHistorie_Result['rv']);}
+            if ($rootFlag) {
+                $sqlGetUserHistorie = "SELECT * FROM getalluser;";
+                $sqlGetUserHistorie_Result = $this->_sendOneToDatabase($sqlGetUserHistorie);
+                if (!$sqlGetUserHistorie_Result['rc']){throw new ErrorException($sqlGetUserHistorie_Result['rv']);}
+                else{$answer = array('rc'=>true,'rv'=>$sqlGetUserHistorie_Result['rv']);}
+            }
+            else{$answer = array('rc'=>true,'rv'=>false);}
         }
         catch(ErrorException $error){$answer = array('rc'=>false, 'rv'=>strval(debug_backtrace()[0]['line']).': '.debug_backtrace()[0]['class'].'.'.debug_backtrace()[0]['function'].debug_backtrace()[0]['type'].$error->getMessage());}
         finally{return $answer;}
