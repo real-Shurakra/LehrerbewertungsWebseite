@@ -5,6 +5,33 @@
 </style>
 <h1>Lehrerbewertungswebseite functiontest:</h1>
 <?php
+
+//////////////////////////////////////////  DEBUG  ////////////////////////////////////////////
+/**
+if (isset($_REQUEST['mode']) == false){
+    session_unset();
+    $_REQUEST['mode']           = 'getQuestions';
+
+    $_SESSION['usermail']       = 'temp.dump@hotmail.com';
+    $_REQUEST['frage']          = 'Tafelbilder und Folien sind gut lesbar.';
+    $_REQUEST['mail']           = 'temp.dump@hotmail.com';
+    $_REQUEST['passwort']       = 'Admin';
+    $_REQUEST['kategorie']      = 'Unterricht';
+    $_REQUEST['name']           = 'BogenX';
+    $_REQUEST['anzahl']         = '1';
+    $_REQUEST['klasse']         = 'ITB1-19';
+    $_REQUEST['fach']           = 'ITS';
+    $_REQUEST['fbId']           = '124';
+    $_REQUEST['fragen']         = array('Die Beurteilungskriterien sind nachvollziehbar.', 'Die Unterrichtsinhalte sind praxisbezogen.');
+    $_REQUEST['rate']           = json_encode(array(array('frageid'=>'7','bogenid'=>'112','bewertung'=>2),array('frageid'=>'35','bogenid'=>'112','bewertung'=>1)));
+    $_REQUEST['codehash']       = '00-48-40-00';
+    $_REQUEST['kritik']         = 'Alles Gefixt! Garkein Problem!';
+    $_REQUEST['frageId']        = '124';
+    $_REQUEST['neuFrage']       = array('frage' => 'Der Unterricht ist gut vorbereitet und sorgfaltig geplant.','lehrerId' => 'NULL','kategorie' => 'Unterricht');
+    
+} 
+*/
+
 include '../conf/config.php';
 
 function schreib($string, $mode, $return){

@@ -56,6 +56,11 @@ class main {
             ##case  'checkPermission':                                            echo json_encode(nutzerverwaltung::checkPermission($_REQUEST['passwort']));                                                                                 break;
             ##case  'deleteUser':             if ($_SESSION['usermail'] != NULL) {echo json_encode(nutzerverwaltung::deleteUser($_REQUEST['passwort'], $_REQUEST['mail']));}                                                                  break;
             ## Modes for FragenVerwaltung
+            case  'addSubject':             if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::addSubject($_REQUEST['subjectName']));}                                                                                  break;
+            case  'changeSubjectDelete':    if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::softdeleteKlassenUndFaecher(false, $_REQUEST['subjectName']));}                                                          break;
+            case  'addClass':               if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::addClass($_REQUEST['className'], $_REQUEST['studentCount']));}                                                           break;
+            case  'changeClassDelete':      if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::softdeleteKlassenUndFaecher(true, $_REQUEST['className']));}                                                             break;
+
             case  'askAlleFragen':          if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::askAlleFragen());}                                                                                                       break;
             case  'addFrage':               if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::addFrage($_REQUEST['frage'], $_REQUEST['kategorie']));}                                                                  break;
             case  'getAlleKategorien':      if ($_SESSION['usermail'] != Null) {echo json_encode(FragenVerwaltung::getAlleKategorien());}                                                                                                   break;
@@ -372,20 +377,64 @@ class phpjsinterface{
     }
 }
 
+## Legacy code
+## Sry no documentation
+
 class FragenVerwaltung {
 
     public static function softdeleteKlassenUndFaecher($isClass, $nameOfThis){
         try{
-            include_once 'DatabaseControl.php';
-            include_once '../conf/config.php';
-            global $dbipv4, $dbuser, $dbpass, $dbname;
-            // Creating class DatabaseControl object
-            $databaseConrtol = new DatabaseControl($dbipv4, $dbuser, $dbpass, $dbname);
-            if ($isClass) {$sqlString = "UPDATE klasse SET softdelete =(CASE WHEN softdelete = 0 THEN 1 ELSE 0 END) WHERE name = '".$nameOfThis."';";}
-            else {$sqlString = "UPDATE fach SET softdelete =(CASE WHEN softdelete = 0 THEN 1 ELSE 0 END) WHERE name = '".$nameOfThis."';";}
-            $dbReturn = $databaseConrtol->sendOneToDatabase($sqlString);
-            if (!$dbReturn['rc']) {throw new ErrorException($dbReturn['rv']);}
-            $answer = array('returncode'=>true, 'returnvalue'=>true);
+            if($_SESSION['isroot']){
+                include_once 'DatabaseControl.php';
+                include_once '../conf/config.php';
+                global $dbipv4, $dbuser, $dbpass, $dbname;
+                // Creating class DatabaseControl object
+                $databaseConrtol = new DatabaseControl($dbipv4, $dbuser, $dbpass, $dbname);
+                if ($isClass) {$sqlString = "UPDATE klasse SET softdelete =(CASE WHEN softdelete = 0 THEN 1 ELSE 0 END) WHERE name = '".$nameOfThis."';";}
+                else {$sqlString = "UPDATE fach SET softdelete =(CASE WHEN softdelete = 0 THEN 1 ELSE 0 END) WHERE name = '".$nameOfThis."';";}
+                $dbReturn = $databaseConrtol->sendOneToDatabase($sqlString);
+                if (!$dbReturn['rc']) {throw new ErrorException($dbReturn['rv']);}
+                $answer = array('returncode'=>true, 'returnvalue'=>true);
+            }
+            else{$answer = array('returncode'=>true, 'returnvalue'=>false);}
+        }
+        catch(ErrorException $error){$answer = array('returncode'=>false, 'returnvalue'=>$error->getMessage());}
+        finally{return $answer;}
+    }
+
+    public static function addClass($className, $studentCount){
+        try{
+            if($_SESSION['isroot']){
+                include_once 'DatabaseControl.php';
+                include_once '../conf/config.php';
+                global $dbipv4, $dbuser, $dbpass, $dbname;
+                // Creating class DatabaseControl object
+                $databaseConrtol = new DatabaseControl($dbipv4, $dbuser, $dbpass, $dbname);
+                $sqlString = "INSERT INTO klasse(name, schueleranzahl) VALUES ('".$className."', '".$studentCount."');";
+                $dbReturn = $databaseConrtol->sendOneToDatabase($sqlString);
+                if (!$dbReturn['rc']) {throw new ErrorException($dbReturn['rv']);}
+                $answer = array('returncode'=>true, 'returnvalue'=>true);
+            }
+            else{$answer = array('returncode'=>true, 'returnvalue'=>false);}
+        }
+        catch(ErrorException $error){$answer = array('returncode'=>false, 'returnvalue'=>$error->getMessage());}
+        finally{return $answer;}
+    }
+
+    public static function addSubject($subjectName){
+        try{
+            if($_SESSION['isroot']){
+                include_once 'DatabaseControl.php';
+                include_once '../conf/config.php';
+                global $dbipv4, $dbuser, $dbpass, $dbname;
+                // Creating class DatabaseControl object
+                $databaseConrtol = new DatabaseControl($dbipv4, $dbuser, $dbpass, $dbname);
+                $sqlString = "INSERT INTO fach(name) VALUES('".$subjectName."');";
+                $dbReturn = $databaseConrtol->sendOneToDatabase($sqlString);
+                if (!$dbReturn['rc']) {throw new ErrorException($dbReturn['rv']);}
+                $answer = array('returncode'=>true, 'returnvalue'=>true);
+            }
+            else{$answer = array('returncode'=>true, 'returnvalue'=>false);}
         }
         catch(ErrorException $error){$answer = array('returncode'=>false, 'returnvalue'=>$error->getMessage());}
         finally{return $answer;}
@@ -930,28 +979,5 @@ class FragenVerwaltung {
         finally{return $answer;}
     }
 }
-//////////////////////////////////////////  DEBUG  /////////////////////////////////////////////
-if (isset($_REQUEST['mode']) == false){
-    session_unset();
-    $_REQUEST['mode']           = 'getQuestions';
 
-    $_SESSION['usermail']       = 'temp.dump@hotmail.com';
-    $_REQUEST['frage']          = 'Tafelbilder und Folien sind gut lesbar.';
-    $_REQUEST['mail']           = 'temp.dump@hotmail.com';
-    $_REQUEST['passwort']       = 'Admin';
-    $_REQUEST['kategorie']      = 'Unterricht';
-    $_REQUEST['name']           = 'BogenX';
-    $_REQUEST['anzahl']         = '1';
-    $_REQUEST['klasse']         = 'ITB1-19';
-    $_REQUEST['fach']           = 'ITS';
-    $_REQUEST['fbId']           = '124';
-    $_REQUEST['fragen']         = array('Die Beurteilungskriterien sind nachvollziehbar.', 'Die Unterrichtsinhalte sind praxisbezogen.');
-    $_REQUEST['rate']           = json_encode(array(array('frageid'=>'7','bogenid'=>'112','bewertung'=>2),array('frageid'=>'35','bogenid'=>'112','bewertung'=>1)));
-    $_REQUEST['codehash']       = '00-48-40-00';
-    $_REQUEST['kritik']         = 'Alles Gefixt! Garkein Problem!';
-    $_REQUEST['frageId']        = '124';
-    $_REQUEST['neuFrage']       = array('frage' => 'Der Unterricht ist gut vorbereitet und sorgfaltig geplant.','lehrerId' => 'NULL','kategorie' => 'Unterricht');
-    
-}
-//////////////////////////////////////////  DEBUG END  /////////////////////////////////////////
 $jsablauf = new main();
