@@ -54,11 +54,12 @@ class Main {
                     $_REQUEST['deleteThis']
                 ));
                 break;
-            case  'deleteUser':
+            case  'getAllUser':
                 return json_encode($this->interface->getAllUser(
                     $_SESSION['userisroot']
                 ));
                 break;
+            
 
 
 
