@@ -18,10 +18,13 @@ class SchooldataAdministration {
     /**@brief Database interface
      * @param string $sqlString SQL formated string
      * @param boolean $moreThanOne Set true if send more than one executives in
-     * @return array ('rc'=>true,'rv'=>array)
+     * @return array ('rc'=>true,'rv'=>integer)
+     *  - 0 = New class added
+     *  - 1 = Class allready exists
+     *  - 2 = Could nor add class
      * @except array ('rc'=>false,'rv'=>string)
      */
-    protected function _sendOneToDatabase($sqlString, $moreThanOne=false){
+    protected function _sendOneToDatabase(string $sqlString, bool $moreThanOne=false){
         try{
             if (!$moreThanOne) {
                 $dbReturn = $this->databaseConrtol->sendOneToDatabase($sqlString);
@@ -37,20 +40,35 @@ class SchooldataAdministration {
         finally{return $answer;}
     }
 
+    // Class functions
+
     /**@brief Adding new class to database
      * @param string $className
      * @param string $studentCount
      * @return array ('rc'=>true,'rv'=>true)
      * @except array ('rc'=>false,'rv'=>string)
      */
-    function addClass($className, $studentCount){
+    function addClass(string $className, string $studentCount){
         try{
+            // Check if class is allready in database
+            $sqlquery_addSubjectExists = "SELECT 1 FROM klasse WHERE name = '".$className."';";
+            $sqlquery_addSubjectExists_Return = $this->_sendOneToDatabase($sqlquery_addSubjectExists);
+            if (!$sqlquery_addSubjectExists_Return['rc']) {throw new ErrorException($sqlquery_addSubjectExists_Return['rv']);}
+            if ($sqlquery_addSubjectExists_Return['rv'] != array()) {$answer= array('rc'=>true, 'rv'=>1);Return;}
+
             $sqlquery_addClass = "INSERT INTO klasse(name, schueleranzahl) VALUES ('".$className."', '".$studentCount."');";
             $sqlquery_addClass_Result = $this->_sendOneToDatabase($sqlquery_addClass);
             if (!$sqlquery_addClass_Result['rc']) {throw new ErrorException($sqlquery_addClass_Result['rv']);}
-            $answer = array('rc'=>true,'rv'=>true);
+
+            // check if class is in database
+            $sqlquery_addSubjectExists = "SELECT 1 FROM klasse WHERE name = '".$className."';";
+            $sqlquery_addSubjectExists_Return = $this->_sendOneToDatabase($sqlquery_addSubjectExists);
+            if (!$sqlquery_addSubjectExists_Return['rc']) {throw new ErrorException($sqlquery_addSubjectExists_Return['rv']);}
+            if ($sqlquery_addSubjectExists_Return['rv'] == array()) {$answer= array('rc'=>true, 'rv'=>2);Return;}
+
+            $answer = array('rc'=>true,'rv'=>0);
         }
-        catch(ErrorException $error){$answer = array('returncode'=>false, 'returnvalue'=>$error->getMessage());}
+        catch(ErrorException $error){$answer = array('rc'=>false, 'rv'=>$error->getMessage());}
         finally{return $answer;}
     }
 
@@ -69,7 +87,7 @@ class SchooldataAdministration {
         finally{return $answer;}
     }
 
-    /**@brief Get all class names
+    /**@brief Get all deleted class names
      * @return array('rc'=>0, 'rv'=>array())
      * @except array ('rc'=>false,'rv'=>string)
      */
@@ -84,7 +102,7 @@ class SchooldataAdministration {
         finally{return $answer;}
     }
 
-    /**@brief Get all class names
+    /**@brief Get all not deleted class names
      * @return array('rc'=>0, 'rv'=>array())
      * @except array ('rc'=>false,'rv'=>string)
      */
@@ -104,7 +122,7 @@ class SchooldataAdministration {
      * @return array ('rc'=>true,'rv'=>true)
      * @except array ('rc'=>false,'rv'=>string)
      */
-    function switchSoftDeleteClasses($className){
+    function switchSoftDeleteClasses(string $className){
         try{
             $sqlquery_switchSoftDeleteClasses = "UPDATE klasse SET softdelete =(CASE WHEN softdelete = 0 THEN 1 ELSE 0 END) WHERE name = '".$className."';";
                 $sqlquery_switchSoftDeleteClasses_Result = $this->_sendOneToDatabase($sqlquery_switchSoftDeleteClasses);
@@ -116,55 +134,154 @@ class SchooldataAdministration {
 
     }
 
-    function addSubject($subjectName){
+    /**@brief Renameing exsisting class
+     * @param string $oldClassName The class to rename
+     * @param string $newClassName The new name for class
+     * @return array ('rc'=>true,'rv'=>int)
+     *  - 0 = Class renamed
+     *  - 1 = Class not found
+     *  - 2 = Class could not be renamed
+     * @except array ('rc'=>false,'rv'=>string)
+     * @todo programming
+     */
+    function renameClass(string $oldClassName, string $newClassName) {
         try{
-            if($_SESSION['userisroot']){
-                include_once 'DatabaseControl.php';
-                include_once '../conf/config.php';
-                global $dbipv4, $dbuser, $dbpass, $dbname;
-                // Creating class DatabaseControl object
-                $databaseConrtol = new DatabaseControl($dbipv4, $dbuser, $dbpass, $dbname);
-                $sqlString = "INSERT INTO fach(name) VALUES('".$subjectName."');";
-                $dbReturn = $databaseConrtol->sendOneToDatabase($sqlString);
-                if (!$dbReturn['rc']) {throw new ErrorException($dbReturn['rv']);}
-                $answer = array('returncode'=>true, 'returnvalue'=>true);
-            }
-            else{$answer = array('returncode'=>true, 'returnvalue'=>false);}
         }
-        catch(ErrorException $error){$answer = array('returncode'=>false, 'returnvalue'=>$error->getMessage());}
+        catch(ErrorException $error){$answer = array('rc'=>false, 'rv'=>strval(debug_backtrace()[0]['line']).': '.debug_backtrace()[0]['class'].'.'.debug_backtrace()[0]['function'].debug_backtrace()[0]['type'].$error->getMessage());}
+        finally{return $answer;}
+        
+    }
+
+    /**@brief editing the classes student count
+     * @param string $className The class
+     * @param int $newStudentCount 
+     * @return array ('rc'=>true,'rv'=>int)
+     *  - 0 = Student count edited
+     *  - 1 = Class not found
+     *  - 2 = Student count could not be edited
+     * @except array ('rc'=>false,'rv'=>string)
+     * @todo programming
+     */
+    function editClassStudentCount(string $className, int $newStudentCount) {
+        try{
+        }
+        catch(ErrorException $error){$answer = array('rc'=>false, 'rv'=>strval(debug_backtrace()[0]['line']).': '.debug_backtrace()[0]['class'].'.'.debug_backtrace()[0]['function'].debug_backtrace()[0]['type'].$error->getMessage());}
+        finally{return $answer;}
+        
+    }
+
+    // Subject functions
+
+    /**@brief Adding new subject
+     * @param string $subjectName
+     * @return array ('rc'=>true, 'rv'=>integer)
+     *  - 0 = New subject added
+     *  - 1 = Subject allready exists
+     *  - 2 = Could nor add subject
+     * @except array ('rc'=>false,'rv'=>string)
+     */
+    function addSubject(string $subjectName){
+        try{
+            // Check if subject is allready in database
+            $sqlquery_addSubjectExists = "SELECT 1 FROM fach WHERE name = '".$subjectName."';";
+            $sqlquery_addSubjectExists_Return = $this->_sendOneToDatabase($sqlquery_addSubjectExists);
+            if (!$sqlquery_addSubjectExists_Return['rc']) {throw new ErrorException($sqlquery_addSubjectExists_Return['rv']);}
+            if ($sqlquery_addSubjectExists_Return['rv'] != array()) {$answer= array('rc'=>true, 'rv'=>1);Return;}
+
+            // Insert new subject
+            $sqlquery_addSubject = "INSERT INTO fach(name) VALUES('".$subjectName."');";
+            $sqlquery_addSubject_Return = $this->_sendOneToDatabase($sqlquery_addSubject);
+            if (!$sqlquery_addSubject_Return['rc']) {throw new ErrorException($sqlquery_addSubject_Return['rv']);}
+
+            // check if subject is in database
+            $sqlquery_addSubjectCheck = "SELECT 1 FROM fach WHERE name = '".$subjectName."';";
+            $sqlquery_addSubjectCheck_Return = $this->_sendOneToDatabase($sqlquery_addSubjectCheck);
+            if (!$sqlquery_addSubjectCheck_Return['rc']) {throw new ErrorException($sqlquery_addSubjectCheck_Return['rv']);}
+            if ($sqlquery_addSubjectExists_Return['rv'] == array()) {$answer= array('rc'=>true, 'rv'=>2);Return;}
+
+            $answer = array('rc'=>true, 'rv'=>0);
+        }
+        catch(ErrorException $error){$answer = array('rc'=>false, 'rv'=>$error->getMessage());}
         finally{return $answer;}
     }
 
+    /**@brief Get all deleted subjects
+     * @return array('rc'=>0, 'rv'=>array())
+     * @except array ('rc'=>false,'rv'=>string)
+     */
     function getAllSubjects(){
-        global $link;
-        $sqlquery_getAlleSchulklassen = "SELECT name FROM fach";
-        $sqlquery_getAlleSchulklassen_Result = mysqli_query($link, $sqlquery_getAlleSchulklassen);
-        if ($sqlquery_getAlleSchulklassen_Result->num_rows == 0) {
-            return array(
-                'returncode'=>-1,
-                'returnvalue'=>MainInterface::toDE('<strong>Keine Fächer gefunden</strong><br>Es wurden keine Fächer in der Datenbank gefunden.')
-            );
+        try{
+            $sqlquery_getAllSubjects = "SELECT name FROM getallsubjects";
+            $sqlquery_getAllSubjects_Result = $this->_sendOneToDatabase($sqlquery_getAllSubjects);
+            if (!$sqlquery_getAllSubjects_Result['rc']) {throw new ErrorException($sqlquery_getAllSubjects_Result['rv']);}
+            $answer = array('rc'=>0, 'rv'=>$sqlquery_getAllSubjects_Result['rv']);
         }
-        $answer = array();
-        for ($i=0; $i < $sqlquery_getAlleSchulklassen_Result->num_rows; $i++) { 
-            $sqlquery_getAlleSchulklassen_Result_Data[$i] = mysqli_fetch_array($sqlquery_getAlleSchulklassen_Result);
-            array_push($answer, $sqlquery_getAlleSchulklassen_Result_Data[$i]['name']);
-        }
-        return array(
-            'returncode'=>0,
-            'returnvalue'=>$answer
-        );
+        catch(ErrorException $error){$answer = array('rc'=>false, 'rv'=>strval(debug_backtrace()[0]['line']).': '.debug_backtrace()[0]['class'].'.'.debug_backtrace()[0]['function'].debug_backtrace()[0]['type'].$error->getMessage());}
+        finally{return $answer;}
     }
 
-    function switchSoftDeleteSubjects($subjectName){
+    /**@brief Get all subjects
+     * @return array('rc'=>0, 'rv'=>array())
+     * @except array ('rc'=>false,'rv'=>string)
+     */
+    function getAllDeletedSubjects(){
+        try{
+            $sqlquery_getAllSubjects = "SELECT name FROM getallsubjects WHERE softdelete = 1";
+            $sqlquery_getAllSubjects_Result = $this->_sendOneToDatabase($sqlquery_getAllSubjects);
+            if (!$sqlquery_getAllSubjects_Result['rc']) {throw new ErrorException($sqlquery_getAllSubjects_Result['rv']);}
+            $answer = array('rc'=>0, 'rv'=>$sqlquery_getAllSubjects_Result['rv']);
+        }
+        catch(ErrorException $error){$answer = array('rc'=>false, 'rv'=>strval(debug_backtrace()[0]['line']).': '.debug_backtrace()[0]['class'].'.'.debug_backtrace()[0]['function'].debug_backtrace()[0]['type'].$error->getMessage());}
+        finally{return $answer;}
+    }
+
+    /**@brief Get all not deleted subjects
+     * @return array('rc'=>0, 'rv'=>array())
+     * @except array ('rc'=>false,'rv'=>string)
+     */
+    function getAllNotDeletedSubjects(){
+        try{
+            $sqlquery_getAllSubjects = "SELECT name FROM getallsubjects WHERE softdelete = 0";
+            $sqlquery_getAllSubjects_Result = $this->_sendOneToDatabase($sqlquery_getAllSubjects);
+            if (!$sqlquery_getAllSubjects_Result['rc']) {throw new ErrorException($sqlquery_getAllSubjects_Result['rv']);}
+            $answer = array('rc'=>0, 'rv'=>$sqlquery_getAllSubjects_Result['rv']);
+        }
+        catch(ErrorException $error){$answer = array('rc'=>false, 'rv'=>strval(debug_backtrace()[0]['line']).': '.debug_backtrace()[0]['class'].'.'.debug_backtrace()[0]['function'].debug_backtrace()[0]['type'].$error->getMessage());}
+        finally{return $answer;}
+    }
+
+    /**@brief Change value of soft delete flag of subjects
+     * @param string $subjectName Name of subject
+     * @return array ('rc'=>true,'rv'=>true)
+     * @except array ('rc'=>false,'rv'=>string)
+     */
+    function switchSoftDeleteSubjects(string $subjectName){
         try{
             $sqlquery_switchSoftDeleteClasses = "UPDATE fach SET softdelete =(CASE WHEN softdelete = 0 THEN 1 ELSE 0 END) WHERE name = '".$subjectName."';";
                 $sqlquery_switchSoftDeleteClasses_Result = $this->_sendOneToDatabase($sqlquery_switchSoftDeleteClasses);
             if (!$sqlquery_switchSoftDeleteClasses_Result['rc']) {throw new ErrorException($sqlquery_switchSoftDeleteClasses_Result['rv']);}
-            $answer = array('returncode'=>true, 'returnvalue'=>true);
+            $answer = array('rc'=>true, 'rv'=>true);
         }
         catch(ErrorException $error){$answer = array('rc'=>false, 'rv'=>strval(debug_backtrace()[0]['line']).': '.debug_backtrace()[0]['class'].'.'.debug_backtrace()[0]['function'].debug_backtrace()[0]['type'].$error->getMessage());}
         finally{return $answer;}
 
+    }
+
+    /**@brief Renameing exsisting subject
+     * @param string $oldsubjectName The subject to rename
+     * @param string $newsubjectName The new name for subject
+     * @return array ('rc'=>true,'rv'=>int)
+     *  - 0 = Subject renamed
+     *  - 1 = Subject not found
+     *  - 2 = Subject could not be renamed
+     * @except array ('rc'=>false,'rv'=>string)
+     * @todo programming
+     */
+    function renameSubject(string $oldSubjectName, string $newSubjectName) {
+        try{
+        }
+        catch(ErrorException $error){$answer = array('rc'=>false, 'rv'=>strval(debug_backtrace()[0]['line']).': '.debug_backtrace()[0]['class'].'.'.debug_backtrace()[0]['function'].debug_backtrace()[0]['type'].$error->getMessage());}
+        finally{return $answer;}
+        
     }
 }
