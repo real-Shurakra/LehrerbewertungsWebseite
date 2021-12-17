@@ -8,7 +8,7 @@
  * @param string $dbName = Database name
  */
 class DatabaseControl {
-    function _construct($dbIpv4, $dbUser, $dbPass, $dbName){
+    function __construct($dbIpv4, $dbUser, $dbPass, $dbName){
         $this->dbIpv4 = $dbIpv4;
         $this->dbUser = $dbUser;
         $this->dbPass = $dbPass;

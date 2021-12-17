@@ -186,7 +186,7 @@ class QuestionnaireAdministration {
                     }
                 }
             }
-            $answer = array('rc'=>0,'rv'=>NULL);
+            $answer = array('rc'=>true,'rv'=>NULL);
         }
         catch (ErrorException $error) {$answer = array('rc'=>1,'rv'=>$error->getMessage());}
         finally{return $answer;}
