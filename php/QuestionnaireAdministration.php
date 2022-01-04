@@ -1,6 +1,6 @@
 <?php
 
-include 'DatabaseControl.php';
+//include 'DatabaseControl.php';
 
 class QuestionnaireAdministration {
 
@@ -10,10 +10,10 @@ class QuestionnaireAdministration {
      * @param string $dbuser Database user
      * @param string $dbpass Database user password
      */
-    function _construct($dbipv4, $dbname, $dbuser, $dbpass){
-        // Creating class DatabaseControl object
-        $this->databaseConrtol = new DatabaseControl($dbipv4, $dbuser, $dbpass, $dbname);
-    }
+    #function _construct($dbipv4, $dbname, $dbuser, $dbpass){
+    #    // Creating class DatabaseControl object
+    #    $this->databaseConrtol = new DatabaseControl($dbipv4, $dbuser, $dbpass, $dbname);
+    #}
 
     /**@brief Database interface
      * @param string $sqlString SQL formated string
@@ -21,21 +21,21 @@ class QuestionnaireAdministration {
      * @return array ('rc'=>true,'rv'=>array)
      * @except array ('rc'=>false,'rv'=>string)
      */
-    protected function _sendOneToDatabase($sqlString, $moreThanOne=false){
-        try{
-            if (!$moreThanOne) {
-                $dbReturn = $this->databaseConrtol->sendOneToDatabase($sqlString);
-            }
-            else{
-                $dbReturn = $this->databaseConrtol->sendMultipleToDatabase($sqlString);
-            }
-            if (!$dbReturn['rc']) {throw new ErrorException($dbReturn['rv']);}
-            else{$answer = array('rc'=>true, 'rv'=>$dbReturn['rv']);}
-            
-        }
-        catch(ErrorException $error){$answer = array('rc'=>false, 'rv'=>strval(debug_backtrace()[0]['line']).': '.debug_backtrace()[0]['class'].'.'.debug_backtrace()[0]['function'].debug_backtrace()[0]['type'].$error->getMessage());}
-        finally{return $answer;}
-    }
+    #protected function _sendOneToDatabase($sqlString, $moreThanOne=false){
+    #    try{
+    #        if (!$moreThanOne) {
+    #            $dbReturn = $this->databaseConrtol->sendOneToDatabase($sqlString);
+    #        }
+    #        else{
+    #            $dbReturn = $this->databaseConrtol->sendMultipleToDatabase($sqlString);
+    #        }
+    #        if (!$dbReturn['rc']) {throw new ErrorException($dbReturn['rv']);}
+    #        else{$answer = array('rc'=>true, 'rv'=>$dbReturn['rv']);}
+    #        
+    #    }
+    #    catch(ErrorException $error){$answer = array('rc'=>false, 'rv'=>strval(debug_backtrace()[0]['line']).': '.debug_backtrace()[0]['class'].'.'.debug_backtrace()[0]['function'].debug_backtrace()[0]['type'].$error->getMessage());}
+    #    finally{return $answer;}
+    #}
 
     
     
