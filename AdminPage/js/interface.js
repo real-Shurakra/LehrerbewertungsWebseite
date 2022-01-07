@@ -1,6 +1,6 @@
 class interface{
     /**
-     * 
+     * @brief 
      * @param {FormData} formData The FormData question you want to send to PHP. Don't forget the 'mode' parameter
      */
     sendToPhp(formData){

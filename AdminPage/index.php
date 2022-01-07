@@ -12,11 +12,17 @@
     </head>
     <body>
         <div class="jumbotron">
-            <h1>Hello World</h1>
+            <div id="header">
+                <!-- Header Start -->
+                
+                <!-- Header End -->
+            </div>
         </div>
         <div class="container-fluid">
             <div class="row">
-                <div class="col-xl-12">
+                <div id="body" class="col-xl-12">
+                <!-- Body Start -->
+                <!-- Body End -->
                 </div>
             </div>
         </div>

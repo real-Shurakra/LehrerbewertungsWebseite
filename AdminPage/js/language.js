@@ -1,6 +1,5 @@
 class language{
     setLanguage(strlanguage){
-        
         question = new FormData();
         question.append('mode', mode);
         question.append('language', strlanguage);
@@ -12,6 +11,7 @@ class language{
     }
 
     readBrowserLanguage(){
-        return navigator.language || navigator.userLanguage;
+        return 'de-de';
+        //return navigator.language || navigator.userLanguage;
     }
 }
