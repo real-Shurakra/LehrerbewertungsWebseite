@@ -505,7 +505,12 @@ class FragenVerwaltung {
                                                  '-1'               =>  $sqlquery_GetFbFragen_Result_Data[$i]['bew101'],
                                                  '0'                =>  $sqlquery_GetFbFragen_Result_Data[$i]['bew000'],
                                                  '1'                =>  $sqlquery_GetFbFragen_Result_Data[$i]['bew001'],
-                                                 '2'                =>  $sqlquery_GetFbFragen_Result_Data[$i]['bew010']
+                                                 '2'                =>  $sqlquery_GetFbFragen_Result_Data[$i]['bew010'],
+                                                 'sumAnswers'       =>  $sqlquery_GetFbFragen_Result_Data[$i]['bew110']+
+                                                                        $sqlquery_GetFbFragen_Result_Data[$i]['bew101']+
+                                                                        $sqlquery_GetFbFragen_Result_Data[$i]['bew000']+
+                                                                        $sqlquery_GetFbFragen_Result_Data[$i]['bew001']+
+                                                                        $sqlquery_GetFbFragen_Result_Data[$i]['bew010']
                                                 )
                                           )
                           );
