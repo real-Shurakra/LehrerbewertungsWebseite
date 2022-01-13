@@ -73,7 +73,7 @@ class UserAdministration {
     protected function _getSpice($userName) {
         try{
             $result = $this->_sendOneToDatabase("SELECT pepper, salt FROM lehrer WHERE mail='".$userName."'");
-            if (!$result['rc']) {throw new ErrorException($result['rv']);}
+            if (!$result['rc']) {throw new Throwable($result['rv']);}
             elseif ($result['rv']==array()) {
                 $answer = array(
                     'rc'=>true,
@@ -89,7 +89,7 @@ class UserAdministration {
                 );            
             }
         }
-        catch(ErrorException $error){$answer = array('rc'=>false, 'rv'=>strval(debug_backtrace()[0]['line']).': '.debug_backtrace()[0]['class'].'.'.debug_backtrace()[0]['function'].debug_backtrace()[0]['type'].$error->getMessage());}
+        catch(Throwable $error){$answer = array('rc'=>false, 'rv'=>strval(debug_backtrace()[0]['line']).': '.debug_backtrace()[0]['class'].'.'.debug_backtrace()[0]['function'].debug_backtrace()[0]['type'].$error->getMessage());}
         finally{return $answer;}
     }
 
