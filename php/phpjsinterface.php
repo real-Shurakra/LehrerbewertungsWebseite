@@ -70,7 +70,6 @@ function addUser($userName, $firstName, $lastName, $password){
     try{
         if (!$_SESSION['userisroot']){$answer = false;return;}
         include_once 'UserAdministration.php';
-        $this->userAdministration = new UserAdministration();
         $addUser_Result = $this->userAdministration->addUser($userName, $firstName, $lastName, $password);
         if (!$addUser_Result['rc']){throw new ErrorException($addUser_Result['rv']);}
         else{
@@ -101,7 +100,6 @@ function addUser($userName, $firstName, $lastName, $password){
 function changePassword($oldPasswort, $newPasswort){
     try{
         include_once 'UserAdministration.php';
-        $this->userAdministration = new UserAdministration();
         $changePassword_Result = $this->userAdministration->changePassword($_SESSION['usermail'], $oldPasswort, $newPasswort);
         if (!$changePassword_Result['rc']) {throw new ErrorException($changePassword_Result['rv']);}
         else{
@@ -132,7 +130,6 @@ function changePassword($oldPasswort, $newPasswort){
 function resetPassword($password, $resetUser, $stdPassword){
     try{
         include_once 'UserAdministration.php';
-        $this->userAdministration = new UserAdministration();
         $resetPassword_Result = $this->userAdministration->resetPassword($_SESSION['usermail'], $password, $resetUser, $stdPassword);
         if (!$resetPassword_Result['rc']){throw new ErrorException($resetPassword_Result['rv']);}
         elseif ($resetPassword_Result['rv']!=true){$answer = array('returncode'=>true, 'returnvalue'=>$resetPassword_Result['rv']);}
@@ -158,7 +155,6 @@ function resetPassword($password, $resetUser, $stdPassword){
 function checkLogin(){
     try{
         include_once 'UserAdministration.php';
-        $this->userAdministration = new UserAdministration();
         $checkLogin_Result = $this->userAdministration->checkLogin($_SESSION['logedIn']);
         if (!$checkLogin_Result['rc']){throw new ErrorException($changePassword_Result['rv']);}
         elseif($checkLogin_Result['rv']){
@@ -185,7 +181,6 @@ function checkLogin(){
 function deleteUser($password, $deleteThis){
     try{
         include_once 'UserAdministration.php';
-        $this->userAdministration = new UserAdministration();
         $deleteUser_Result = $this->userAdministration->deleteUser($_SESSION['usermail'], $password, $deleteThis);
         if (!$deleteUser_Result['rc']){throw new ErrorException($deleteUser_Result['rv']);}
         elseif ($deleteUser_Result['rv']!=true){$answer = array('returncode'=>true, 'returnvalue'=>$deleteUser_Result['rv']);}
@@ -211,7 +206,6 @@ function deleteUser($password, $deleteThis){
 function getAllUser(){
     try{
         include_once 'UserAdministration.php';
-        $this->userAdministration = new UserAdministration();
         $checkLogin_Result = $this->userAdministration->getAllUser();
         if (!$checkLogin_Result['rc']){throw new ErrorException($changePassword_Result['rv']);}
         else{$answer = array('returncode'=>true,'returnvalue'=>$checkLogin_Result['rv']);}

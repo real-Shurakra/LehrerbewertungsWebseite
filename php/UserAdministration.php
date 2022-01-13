@@ -21,7 +21,7 @@ class UserAdministration {
      * @param string $dbuser Database user
      * @param string $dbpass Database user password
      */
-    function _construct($dbipv4, $dbname, $dbuser, $dbpass){
+    function __construct($dbipv4, $dbname, $dbuser, $dbpass){
         // Creating class DatabaseControl object
         $this->databaseConrtol = new DatabaseControl($dbipv4, $dbuser, $dbpass, $dbname);
     }
@@ -73,7 +73,7 @@ class UserAdministration {
     protected function _getSpice($userName) {
         try{
             $result = $this->_sendOneToDatabase("SELECT pepper, salt FROM lehrer WHERE mail='".$userName."'");
-            if (!$result['rc']) {throw new Throwable($result['rv']);}
+            if (!$result['rc']) {throw new ErrorException($result['rv']);}
             elseif ($result['rv']==array()) {
                 $answer = array(
                     'rc'=>true,
@@ -89,7 +89,7 @@ class UserAdministration {
                 );            
             }
         }
-        catch(Throwable $error){$answer = array('rc'=>false, 'rv'=>strval(debug_backtrace()[0]['line']).': '.debug_backtrace()[0]['class'].'.'.debug_backtrace()[0]['function'].debug_backtrace()[0]['type'].$error->getMessage());}
+        catch(ErrorException $error){$answer = array('rc'=>false, 'rv'=>strval(debug_backtrace()[0]['line']).': '.debug_backtrace()[0]['class'].'.'.debug_backtrace()[0]['function'].debug_backtrace()[0]['type'].$error->getMessage());}
         finally{return $answer;}
     }
 
