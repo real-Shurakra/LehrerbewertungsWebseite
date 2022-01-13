@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Erstellungszeit: 26. Nov 2021 um 13:57
+-- Erstellungszeit: 13. Jan 2022 um 12:41
 -- Server-Version: 10.4.8-MariaDB
 -- PHP-Version: 7.2.24
 
@@ -68,17 +68,19 @@ INSERT INTO `codes` (`codehash`, `fragebogenid`, `kritik`, `bewertung`) VALUES
 
 DROP TABLE IF EXISTS `fach`;
 CREATE TABLE `fach` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `name` varchar(32) NOT NULL,
-  `deleted` tinyint(1) NOT NULL DEFAULT 0
+  `id` bigint(20) UNSIGNED NOT NULL COMMENT 'subject id',
+  `name` varchar(32) NOT NULL COMMENT 'name of the subject',
+  `softdelete` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'Flag for deletation'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Daten für Tabelle `fach`
 --
 
-INSERT INTO `fach` (`id`, `name`, `deleted`) VALUES
-(1, 'ITS', 0);
+INSERT INTO `fach` (`id`, `name`, `softdelete`) VALUES
+(1, 'ITS', 0),
+(2, 'WUG', 0),
+(3, 'AWE', 0);
 
 -- --------------------------------------------------------
 
@@ -263,6 +265,43 @@ INSERT INTO `fragentemplate` (`frage`, `kategorie`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Stellvertreter-Struktur des Views `getallclasses`
+-- (Siehe unten für die tatsächliche Ansicht)
+--
+DROP VIEW IF EXISTS `getallclasses`;
+CREATE TABLE `getallclasses` (
+`name` varchar(32)
+,`softdelete` tinyint(1)
+);
+
+-- --------------------------------------------------------
+
+--
+-- Stellvertreter-Struktur des Views `getallsubjects`
+-- (Siehe unten für die tatsächliche Ansicht)
+--
+DROP VIEW IF EXISTS `getallsubjects`;
+CREATE TABLE `getallsubjects` (
+`name` varchar(32)
+,`softdelete` tinyint(1)
+);
+
+-- --------------------------------------------------------
+
+--
+-- Stellvertreter-Struktur des Views `getalluser`
+-- (Siehe unten für die tatsächliche Ansicht)
+--
+DROP VIEW IF EXISTS `getalluser`;
+CREATE TABLE `getalluser` (
+`mail` varchar(255)
+,`isroot` tinyint(1)
+,`creationdate` timestamp
+);
+
+-- --------------------------------------------------------
+
+--
 -- Stellvertreter-Struktur des Views `getbewertungen`
 -- (Siehe unten für die tatsächliche Ansicht)
 --
@@ -343,14 +382,30 @@ CREATE TABLE `getquestions` (
 -- --------------------------------------------------------
 
 --
+-- Stellvertreter-Struktur des Views `getuserhistorie`
+-- (Siehe unten für die tatsächliche Ansicht)
+--
+DROP VIEW IF EXISTS `getuserhistorie`;
+CREATE TABLE `getuserhistorie` (
+`timestamp` timestamp
+,`lastname` varchar(128)
+,`firstname` varchar(128)
+,`username` varchar(255)
+,`clientip` varchar(45)
+,`useraction` text
+);
+
+-- --------------------------------------------------------
+
+--
 -- Tabellenstruktur für Tabelle `klasse`
 --
 
 DROP TABLE IF EXISTS `klasse`;
 CREATE TABLE `klasse` (
-  `name` varchar(32) NOT NULL,
-  `schueleranzahl` smallint(6) NOT NULL,
-  `softdelete` tinyint(1) NOT NULL DEFAULT 0
+  `name` varchar(32) NOT NULL COMMENT 'name of class',
+  `schueleranzahl` smallint(6) NOT NULL COMMENT 'student count',
+  `softdelete` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'Flag for deletation'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
@@ -358,7 +413,11 @@ CREATE TABLE `klasse` (
 --
 
 INSERT INTO `klasse` (`name`, `schueleranzahl`, `softdelete`) VALUES
-('ITB1-19', 30, 0);
+('ITB1-17', 30, 0),
+('ITB1-18', 30, 0),
+('ITB1-19', 30, 0),
+('ITB1-20', 30, 0),
+('ITB1-21', 30, 0);
 
 -- --------------------------------------------------------
 
@@ -375,16 +434,18 @@ CREATE TABLE `lehrer` (
   `passwort` varchar(128) NOT NULL COMMENT 'User password. This is the complete, with pepper and salt, encripted password',
   `isroot` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'Shows if user has root accsses to the database',
   `pepper` varchar(32) DEFAULT NULL COMMENT 'password pepper',
-  `salt` varchar(32) DEFAULT NULL COMMENT 'password salt'
+  `salt` varchar(32) DEFAULT NULL COMMENT 'password salt',
+  `creationdate` timestamp NOT NULL DEFAULT current_timestamp(),
+  `settings` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Daten für Tabelle `lehrer`
 --
 
-INSERT INTO `lehrer` (`id`, `mail`, `vorname`, `nachname`, `passwort`, `isroot`, `pepper`, `salt`) VALUES
-(1, 'temp.dump@hotmail.com', 'Admin', 'Admin', '8c961088a179e47df0ff9a1becedeed84feb4d51a79481a46391516a8425ddcaf7aa516331b76a23dde2b489c539823346ca5780bc16385d94128718bbc01fad', 1, 'ae45f0a9dffd2b3dd79c1624b8c36181', '8436d1dcd1e883cb417bafa96ffe9751'),
-(2, 'l.eerer@schule.de', 'Lenny', 'Eerer', '8c961088a179e47df0ff9a1becedeed84feb4d51a79481a46391516a8425ddcaf7aa516331b76a23dde2b489c539823346ca5780bc16385d94128718bbc01fad', 0, 'ae45f0a9dffd2b3dd79c1624b8c36181', '8436d1dcd1e883cb417bafa96ffe9751');
+INSERT INTO `lehrer` (`id`, `mail`, `vorname`, `nachname`, `passwort`, `isroot`, `pepper`, `salt`, `creationdate`, `settings`) VALUES
+(1, 'temp.dump@hotmail.com', 'Admin', 'Admin', '8c961088a179e47df0ff9a1becedeed84feb4d51a79481a46391516a8425ddcaf7aa516331b76a23dde2b489c539823346ca5780bc16385d94128718bbc01fad', 1, 'ae45f0a9dffd2b3dd79c1624b8c36181', '8436d1dcd1e883cb417bafa96ffe9751', '2021-12-13 12:34:19', NULL),
+(2, 'l.eerer@schule.de', 'Lenny', 'Eerer', '8c961088a179e47df0ff9a1becedeed84feb4d51a79481a46391516a8425ddcaf7aa516331b76a23dde2b489c539823346ca5780bc16385d94128718bbc01fad', 0, 'ae45f0a9dffd2b3dd79c1624b8c36181', '8436d1dcd1e883cb417bafa96ffe9751', '2021-12-13 12:34:19', NULL);
 
 -- --------------------------------------------------------
 
@@ -525,6 +586,31 @@ CREATE TABLE `nm_lehrer_klasse` (
 -- --------------------------------------------------------
 
 --
+-- Tabellenstruktur für Tabelle `userhistorie`
+--
+
+DROP TABLE IF EXISTS `userhistorie`;
+CREATE TABLE `userhistorie` (
+  `timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
+  `userid` bigint(20) UNSIGNED NOT NULL,
+  `clientip` varchar(45) NOT NULL,
+  `useraction` text NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Daten für Tabelle `userhistorie`
+--
+
+INSERT INTO `userhistorie` (`timestamp`, `userid`, `clientip`, `useraction`) VALUES
+('2021-11-29 15:28:15', 1, '192.168.0.1', 'Test'),
+('2022-01-13 11:16:48', 1, '127.0.0.1', 'Login'),
+('2022-01-13 11:20:33', 1, '127.0.0.1', 'Login'),
+('2022-01-13 11:24:28', 1, '127.0.0.1', 'Login'),
+('2022-01-13 11:25:15', 1, '127.0.0.1', 'Login');
+
+-- --------------------------------------------------------
+
+--
 -- Tabellenstruktur für Tabelle `verbesserungen`
 --
 
@@ -534,6 +620,33 @@ CREATE TABLE `verbesserungen` (
   `bogenid` bigint(20) UNSIGNED NOT NULL,
   `vorschlag` text NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Struktur des Views `getallclasses`
+--
+DROP TABLE IF EXISTS `getallclasses`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getallclasses`  AS  select `klasse`.`name` AS `name`,`klasse`.`softdelete` AS `softdelete` from `klasse` order by `klasse`.`name` desc ;
+
+-- --------------------------------------------------------
+
+--
+-- Struktur des Views `getallsubjects`
+--
+DROP TABLE IF EXISTS `getallsubjects`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getallsubjects`  AS  select `fach`.`name` AS `name`,`fach`.`softdelete` AS `softdelete` from `fach` order by `fach`.`name` ;
+
+-- --------------------------------------------------------
+
+--
+-- Struktur des Views `getalluser`
+--
+DROP TABLE IF EXISTS `getalluser`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getalluser`  AS  select `lehrer`.`mail` AS `mail`,`lehrer`.`isroot` AS `isroot`,`lehrer`.`creationdate` AS `creationdate` from `lehrer` ;
 
 -- --------------------------------------------------------
 
@@ -579,6 +692,15 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 DROP TABLE IF EXISTS `getquestions`;
 
 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getquestions`  AS  select `fragen`.`frage` AS `frage`,`fragen`.`kategorie` AS `kategorie`,`lehrer`.`mail` AS `mail` from (`fragen` join `lehrer` on(`fragen`.`lehrerid` = `lehrer`.`id`)) where `fragen`.`softdelete` is false ;
+
+-- --------------------------------------------------------
+
+--
+-- Struktur des Views `getuserhistorie`
+--
+DROP TABLE IF EXISTS `getuserhistorie`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getuserhistorie`  AS  select `userhistorie`.`timestamp` AS `timestamp`,`lehrer`.`nachname` AS `lastname`,`lehrer`.`vorname` AS `firstname`,`lehrer`.`mail` AS `username`,`userhistorie`.`clientip` AS `clientip`,`userhistorie`.`useraction` AS `useraction` from (`userhistorie` left join `lehrer` on(`lehrer`.`id` = `userhistorie`.`userid`)) order by `lehrer`.`nachname` <> 0 and `userhistorie`.`timestamp` <> 0 ;
 
 --
 -- Indizes der exportierten Tabellen
@@ -660,6 +782,12 @@ ALTER TABLE `nm_lehrer_klasse`
   ADD KEY `fachid` (`fachid`);
 
 --
+-- Indizes für die Tabelle `userhistorie`
+--
+ALTER TABLE `userhistorie`
+  ADD KEY `userid` (`userid`);
+
+--
 -- Indizes für die Tabelle `verbesserungen`
 --
 ALTER TABLE `verbesserungen`
@@ -681,7 +809,7 @@ ALTER TABLE `bewertungen`
 -- AUTO_INCREMENT für Tabelle `fach`
 --
 ALTER TABLE `fach`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'subject id', AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT für Tabelle `fragebogen`
@@ -693,13 +821,13 @@ ALTER TABLE `fragebogen`
 -- AUTO_INCREMENT für Tabelle `fragen`
 --
 ALTER TABLE `fragen`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5890;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6369;
 
 --
 -- AUTO_INCREMENT für Tabelle `lehrer`
 --
 ALTER TABLE `lehrer`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'User id', AUTO_INCREMENT=95;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'User id', AUTO_INCREMENT=103;
 
 --
 -- AUTO_INCREMENT für Tabelle `verbesserungen`
@@ -752,6 +880,12 @@ ALTER TABLE `nm_lehrer_klasse`
   ADD CONSTRAINT `nm_lehrer_klasse_ibfk_1` FOREIGN KEY (`lehrerid`) REFERENCES `lehrer` (`id`),
   ADD CONSTRAINT `nm_lehrer_klasse_ibfk_2` FOREIGN KEY (`klassename`) REFERENCES `klasse` (`name`),
   ADD CONSTRAINT `nm_lehrer_klasse_ibfk_3` FOREIGN KEY (`fachid`) REFERENCES `fach` (`id`);
+
+--
+-- Constraints der Tabelle `userhistorie`
+--
+ALTER TABLE `userhistorie`
+  ADD CONSTRAINT `userhistorie_ibfk_1` FOREIGN KEY (`userid`) REFERENCES `lehrer` (`id`);
 
 --
 -- Constraints der Tabelle `verbesserungen`
