@@ -40,7 +40,7 @@ function userLogin($userName, $password){
                 $_SESSION['clientIp']   = $userLogin_Result['rv']['clientIP'];
                 // get last login
                 $lastLogin = $this->userAdministration->getLastLogin($_SESSION['usermail']);
-                if (!$lastLogin['rc']){throw new ErrorException($lastLogin['rc']);}
+                if (!$lastLogin['rc']){throw new ErrorException($lastLogin['rv']);}
                 // write to historie
                 $writeHistorie_Result = $this->userAdministration->writeHistorie($_SESSION['usermail'], $_SESSION['clientIp'], 'Login');
                 if (!$writeHistorie_Result['rc']){throw new ErrorException($writeHistorie_Result['rv']);}

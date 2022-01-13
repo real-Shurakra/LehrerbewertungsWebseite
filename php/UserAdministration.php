@@ -235,6 +235,15 @@ class UserAdministration {
             $sql_getLastLogin = "SELECT timestamp, clientip FROM getuserhistorie WHERE username = '".$userName."' AND useraction = 'Login'";
             $sql_getLastLogin_Result = $this->_sendOneToDatabase($sql_getLastLogin);
             if (!$sql_getLastLogin_Result['rc']) {throw new ErrorException($sql_getLastLogin_Result['rv']);}
+            elseif($sql_getLastLogin_Result['rc']==array()){
+                $answer = array(
+                    'rc'=>true,
+                    'rv'=>array(
+                        'timestamp'=>false,
+                        'clientip'=>false
+                    )
+                );
+            }
             else{
                 $answer = array(
                     'rc'=>true,
