@@ -1,8 +1,10 @@
 <?php
 
+include 'UserAdministration.php';
+
 class phpjsinterface{
 
-function _construct($dbipv4, $dbname, $dbuser, $dbpass){
+function __construct($dbipv4, $dbname, $dbuser, $dbpass){
     $this->userAdministration = new UserAdministration($dbipv4, $dbname, $dbuser, $dbpass);
 }
 

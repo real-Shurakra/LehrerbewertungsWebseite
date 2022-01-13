@@ -74,14 +74,20 @@ class UserAdministration {
         try{
             $result = $this->_sendOneToDatabase("SELECT pepper, salt FROM lehrer WHERE mail='".$userName."'");
             if (!$result['rc']) {throw new ErrorException($result['rv']);}
-            if ($result['rv']==array()) {$answer = array('rc'=>true,'rv'=>false);Return;}
-            $answer = array(
-                'rc'=>true,
-                'rv'=>array(
-                    'pepper'=>$result['rv'][0]['pepper'],
-                    'salt'=>$result['rv'][0]['salt']
-                )
-            );            
+            elseif ($result['rv']==array()) {
+                $answer = array(
+                    'rc'=>true,
+                    'rv'=>false
+                );
+                Return;}
+            else {$answer = array(
+                    'rc'=>true,
+                    'rv'=>array(
+                        'pepper'=>$result['rv'][0]['pepper'],
+                        'salt'=>$result['rv'][0]['salt']
+                    )
+                );            
+            }
         }
         catch(ErrorException $error){$answer = array('rc'=>false, 'rv'=>strval(debug_backtrace()[0]['line']).': '.debug_backtrace()[0]['class'].'.'.debug_backtrace()[0]['function'].debug_backtrace()[0]['type'].$error->getMessage());}
         finally{return $answer;}
