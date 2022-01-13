@@ -5,6 +5,7 @@ session_start();
 include 'phpjsinterface.php';
 include 'infomationCenter.php';
 include '../conf/config.php';
+include './old_dbConnect.php';
 
 class MainInterface {
 
