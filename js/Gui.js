@@ -5,6 +5,8 @@ export default class Gui
 {
 	constructor()
 	{	
+		this.funcitonManager;
+
 		this.leftKeyDown = false;
 		this.headerSvgUrl = "./svg/Pictorius_Logo_Header.svg";
 		this.containerPictoriusLogoHeader = document.getElementById("container_pictorius_logo_header");
@@ -93,14 +95,14 @@ export default class Gui
 				// Event listener werden den Menübuttons hinzugefügt sobald der Hintergrund und die SVG geladen sind
 				if (pageType == "index")
 				{
-					this.addEventsHorizontalMenu(mouseEnterElementsWhiteIds, "white", ids, paths, this.addHTML, this.functionMannager, this.functionKeys);
+					this.addEventsHorizontalMenu(mouseEnterElementsWhiteIds, "white", ids, paths, this.addHTML, this.functionManager, this.functionKeys);
 				}
 
 				if (pageType == "verwaltung")
 				{
 					this.initVerticalMenu();
 					this.initPageContainer();
-					this.addEventsVerticalMenu(pages, pagesNames, this.functionMannager, this.functionKeys);
+					this.addEventsVerticalMenu(pages, pagesNames, this.functionManager, this.functionKeys);
 
 					// Initial-Page öffnen, Page-Button des vertikalen Menüs entsprechend einfärben
 					// (Visibility der anderen Pages auf "invisible" stellen)

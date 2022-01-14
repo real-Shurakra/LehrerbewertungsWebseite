@@ -274,8 +274,20 @@ svg {
 	width: 100%;
 }
 
-.show_codes_button:hover{
+.show_codes_button.green{
+	font-size: 12px;
+}
+
+.show_codes_button.red{
+	font-size: 12px;
+}
+
+.show_codes_button.green:hover{
 	color: lightgreen;
+}
+
+.show_codes_button.red:hover{
+	color: lightsalmon;
 }
 
 /* SubMaskNotification */
@@ -348,4 +360,8 @@ svg {
 .deleteButton:hover{
 	text-shadow: 3px 3px lightslategray;
 	/*background-color:lightgrey;*/
+}
+
+.teacher_questionnaire{
+	margin-top: 20px;
 }

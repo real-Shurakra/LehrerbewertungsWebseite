@@ -1,9 +1,9 @@
-// Klasse FunctionMannager
+// Klasse functionManager
 
 import Questionnaire from "./Questionnaire.js";
 import QuestionnaireStudents from "./QuestionnaireStudents.js";
 
-export default class FunctionMannager
+export default class FunctionManager
 {
 	constructor()
 	{
@@ -19,8 +19,8 @@ export default class FunctionMannager
 	
 	Uebersicht_page_0()
 	{
-		console.log(JSON.parse(this.Request("./php/main.php?mode=getAlleSchulklassen")));
-		let responseClasses = JSON.parse(this.Request("./php/main.php?mode=getAlleSchulklassen"));
+		console.log(JSON.parse(this.Request("./php/main.php?mode=getAllClasses")));
+		let responseClasses = JSON.parse(this.Request("./php/main.php?mode=getAllClasses"));
 		
 		// Dropdown für Klasse füllen
 		let dropdownClasses = document.getElementById("questionnaire_filter_classes");
@@ -28,14 +28,23 @@ export default class FunctionMannager
 		let tempOption = document.createElement("option");
 		tempOption.innerHTML = "keine";
 		dropdownClasses.appendChild(tempOption);
-		for (let i = 0; i < responseClasses.returnvalue.length; i++)
+
+		if(response.returncode == 0)
 		{
-			let tempOption = document.createElement("option");
-			tempOption.innerHTML = responseClasses.returnvalue[i];
-			tempOption.value = responseClasses.returnvalue[i];
-			dropdownClasses.appendChild(tempOption);
+			for (let i = 0; i < responseClasses.returnvalue.length; i++)
+			{
+				let tempOption = document.createElement("option");
+				tempOption.innerHTML = responseClasses.returnvalue[i];
+				tempOption.value = responseClasses.returnvalue[i];
+				dropdownClasses.appendChild(tempOption);
+			}
 		}
-		
+		else
+		{
+			console.log("Die Schulklassen konnten nicht geladen werden...");
+			console.log(response);
+		}
+
 		
 		let responseSubjects = JSON.parse(this.Request("./php/main.php?mode=getAllSubjects"));
 
@@ -63,7 +72,7 @@ export default class FunctionMannager
 	Uebersicht_page_event_0()
 	{
 		// Dropdown für Klasse füllen
-		let responseClasses = JSON.parse(this.Request("./php/main.php?mode=getAlleSchulklassen"));
+		let responseClasses = JSON.parse(this.Request("./php/main.php?mode=getAllClasses"));
 
 		let dropdownClasses = document.getElementById("questionnaire_filter_classes");
 		dropdownClasses.innerHTML = "";
@@ -629,14 +638,14 @@ export default class FunctionMannager
 		xhttp.send();
 	}
 	
-	// TODO PHP Funktion zum Erhalt aller Fächer implementieren und Request von Dummy auf PHP Funktion entsprechend ändern
+
 	Fragebogen_erstellen_page_1() // Auswahl der Schulklasse Dropdown, Auswahl des Schulfachs Dropdown 
 	{
 		let selectFieldQuestionnaireClass = document.getElementById("questionnaire_class_dropdown");
 		selectFieldQuestionnaireClass.innerHTML = "";
 		if ( selectFieldQuestionnaireClass != undefined )
 		{
-			let path = "./json/dummy.json";
+			let path = "./php/main.php?mode=getAllClasses";
 			let response;
 			let xhttp = new XMLHttpRequest();
 		
@@ -644,13 +653,24 @@ export default class FunctionMannager
 				if ( xhttp.readyState == 4 && xhttp.status == 200 )
 				{
 					response = JSON.parse(xhttp.responseText);
+
+					console.log("fragebogen_erstellen_page_1_getAllClasses:");
+					console.log(response);
 				
-					for ( let i = 0; i < response.classes.length; i++ )
+					if (response.returncode == 0)
 					{
-						let selectElement = document.createElement( "option" );
-						selectElement.value = response.classes[i];
-						selectElement.innerHTML = response.classes[i];
-						selectFieldQuestionnaireClass.appendChild( selectElement );
+						for ( let i = 0; i < response.returnvalue.length; i++ )
+						{
+							let selectElement = document.createElement( "option" );
+							selectElement.value = response.returnvalue[i];
+							selectElement.innerHTML = response.returnvalue[i];
+							selectFieldQuestionnaireClass.appendChild( selectElement );
+						}
+					}
+					else
+					{
+						console.error("Die Schulklassen konnten nicht geladen werden...");
+						console.log(response);
 					}
 				}
 			};
@@ -662,7 +682,7 @@ export default class FunctionMannager
 		selectFieldQuestionnaireSubject.innerHTML = "";
 		if ( selectFieldQuestionnaireSubject != undefined )
 		{
-			let path = "./json/dummy.json";
+			let path = "./php/main.php?mode=getAllSubjects";
 			let response;
 			let xhttp = new XMLHttpRequest();
 		
@@ -671,11 +691,14 @@ export default class FunctionMannager
 				{
 					response = JSON.parse(xhttp.responseText);
 				
-					for ( let i = 0; i < response.subjects.length; i++ )
+					console.log("allSubjects:");
+					console.log(response);
+
+					for ( let i = 0; i < response.returnvalue.length; i++ )
 					{
 						let selectElement = document.createElement( "option" );
-						selectElement.value = response.subjects[i];
-						selectElement.innerHTML = response.subjects[i];
+						selectElement.value = response.returnvalue[i];
+						selectElement.innerHTML = response.returnvalue[i];
 						selectFieldQuestionnaireSubject.appendChild( selectElement );
 					}
 				}
@@ -764,7 +787,7 @@ export default class FunctionMannager
 								console.log("Fragebogen erfolgreich angelegt Response:");
 								console.log(response);
 	
-								if( response['retruncode'] == 0 )
+								if( response['returncode'] == 0 )
 								{
 									//document.getElementById("messageCreateQuestionnaire").innerHTML = response['returnvalue'];
 
@@ -1601,11 +1624,11 @@ export default class FunctionMannager
 				let responseStatus = undefined;
 
 				// Ermitteln des Bogenstatus anhand der Anzahl der verbliebenen Codes
-				if (responseQuestionnaireCodes.retruncode == -1)
+				if (responseQuestionnaireCodes.returncode == -1)
 				{
 					responseStatus = "abgeschlossen";
 				}
-				else if (responseQuestionnaireCodes.retruncode == 0)
+				else if (responseQuestionnaireCodes.returncode == 0)
 				{
 					responseStatus = "offen";
 				}

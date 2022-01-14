@@ -89,7 +89,7 @@ class MainInterface {
             case  'insertRate':                                                 return json_encode(FragenVerwaltung::insertRate($_REQUEST['rate'], $_REQUEST['codehash']));                                                                   break;
             case  'insertkritik':                                               return json_encode(FragenVerwaltung::insertkritik($_REQUEST['fbId'], $_REQUEST['kritik'], $_REQUEST['codehash']));                                            break;
             case  'getkritik':              if ($_SESSION['usermail'] != Null) {return json_encode(FragenVerwaltung::getkritik($_REQUEST['fbId']));}                                                                                          break;
-            case  'getAlleSchulklassen':    if ($_SESSION['usermail'] != Null) {return json_encode(FragenVerwaltung::getAlleSchulklassen());}                                                                                                 break;
+            case  'getAllClasses':          if ($_SESSION['usermail'] != Null) {return json_encode(FragenVerwaltung::getAlleSchulklassen());}                                                                                                 break;
             case  'getAllSubjects':         if ($_SESSION['usermail'] != Null) {return json_encode(FragenVerwaltung::getAllSubjects());}                                                                                                      break;
             case  'getFbFragenFromCode':                                        return json_encode(FragenVerwaltung::getFbFragenFromCode($_REQUEST['codehash']));                                                                             break;
             case  'alterQuestion':          if ($_SESSION['usermail'] != Null) {return json_encode(FragenVerwaltung::alterQuestion($_REQUEST['frageId'], $_REQUEST['neuFrage']));}                                                            break;
@@ -346,7 +346,7 @@ class FragenVerwaltung {
                     throw new ErrorException($genCodesResult['rv']);
                 }
                 $answer = array(
-                    'retruncode' => 0,
+                    'returncode' => 0,
                     'returnvalue' => '<strong>Erfolg.</strong><br>Fragebogen angelegt.'
                 );
             }
@@ -456,7 +456,7 @@ class FragenVerwaltung {
         $sqlquery_GetCodes_Result = mysqli_query($link, $sqlquery_GetCodes);
         if($sqlquery_GetCodes_Result->num_rows == 0){
             return array(
-                'retruncode' => -1,
+                'returncode' => -1,
                 'returnvalue' =>'<strong>Keine Codes vorhanden</strong>Bitte geben Sie den Fragebogen frei um die Codes erzeugen zu lassen'
             );
         }
@@ -464,7 +464,7 @@ class FragenVerwaltung {
             $sqlquery_GetCodes_Result_Data[$i] = mysqli_fetch_array($sqlquery_GetCodes_Result);
         }
         return array(
-            'retruncode' => 0,
+            'returncode' => 0,
             'returnvalue' => $sqlquery_GetCodes_Result_Data
         ) ;
     }

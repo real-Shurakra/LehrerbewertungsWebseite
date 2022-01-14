@@ -23,10 +23,12 @@ export default class Questionnaire
 
 
 		let div = document.getElementById(questionnaire.id);
+
 		if (div !== null) div.remove();
 		else
 		{
 			div = document.createElement("div");
+			div.className = "teacher_questionnaire";
 			div.style.borderStyle = "solid";
 			div.style.borderColor = this.unhighlightedColor;
 			div.style.borderWidth = "1px";
@@ -122,29 +124,48 @@ export default class Questionnaire
 
 			// TODO: Eventuell Button zum Anzeigen der Codes in Footer des Bogens verlegen
 			let codesTag = document.createElement("div");
-			codesTag.className = "show_codes_button";
+			codesTag.classList.add("show_codes_button");
+			codesTag.classList.add("green");
 			codesTag.innerHTML = "CODES";
 			let tempCodesTagId = this.id + "_codesTag";
 			codesTag.id = tempCodesTagId;
-			codesTag.style.fontSize = "10px";
 			codesTag.style.fontWeight = "bold";
 			codesTag.addEventListener("click", (event)=>{
-				window.open("./html/codes.htm?fbId=" + this.id + "&qSubject=" + this.qSubject + "&subject=" + this.subject + "&className=" + this.className); 
+
 				event.stopPropagation();
+
+        		// Asynchroner Request
+				let xhttp = new XMLHttpRequest()
+				let path = "./php/main.php?mode=getCodes";
+
+				let formDataCodes = new FormData();
+				formDataCodes.append("fbId", this.id);
+
+				xhttp.onreadystatechange = ()=>{
+					if ( xhttp.readyState == 4 && xhttp.status == 200 )
+					{
+						
+
+						var responseQuestionnaireCodes = JSON.parse(xhttp.responseText);
+						console.log("codes:");
+                		console.log(responseQuestionnaireCodes);
+
+                		// Abfrage ob noch Codes für den Bogen vorhanden sind
+			   			if (responseQuestionnaireCodes.returncode != -1)
+			   			{
+							window.open("./html/codes.htm?fbId=" + this.id + "&qSubject=" + this.qSubject + "&subject=" + this.subject + "&className=" + this.className); 
+							event.stopPropagation();
+			   			}
+						else
+						{
+							codesTag.classList.remove('green');
+							codesTag.classList.add('red');
+						}
+            		}
+        		}
+        		xhttp.open("POST", path, true);
+        		xhttp.send(formDataCodes);
 			});
-			/*
-			codesTag.addEventListener("mouseenter", (event)=>{
-				document.getElementById(tempCodesTagId).style.color = "green";
-			});
-			codesTag.addEventListener("mouseleave", (event)=>{
-				if (this.state)
-				{
-					document.getElementById(tempCodesTagId).style.color = "white";
-				}
-				if (!this.state) document.getElementById(tempCodesTagId).style.color = this.menuBarColor;
-				
-			});
-			*/
 			
 
 			columnSymbol.appendChild(codesTag);
@@ -328,13 +349,13 @@ export default class Questionnaire
 				let responseQuestionnaireCodes = JSON.parse(response);
 
 					// Anzeige des Bogenstatus auf Page "Übersicht";
-					if (responseQuestionnaireCodes.retruncode == -1)
+					if (responseQuestionnaireCodes.returncode == -1)
 					{
 						// Status abgeschlossen
 						// TODO: Eventuell Nachricht, dass der Bogen bereits abgeschlossen ist.
 						// Keine hohe Prio
 					}
-					else if (responseQuestionnaireCodes.retruncode == 0)
+					else if (responseQuestionnaireCodes.returncode == 0)
 					{
 						// Status offen
 						// Sub-Maske zum Bestätigen des Löschvorgangs anzeigen
@@ -426,16 +447,21 @@ export default class Questionnaire
 			xhttp.onreadystatechange = ()=>{
 				if ( xhttp.readyState == 4 && xhttp.status == 200 )
 				{
-					questionnaireList.appendChild(document.createElement("br"));
+					//questionnaireList.appendChild(document.createElement("br"));
+
+
 					var responseQuestionnaireCodes = JSON.parse(xhttp.responseText);
 
+					//console.log("Bogenstatus:");
+					//console.log(responseQuestionnaireCodes);
+
 					// Anzeige des Bogenstatus auf Page "Übersicht";
-					if (responseQuestionnaireCodes.retruncode == -1)
+					if (responseQuestionnaireCodes.returncode == -1)
 					{
 						columnStatus.innerHTML = "abgeschlossen";
 						columnStatus.style.color = "green";	
 					}
-					else if (responseQuestionnaireCodes.retruncode == 0)
+					else if (responseQuestionnaireCodes.returncode == 0)
 					{
 						columnStatus.innerHTML = "offen";
 						columnStatus.style.color = "#feb460"; // orange
@@ -779,21 +805,25 @@ export default class Questionnaire
 	
 						for (let suggestion in response.returnvalue)
 						{
-							let tempSuggestion = document.createElement("div");
-							tempSuggestion.style.paddingTop = "10px";
-							tempSuggestion.style.paddingBottom = "10px";
-							tempSuggestion.style.paddingLeft = "10px";
-	
-							let span1 = document.createElement("span");
-							span1.style.fontWeight = "bold";
-							span1.innerHTML = "Anon: ";
-							tempSuggestion.appendChild(span1);
-	
-							let span2 = document.createElement("span");
-							span2.innerHTML = response.returnvalue[suggestion];
-							tempSuggestion.appendChild(span2);
-	
-							tempSuggestionContainer.appendChild(tempSuggestion);
+							// Wenn ein Verbesserungsvorschlag eingetragen wurde, wird dieser hinzugefügt.
+							if (response.returnvalue[suggestion].length != 0)
+							{
+								let tempSuggestion = document.createElement("div");
+								tempSuggestion.style.paddingTop = "10px";
+								tempSuggestion.style.paddingBottom = "10px";
+								tempSuggestion.style.paddingLeft = "10px";
+		
+								let span1 = document.createElement("span");
+								span1.style.fontWeight = "bold";
+								span1.innerHTML = "Anon: ";
+								tempSuggestion.appendChild(span1);
+		
+								let span2 = document.createElement("span");
+								span2.innerHTML = response.returnvalue[suggestion];
+								tempSuggestion.appendChild(span2);
+		
+								tempSuggestionContainer.appendChild(tempSuggestion);
+							}
 						}
 			
 					}

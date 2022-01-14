@@ -4,12 +4,12 @@ import Gui from "./Gui.js";
 import Questionnaire from "./Questionnaire.js";
 import Question from "./Question.js";
 import Page from "./Page.js";
-import FunctionMannager from "./FunctionMannager.js";
+import FunctionManager from "./FunctionManager.js";
 
 var gui = new Gui();
-var functionMannager = new FunctionMannager();
+var objectFunctionManager = new FunctionManager();
 
-gui.functionMannager = functionMannager;
+gui.functionManager = objectFunctionManager;
 
 gui.loadSvgAndMenus("index");
 
