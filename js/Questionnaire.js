@@ -23,10 +23,12 @@ export default class Questionnaire
 
 
 		let div = document.getElementById(questionnaire.id);
+
 		if (div !== null) div.remove();
 		else
 		{
 			div = document.createElement("div");
+			div.className = "teacher_questionnaire";
 			div.style.borderStyle = "solid";
 			div.style.borderColor = this.unhighlightedColor;
 			div.style.borderWidth = "1px";
@@ -122,29 +124,48 @@ export default class Questionnaire
 
 			// TODO: Eventuell Button zum Anzeigen der Codes in Footer des Bogens verlegen
 			let codesTag = document.createElement("div");
-			codesTag.className = "show_codes_button";
+			codesTag.classList.add("show_codes_button");
+			codesTag.classList.add("green");
 			codesTag.innerHTML = "CODES";
 			let tempCodesTagId = this.id + "_codesTag";
 			codesTag.id = tempCodesTagId;
-			codesTag.style.fontSize = "10px";
 			codesTag.style.fontWeight = "bold";
 			codesTag.addEventListener("click", (event)=>{
-				window.open("./html/codes.htm?fbId=" + this.id + "&qSubject=" + this.qSubject + "&subject=" + this.subject + "&className=" + this.className); 
+
 				event.stopPropagation();
+
+        		// Asynchroner Request
+				let xhttp = new XMLHttpRequest()
+				let path = "./php/main.php?mode=getCodes";
+
+				let formDataCodes = new FormData();
+				formDataCodes.append("fbId", this.id);
+
+				xhttp.onreadystatechange = ()=>{
+					if ( xhttp.readyState == 4 && xhttp.status == 200 )
+					{
+						
+
+						var responseQuestionnaireCodes = JSON.parse(xhttp.responseText);
+						console.log("codes:");
+                		console.log(responseQuestionnaireCodes);
+
+                		// Abfrage ob noch Codes für den Bogen vorhanden sind
+			   			if (responseQuestionnaireCodes.returncode != -1)
+			   			{
+							window.open("./html/codes.htm?fbId=" + this.id + "&qSubject=" + this.qSubject + "&subject=" + this.subject + "&className=" + this.className); 
+							event.stopPropagation();
+			   			}
+						else
+						{
+							codesTag.classList.remove('green');
+							codesTag.classList.add('red');
+						}
+            		}
+        		}
+        		xhttp.open("POST", path, true);
+        		xhttp.send(formDataCodes);
 			});
-			/*
-			codesTag.addEventListener("mouseenter", (event)=>{
-				document.getElementById(tempCodesTagId).style.color = "green";
-			});
-			codesTag.addEventListener("mouseleave", (event)=>{
-				if (this.state)
-				{
-					document.getElementById(tempCodesTagId).style.color = "white";
-				}
-				if (!this.state) document.getElementById(tempCodesTagId).style.color = this.menuBarColor;
-				
-			});
-			*/
 			
 
 			columnSymbol.appendChild(codesTag);
@@ -328,13 +349,13 @@ export default class Questionnaire
 				let responseQuestionnaireCodes = JSON.parse(response);
 
 					// Anzeige des Bogenstatus auf Page "Übersicht";
-					if (responseQuestionnaireCodes.retruncode == -1)
+					if (responseQuestionnaireCodes.returncode == -1)
 					{
 						// Status abgeschlossen
 						// TODO: Eventuell Nachricht, dass der Bogen bereits abgeschlossen ist.
 						// Keine hohe Prio
 					}
-					else if (responseQuestionnaireCodes.retruncode == 0)
+					else if (responseQuestionnaireCodes.returncode == 0)
 					{
 						// Status offen
 						// Sub-Maske zum Bestätigen des Löschvorgangs anzeigen
@@ -426,16 +447,21 @@ export default class Questionnaire
 			xhttp.onreadystatechange = ()=>{
 				if ( xhttp.readyState == 4 && xhttp.status == 200 )
 				{
-					questionnaireList.appendChild(document.createElement("br"));
+					//questionnaireList.appendChild(document.createElement("br"));
+
+
 					var responseQuestionnaireCodes = JSON.parse(xhttp.responseText);
 
+					//console.log("Bogenstatus:");
+					//console.log(responseQuestionnaireCodes);
+
 					// Anzeige des Bogenstatus auf Page "Übersicht";
-					if (responseQuestionnaireCodes.retruncode == -1)
+					if (responseQuestionnaireCodes.returncode == -1)
 					{
 						columnStatus.innerHTML = "abgeschlossen";
 						columnStatus.style.color = "green";	
 					}
-					else if (responseQuestionnaireCodes.retruncode == 0)
+					else if (responseQuestionnaireCodes.returncode == 0)
 					{
 						columnStatus.innerHTML = "offen";
 						columnStatus.style.color = "#feb460"; // orange
@@ -610,6 +636,7 @@ export default class Questionnaire
 								let subTableScatteringRow = document.createElement("tr");
 								subTableScattering.appendChild(subTableScatteringRow);
 
+
 								let AnswerValues = [];
 								AnswerValues[0] = [];
 								AnswerValues[0][0] = "+ +";
@@ -625,6 +652,7 @@ export default class Questionnaire
 								AnswerValues[2][0] = "o";
 								AnswerValues[2][1] = "0";
 								AnswerValues[2][2] =  "#d3d3d3"; //light gray
+
 								AnswerValues[3] = [];
 								AnswerValues[3][0] = "-";
 								AnswerValues[3][1] = "-1";
@@ -635,16 +663,47 @@ export default class Questionnaire
 								AnswerValues[4][1] = "-2";
 								AnswerValues[4][2] = "#e47069"; // soft red
 
+								// 100% aus höchstem Wert ermitteln
+								let scatteringArray = [];
 								for (let i = 0; i < 5; i++)
 								{
+									let currentStudentAmount = response.returnvalue[element][dim2][AnswerValues[i][1]];
+									scatteringArray.push(parseInt(currentStudentAmount));
+								}
+								console.log("scattering:");
+								console.log(scatteringArray);
+								let max = Math.max(scatteringArray[0], scatteringArray[1],scatteringArray[2],scatteringArray[3],scatteringArray[4]);
+								console.log("max:");
+								console.log(max);
+
+								for (let i = 0; i < 5; i++)
+								{
+									let currentStudentAmount = parseInt(response.returnvalue[element][dim2][AnswerValues[i][1]]);
+									let opacity = (currentStudentAmount / max);//.toFixed(1);
+
+									console.log("opacity:");
+									console.log(opacity);
+
+									let opacityMin = 0.0;
+									if (opacity < opacityMin) opacity = opacityMin;
+									console.log("a:");
+									console.log(opacity);
+
 									let tempSubTableScatteringColumn = document.createElement("td");
 									tempSubTableScatteringColumn.style.width = "1%";
-									tempSubTableScatteringColumn.style.backgroundColor = AnswerValues[i][2];
-									tempSubTableScatteringColumn.innerHTML = "<b>" + AnswerValues[i][0] + " </b> " + response.returnvalue[element][dim2][AnswerValues[i][1]] + " x";
+
+									console.log("rgba:");
+									console.log(this.hexToRGBA(AnswerValues[i][2], opacity));
+
+									// Anzeige der Streuung durch Änderung der Farbintensität
+									tempSubTableScatteringColumn.style.backgroundColor = this.hexToRGBA(AnswerValues[i][2], opacity);
+
+									tempSubTableScatteringColumn.style.textAlign = "center";
+									tempSubTableScatteringColumn.innerHTML = "<b>" + AnswerValues[i][0] + "&#160;&#160; </b> " + currentStudentAmount + " x";
 									subTableScatteringRow.appendChild(tempSubTableScatteringColumn);
 								}
 								tempQuestionTableColumn2.appendChild(subTableContainerScattering);
-
+								
 								//tempQuestionTableColumn2.innerHTML = response.returnvalue[element][dim2].fragestring;								
 
 								// Erreichte Punkte
@@ -659,7 +718,7 @@ export default class Questionnaire
 								tempQuestionTableColumn3.style.textAlign = "right";
 								tempQuestionTableColumn3.style.paddingRight = "50px";
 								let tempValue = Number(response.returnvalue[element][dim2].fragebewertung);
-								tempQuestionTableColumn3.innerHTML = tempValue.toFixed(2) + " / " + this.amountStudents * 2;
+								tempQuestionTableColumn3.innerHTML = tempValue.toFixed(2) + " Punkte von " + response.returnvalue[element][dim2].sumAnswers + " Schüler(n)";
 								
 	
 								document.getElementById(questionnaireId + "_question_container").appendChild(tempCategory);
@@ -746,21 +805,25 @@ export default class Questionnaire
 	
 						for (let suggestion in response.returnvalue)
 						{
-							let tempSuggestion = document.createElement("div");
-							tempSuggestion.style.paddingTop = "10px";
-							tempSuggestion.style.paddingBottom = "10px";
-							tempSuggestion.style.paddingLeft = "10px";
-	
-							let span1 = document.createElement("span");
-							span1.style.fontWeight = "bold";
-							span1.innerHTML = "Anon: ";
-							tempSuggestion.appendChild(span1);
-	
-							let span2 = document.createElement("span");
-							span2.innerHTML = response.returnvalue[suggestion];
-							tempSuggestion.appendChild(span2);
-	
-							tempSuggestionContainer.appendChild(tempSuggestion);
+							// Wenn ein Verbesserungsvorschlag eingetragen wurde, wird dieser hinzugefügt.
+							if (response.returnvalue[suggestion].length != 0)
+							{
+								let tempSuggestion = document.createElement("div");
+								tempSuggestion.style.paddingTop = "10px";
+								tempSuggestion.style.paddingBottom = "10px";
+								tempSuggestion.style.paddingLeft = "10px";
+		
+								let span1 = document.createElement("span");
+								span1.style.fontWeight = "bold";
+								span1.innerHTML = "Anon: ";
+								tempSuggestion.appendChild(span1);
+		
+								let span2 = document.createElement("span");
+								span2.innerHTML = response.returnvalue[suggestion];
+								tempSuggestion.appendChild(span2);
+		
+								tempSuggestionContainer.appendChild(tempSuggestion);
+							}
 						}
 			
 					}
@@ -815,6 +878,46 @@ export default class Questionnaire
 		//if (response.indexOf("{") != 0) return response;
 		//if (response.length > 100 && response != null) return JSON.parse(response);
 		return response;
+	}
+
+
+
+	hexToRGBA(h, a){
+        let r = 0, g=0, b = 0;
+        let r1 = this.decodeHex(h[1]) * 16;
+        let r2 = this.decodeHex(h[2]) * 1;
+        r = r1 + r2;
+        let g1 = this.decodeHex(h[3]) * 16;
+        let g2 = this.decodeHex(h[4]) * 1;
+        g = g1 + g2;
+        let b1 = this.decodeHex(h[5]) * 16;
+        let b2 = this.decodeHex(h[6]) * 1;
+        b = b1 + b2;
+        return 'rgba('+r+','+g+','+b+','+a+')';
+    }
+    decodeHex(hex){
+        if (hex == 'a'){return 10;}
+        else if (hex == 'b') {return 11;}
+        else if (hex == 'c') {return 12;}
+        else if (hex == 'd') {return 13;}
+        else if (hex == 'e') {return 14;}
+        else if (hex == 'f') {return 15;}
+        else {return parseInt(hex);}
+    }
+
+
+	convertToRGB(hex){
+		if(hex.length != 6){
+			throw "Only six-digit hex colors are allowed.";
+		}
+	
+		var aRgbHex = hex.match(/.{1,2}/g);
+		var aRgb = [
+			parseInt(aRgbHex[0], 16),
+			parseInt(aRgbHex[1], 16),
+			parseInt(aRgbHex[2], 16)
+		];
+		return aRgb;
 	}
 
 }

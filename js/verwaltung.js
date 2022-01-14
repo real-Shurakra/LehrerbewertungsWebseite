@@ -4,21 +4,21 @@ import Gui from "./Gui.js";
 import Questionnaire from "./Questionnaire.js";
 import Question from "./Question.js";
 import Page from "./Page.js";
-import FunctionMannager from "./FunctionMannager.js";
+import FunctionManager from "./FunctionManager.js";
 import ToolTipCreator from "./ToolTipCreator.js";
 
 var gui = new Gui();
-var functionMannager = new FunctionMannager();
-functionMannager.menuBarColor = gui.menuBarColor;
-functionMannager.menuOpacity = gui.menuOpacity;
+var objectFunctionManager = new FunctionManager();
+objectFunctionManager.menuBarColor = gui.menuBarColor;
+objectFunctionManager.menuOpacity = gui.menuOpacity;
 
 var toolTipCreator1 = new ToolTipCreator();
 var toolTipCreator2 = new ToolTipCreator();
 
 
-gui.functionMannager = functionMannager;
-gui.functionMannager.toolTipCreator1 = toolTipCreator1;
-gui.functionMannager.toolTipCreator2 = toolTipCreator2;
+gui.functionManager = objectFunctionManager;
+gui.functionManager.toolTipCreator1 = toolTipCreator1;
+gui.functionManager.toolTipCreator2 = toolTipCreator2;
 
 gui.loadSvgAndMenus("verwaltung");
 

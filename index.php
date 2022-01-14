@@ -4,6 +4,9 @@
 	
 	$_SESSION['usermail'] = null;
 	$_SESSION['userisroot'] = false;
+	$_SESSION['logedIn'] = false;
+	$_SESSION['clientIp'] = null;
+
 ?>
 <!DOCTYPE html>
 <html lang="de">

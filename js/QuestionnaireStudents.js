@@ -279,35 +279,7 @@ export default class QuestionnaireStudents{
                                 //sentKritik = true;
                                 //console.log(sentKritik);
 
-                                setTimeout(()=>{
-                                    console.log("questionnaireId_at_ausfüllen");
-                                    console.log(this.questionnaireId);
 
-                                    //console.log(sentAnswers == true && sentKritik == true);
-                                    //if (sentAnswers == true && sentKritik == true)
-                                    //{
-
-                                        //TODO: Tooltip für erfolgreich abgegebene Antworten anzeigen und Ausfüll-Bogen schließen
-                                        //TODO: entsprechenden Code aus Datenbank löschen
-
-                                        // Benachrichtigung über erfolgreich abgeschickte Antwort und Kritik anzeigen
-                                        let notificationId = "successfull_answer_notification";
-                                        let tooltipContainer = document.getElementById(notificationId);
-                                        if (tooltipContainer != undefined) tooltipContainer.remove();
-                                        tooltipContainer = document.createElement("div");
-                                        this.createNotificationSuccessfullAnswer(tooltipContainer);
-
-                                        // Benachrichtigung über falsch eingegebenen Code einblenden
-                                        this.fadeElementIn(tooltipContainer, 0.97);
-                                        // Nach 5 Sek. wieder ausblenden
-                                        setTimeout(()=>{ this.fadeElementOut(tooltipContainer); }, 5000);
-
-                                        let questionnaireStudents = document.getElementById("students_questionnaire_container");
-                                        //questionnaireStudents.remove();
-                                        this.fadeElementOut(questionnaireStudents);
-
-                                    //}
-                                } ,250)
                             }
                             catch(error)
                             {
@@ -381,12 +353,43 @@ export default class QuestionnaireStudents{
 					{
 						try
 						{
+
+                            setTimeout(()=>{
+                                console.log("questionnaireId_at_ausfüllen");
+                                console.log(this.questionnaireId);
+
+                                //console.log(sentAnswers == true && sentKritik == true);
+                                //if (sentAnswers == true && sentKritik == true)
+                                //{
+
+                                    //TODO: Tooltip für erfolgreich abgegebene Antworten anzeigen und Ausfüll-Bogen schließen
+                                    //TODO: entsprechenden Code aus Datenbank löschen
+
+                                    // Benachrichtigung über erfolgreich abgeschickte Antwort und Kritik anzeigen
+                                    let notificationId = "successfull_answer_notification";
+                                    let tooltipContainer = document.getElementById(notificationId);
+                                    if (tooltipContainer != undefined) tooltipContainer.remove();
+                                    tooltipContainer = document.createElement("div");
+                                    this.createNotificationSuccessfullAnswer(tooltipContainer);
+
+                                    this.fadeElementIn(tooltipContainer, 0.97);
+                                    // Nach 5 Sek. wieder ausblenden
+                                    setTimeout(()=>{ this.fadeElementOut(tooltipContainer); }, 5000);
+
+                                    let questionnaireStudents = document.getElementById("students_questionnaire_container");
+                                    //questionnaireStudents.remove();
+                                    this.fadeElementOut(questionnaireStudents);
+
+                                //}
+                            } ,250)
+
                             //sentAnswers = true;
                             //console.log(sentAnswers);
                             response = xhttp.responseText;
                             console.log("response_insertRate");
                             console.log(response);
-                            callback();
+                            
+                            if(suggestionInput.value.length > 0) callback();
                         }
                         catch(error)
                         {
@@ -395,6 +398,7 @@ export default class QuestionnaireStudents{
                     }
                 }
                 xhttp.send(formData);
+
 
                 // Evtl. hier callback();
             });

@@ -1,6 +1,8 @@
 <?php
 // Einlesen der Datenbankparametern
-include 'save.php';
+include '../conf/config.php';
+
+global $dbipv4, $dbuser, $dbpass, $dbname;
 
 $link = mysqli_connect($dbipv4, $dbuser, $dbpass, $dbname);
 
