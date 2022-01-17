@@ -277,11 +277,11 @@ class FragenVerwaltung {
                 $answerArray[$i][1]             = MainInterface::toDE($sqlquary_AlleFragen_Result_Data[$i][1]);
             }
             $kategorien = self::getAlleKategorien();
-            if ($kategorien['rc']){
+            if ($kategorien['returncode']){
                 $answer = array(
                     'returncode'=>0,
                     'returnvalue'=>array(
-                        $kategorien['rv'],
+                        $kategorien['returnvalue'],
                         $answerArray
                     )
                 );
