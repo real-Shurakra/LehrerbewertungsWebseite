@@ -81,7 +81,7 @@ class MainInterface {
 
             case  'askAlleFragen':          if ($_SESSION['usermail'] != Null) {return json_encode(FragenVerwaltung::askAlleFragen());}                                                                                                       break;
             case  'addFrage':               if ($_SESSION['usermail'] != Null) {return json_encode(FragenVerwaltung::addFrage($_REQUEST['frage'], $_REQUEST['kategorie']));}                                                                  break;
-            case  'getAlleKategorien':      if ($_SESSION['usermail'] != Null) {return json_encode(FragenVerwaltung::getAlleKategorien());}                                                                                                   break;
+            case  'getAllCategories':       if ($_SESSION['usermail'] != Null) {return json_encode(FragenVerwaltung::getAlleKategorien());}                                                                                                   break;
             case  'makeFragebogen':         if ($_SESSION['usermail'] != Null) {return json_encode(FragenVerwaltung::makeFragebogen($_REQUEST['name'], $_REQUEST['anzahl'], $_REQUEST['klasse'], $_REQUEST['fach'], $_REQUEST['fragen']));}   break;
             case  'getFragebogens':         if ($_SESSION['usermail'] != Null) {return json_encode(FragenVerwaltung::getFragebogens());}                                                                                                      break;
             case  'getCodes':               if ($_SESSION['usermail'] != Null) {return json_encode(FragenVerwaltung::getCodes($_REQUEST['fbId']));}                                                                                           break;
@@ -298,11 +298,13 @@ class FragenVerwaltung {
             $sqlquary_AlleKategorien_Result_Data = array();
             $sqlquary_AlleKategorien = "SELECT kategorie FROM fragen GROUP BY kategorie";
             $sqlquary_AlleKategorien_Result = mysqli_query($link, $sqlquary_AlleKategorien);
-            if (!$sqlquary_AlleKategorien_Result) {throw new Exception($link->error);}
-            for ($i = 0; $i < $sqlquary_AlleKategorien_Result->num_rows; $i++) {$sqlquary_AlleKategorien_Result_Data[$i] = mysqli_fetch_array($sqlquary_AlleKategorien_Result);}
-            $answer =  array('rc'=>true,'rv'=>$sqlquary_AlleKategorien_Result_Data);
+            if (!$sqlquary_AlleKategorien_Result) {throw new ErrorException($link->error);}
+            for ($i = 0; $i < $sqlquary_AlleKategorien_Result->num_rows; $i++) {
+                $sqlquary_AlleKategorien_Result_Data[$i] = mysqli_fetch_array($sqlquary_AlleKategorien_Result);
+            }
+            $answer =  array('returncode'=>true,'returnvalue'=>$sqlquary_AlleKategorien_Result_Data);
         }
-        catch (Exception $error) {$answer = array('rc'=>false,'rv'=>$error);
+        catch (ErrorException $error) {$answer = array('returncode'=>false,'returnvalue'=>$error);
         }
         finally{
             return $answer;
