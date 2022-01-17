@@ -611,7 +611,7 @@ class FragenVerwaltung {
             }
             elseif (strlen($kritik) != 0){
                 $answer = array(
-                    'returncode'=>0,
+                    'returncode'=>-1,
                     'returnvalue'=>MainInterface::toDE('<strong>Gesendet</strong><br>Vielen Dank, dass Sie den Fragebogen ausgefüllt haben.<br>Einen schönen Tag.')
                 );
             }
