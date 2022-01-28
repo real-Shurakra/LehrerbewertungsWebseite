@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Erstellungszeit: 13. Jan 2022 um 12:41
+-- Erstellungszeit: 28. Jan 2022 um 12:54
 -- Server-Version: 10.4.8-MariaDB
 -- PHP-Version: 7.2.24
 
@@ -30,7 +30,6 @@ USE `lehrerbewertungsdatenbank`;
 -- Tabellenstruktur für Tabelle `bewertungen`
 --
 
-DROP TABLE IF EXISTS `bewertungen`;
 CREATE TABLE `bewertungen` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `frageid` bigint(20) UNSIGNED NOT NULL,
@@ -41,24 +40,37 @@ CREATE TABLE `bewertungen` (
 -- --------------------------------------------------------
 
 --
+-- Tabellenstruktur für Tabelle `categories`
+--
+
+CREATE TABLE `categories` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `description` text NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Daten für Tabelle `categories`
+--
+
+INSERT INTO `categories` (`id`, `description`) VALUES
+(1, 'Arbeitsklima'),
+(2, 'Lehrer'),
+(3, 'Leistungsbewertung'),
+(4, 'Unterricht');
+
+-- --------------------------------------------------------
+
+--
 -- Tabellenstruktur für Tabelle `codes`
 --
 
-DROP TABLE IF EXISTS `codes`;
 CREATE TABLE `codes` (
   `codehash` varchar(16) NOT NULL,
   `fragebogenid` bigint(20) UNSIGNED NOT NULL,
   `kritik` tinyint(1) NOT NULL DEFAULT 0,
-  `bewertung` tinyint(1) NOT NULL DEFAULT 0
+  `bewertung` tinyint(1) NOT NULL DEFAULT 0,
+  `creationdate` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
---
--- Daten für Tabelle `codes`
---
-
-INSERT INTO `codes` (`codehash`, `fragebogenid`, `kritik`, `bewertung`) VALUES
-('68-13-98-67', 162, 0, 0),
-('69-11-72-04', 162, 0, 0);
 
 -- --------------------------------------------------------
 
@@ -66,21 +78,11 @@ INSERT INTO `codes` (`codehash`, `fragebogenid`, `kritik`, `bewertung`) VALUES
 -- Tabellenstruktur für Tabelle `fach`
 --
 
-DROP TABLE IF EXISTS `fach`;
 CREATE TABLE `fach` (
   `id` bigint(20) UNSIGNED NOT NULL COMMENT 'subject id',
   `name` varchar(32) NOT NULL COMMENT 'name of the subject',
   `softdelete` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'Flag for deletation'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
---
--- Daten für Tabelle `fach`
---
-
-INSERT INTO `fach` (`id`, `name`, `softdelete`) VALUES
-(1, 'ITS', 0),
-(2, 'WUG', 0),
-(3, 'AWE', 0);
 
 -- --------------------------------------------------------
 
@@ -88,7 +90,6 @@ INSERT INTO `fach` (`id`, `name`, `softdelete`) VALUES
 -- Tabellenstruktur für Tabelle `fragebogen`
 --
 
-DROP TABLE IF EXISTS `fragebogen`;
 CREATE TABLE `fragebogen` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `zeitstempel` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
@@ -99,112 +100,19 @@ CREATE TABLE `fragebogen` (
   `schueleranzahl` smallint(6) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
---
--- Daten für Tabelle `fragebogen`
---
-
-INSERT INTO `fragebogen` (`id`, `zeitstempel`, `name`, `lehrerid`, `fachid`, `klassename`, `schueleranzahl`) VALUES
-(159, '2021-10-29 06:28:25', '2510', 1, 1, 'ITB1-19', 25),
-(160, '2021-10-29 06:35:10', '', 1, 1, 'ITB1-19', 25),
-(162, '2021-11-10 07:49:57', 'TestBowgenDingsies', 1, 1, 'ITB1-19', 2);
-
 -- --------------------------------------------------------
 
 --
 -- Tabellenstruktur für Tabelle `fragen`
 --
 
-DROP TABLE IF EXISTS `fragen`;
 CREATE TABLE `fragen` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `frage` varchar(255) NOT NULL,
   `lehrerid` bigint(20) UNSIGNED DEFAULT NULL,
-  `kategorie` varchar(255) NOT NULL,
+  `kategorie` bigint(20) UNSIGNED NOT NULL,
   `softdelete` tinyint(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
---
--- Daten für Tabelle `fragen`
---
-
-INSERT INTO `fragen` (`id`, `frage`, `lehrerid`, `kategorie`, `softdelete`) VALUES
-(1, 'Der Unterricht ist gut vorbereitet und sorgfaltig geplant.', 1, 'Unterricht', 0),
-(2, 'Die Interessen der Schüler werden bei der Unterrichtsplanung berücksichtigt.', 1, 'Unterricht', 0),
-(3, 'Die Arbeitsanweisungen sind klar verständlich.', 1, 'Unterricht', 0),
-(4, 'Die Arbeitsmaterialien sind übersichtlich und ordentlich aufbereitet.', 1, 'Unterricht', 0),
-(5, 'Gruppen- und Einzelarbeiten der Schüler werden abwechslungsreich eingesetzt.', 1, 'Unterricht', 0),
-(6, 'Im Unterricht werden Bezüge zu aktuellen Themen hergestellt.', 1, 'Unterricht', 0),
-(7, 'Die Unterrichtsinhalte sind praxisbezogen.', 1, 'Unterricht', 0),
-(8, 'Praxisbezug wird durch Kontakte zu Betrieben und anderen außerschulichen Einrichtungen gewährleistet.', 1, 'Unterricht', 0),
-(9, 'Die Zusammenarbeit bzw. Absprache zwischen Schule und Betrieben ist angemessen.', 1, 'Unterricht', 0),
-(10, 'Der Unterricht enthalt ausreichend Übungsphasen Unterrichtsergebnisse werden schriftlich festgehalten.', 1, 'Unterricht', 0),
-(11, 'Tafelbilder und Folien sind gut lesbar.', 1, 'Unterricht', 0),
-(12, 'Das Arbeitsklima ermuntert die Schüler zur aktiven Unterrichtsbeteiligung.', 1, 'Arbeitsklima', 0),
-(13, 'Es herrscht ein Arbeitsklima, in dem auch Fehler und abweichende Meinungen zugelassen werden.', 1, 'Arbeitsklima', 0),
-(14, 'Man traut sich, Fragen zu stellen.', 1, 'Arbeitsklima', 0),
-(15, 'Man fühlt sich ernst genommen.', 1, 'Arbeitsklima', 0),
-(16, 'Die Schüler erscheinen pünktlich zum Unterricht.', 1, 'Arbeitsklima', 0),
-(17, 'Die Schüler entschuldigen ihre Fehlzelten rechtzeitig und angemessen.', 1, 'Arbeitsklima', 0),
-(18, 'Die Schüler beteiligen sich angemessen im Unterricht.', 1, 'Arbeitsklima', 0),
-(19, 'Die Schüler bearbeiten die Aufgaben im Unterricht konzentriert.', 1, 'Arbeitsklima', 0),
-(20, 'Die Schüler erledigen ihre Hausaufgaben zuverlässig.', 1, 'Arbeitsklima', 0),
-(21, 'Die Schüler verhalten sich im Unterricht ruhig.', 1, 'Arbeitsklima', 0),
-(22, 'Unter den Schülern herrschte Fairness.', 1, 'Arbeitsklima', 0),
-(23, 'Einzelne Schüler wurden verbal oder mit anderen Mittel von ihren Mitschülern herabgesetzt.', 1, 'Arbeitsklima', 0),
-(24, 'Der Umgang der Schüler untereinander ist ehrlich und aufrichtig.', 1, 'Arbeitsklima', 0),
-(25, 'Er ist freundlich und geduldig.', 1, 'Lehrer', 0),
-(26, 'Er erklärt Unterrichtsinhalte anhand von Beispielen.', 1, 'Lehrer', 0),
-(27, 'Er lobt Schüler und ermutigt sie.', 1, 'Lehrer', 0),
-(28, 'Er lässt Kritik zu und geht darauf ein.', 1, 'Lehrer', 0),
-(29, 'Er fördert selbstständiges Denken und Arbeiten.', 1, 'Lehrer', 0),
-(30, 'Er nimmt Ideen der Schüler auf und blockt diese nicht ab.', 1, 'Lehrer', 0),
-(31, 'Die Klassenarbeiten entsprechen dem behandelten Stoff.', 1, 'Leistungsbewertung', 0),
-(32, 'Die Klassenarbeiten verlangen mehr als nur Auswendiglernen.', 1, 'Leistungsbewertung', 0),
-(33, 'Die Aufgabenstellungen sind verständlich formuliert.', 1, 'Leistungsbewertung', 0),
-(34, 'Die Klassenarbeiten werden fair benotet.', 1, 'Leistungsbewertung', 0),
-(35, 'Die Beurteilungskriterien sind nachvollziehbar.', 1, 'Leistungsbewertung', 0),
-(36, 'Die Schüler erhalten ausreichend Gelegenheit, sich im Rahmen der sonstigen Mitarbeit zu engagieren.', 1, 'Leistungsbewertung', 0),
-(37, 'Die sonstige Mitarbeit fließt angemessen in die Gesamtnote ein.', 1, 'Leistungsbewertung', 0),
-(38, 'Die Beurteilung ist gerecht, weil alle Schüler gleich behandelt werden.', 1, 'Leistungsbewertung', 0),
-(130, 'Hello World', 1, 'Unterricht', 0),
-(194, 'Das Arbeitsklima ermuntert die Schüler zur aktiven Unterrichtsbeteiligung.', NULL, 'Arbeitsklima', 0),
-(195, 'Der Umgang der Schüler untereinander ist ehrlich und aufrichtig.', NULL, 'Arbeitsklima', 0),
-(196, 'Der Unterricht enthalt ausreichend Übungsphasen Unterrichtsergebnisse werden schriftlich festgehalten.', NULL, 'Unterricht', 0),
-(197, 'Der Unterricht ist gut vorbereitet und sorgfaltig geplant.', NULL, 'Unterricht', 0),
-(198, 'Die Arbeitsanweisungen sind klar verständlich.', NULL, 'Unterricht', 0),
-(199, 'Die Arbeitsmaterialien sind übersichtlich und ordentlich aufbereitet.', NULL, 'Unterricht', 0),
-(200, 'Die Aufgabenstellungen sind verständlich formuliert.', NULL, 'Leistungsbewertung', 0),
-(201, 'Die Beurteilung ist gerecht, weil alle Schüler gleich behandelt werden.', NULL, 'Leistungsbewertung', 0),
-(202, 'Die Beurteilungskriterien sind nachvollziehbar.', NULL, 'Leistungsbewertung', 0),
-(203, 'Die Interessen der Schüler werden bei der Unterrichtsplanung berücksichtigt.', NULL, 'Unterricht', 0),
-(204, 'Die Klassenarbeiten entsprechen dem behandelten Stoff.', NULL, 'Leistungsbewertung', 0),
-(205, 'Die Klassenarbeiten verlangen mehr als nur Auswendiglernen.', NULL, 'Leistungsbewertung', 0),
-(206, 'Die Klassenarbeiten werden fair benotet.', NULL, 'Leistungsbewertung', 0),
-(207, 'Die Schüler bearbeiten die Aufgaben im Unterricht konzentriert.', NULL, 'Arbeitsklima', 0),
-(208, 'Die Schüler beteiligen sich angemessen im Unterricht.', NULL, 'Arbeitsklima', 0),
-(209, 'Die Schüler entschuldigen ihre Fehlzelten rechtzeitig und angemessen.', NULL, 'Arbeitsklima', 0),
-(210, 'Die Schüler erhalten ausreichend Gelegenheit, sich im Rahmen der sonstigen Mitarbeit zu engagieren.', NULL, 'Leistungsbewertung', 0),
-(211, 'Die Schüler erledigen ihre Hausaufgaben zuverlässig.', NULL, 'Arbeitsklima', 0),
-(212, 'Die Schüler erscheinen pünktlich zum Unterricht.', NULL, 'Arbeitsklima', 0),
-(213, 'Die Schüler verhalten sich im Unterricht ruhig.', NULL, 'Arbeitsklima', 0),
-(214, 'Die sonstige Mitarbeit fließt angemessen in die Gesamtnote ein.', NULL, 'Leistungsbewertung', 0),
-(215, 'Die Unterrichtsinhalte sind praxisbezogen.', NULL, 'Unterricht', 0),
-(216, 'Die Zusammenarbeit bzw. Absprache zwischen Schule und Betrieben ist angemessen.', NULL, 'Unterricht', 0),
-(217, 'Einzelne Schüler wurden verbal oder mit anderen Mittel von ihren Mitschülern herabgesetzt.', NULL, 'Arbeitsklima', 0),
-(218, 'Er erklärt Unterrichtsinhalte anhand von Beispielen.', NULL, 'Lehrer', 0),
-(219, 'Er fördert selbstständiges Denken und Arbeiten.', NULL, 'Lehrer', 0),
-(220, 'Er ist freundlich und geduldig.', NULL, 'Lehrer', 0),
-(221, 'Er lobt Schüler und ermutigt sie.', NULL, 'Lehrer', 0),
-(222, 'Er lässt Kritik zu und geht darauf ein.', NULL, 'Lehrer', 0),
-(223, 'Er nimmt Ideen der Schüler auf und blockt diese nicht ab.', NULL, 'Lehrer', 0),
-(224, 'Es herrscht ein Arbeitsklima, in dem auch Fehler und abweichende Meinungen zugelassen werden.', NULL, 'Arbeitsklima', 0),
-(225, 'Gruppen- und Einzelarbeiten der Schüler werden abwechslungsreich eingesetzt.', NULL, 'Unterricht', 0),
-(226, 'Im Unterricht werden Bezüge zu aktuellen Themen hergestellt.', NULL, 'Unterricht', 0),
-(227, 'Man fühlt sich ernst genommen.', NULL, 'Arbeitsklima', 0),
-(228, 'Man traut sich, Fragen zu stellen.', NULL, 'Arbeitsklima', 0),
-(229, 'Praxisbezug wird durch Kontakte zu Betrieben und anderen außerschulichen Einrichtungen gewährleistet.', NULL, 'Unterricht', 0),
-(230, 'Tafelbilder und Folien sind gut lesbar.', NULL, 'Unterricht', 0),
-(231, 'Unter den Schülern herrschte Fairness.', NULL, 'Arbeitsklima', 0);
 
 -- --------------------------------------------------------
 
@@ -212,10 +120,9 @@ INSERT INTO `fragen` (`id`, `frage`, `lehrerid`, `kategorie`, `softdelete`) VALU
 -- Tabellenstruktur für Tabelle `fragentemplate`
 --
 
-DROP TABLE IF EXISTS `fragentemplate`;
 CREATE TABLE `fragentemplate` (
   `frage` varchar(255) NOT NULL,
-  `kategorie` varchar(255) NOT NULL
+  `kategorie` bigint(20) UNSIGNED NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
@@ -223,44 +130,54 @@ CREATE TABLE `fragentemplate` (
 --
 
 INSERT INTO `fragentemplate` (`frage`, `kategorie`) VALUES
-('Das Arbeitsklima ermuntert die Schüler zur aktiven Unterrichtsbeteiligung.', 'Arbeitsklima'),
-('Der Umgang der Schüler untereinander ist ehrlich und aufrichtig.', 'Arbeitsklima'),
-('Der Unterricht enthalt ausreichend Übungsphasen Unterrichtsergebnisse werden schriftlich festgehalten.', 'Unterricht'),
-('Der Unterricht ist gut vorbereitet und sorgfaltig geplant.', 'Unterricht'),
-('Die Arbeitsanweisungen sind klar verständlich.', 'Unterricht'),
-('Die Arbeitsmaterialien sind übersichtlich und ordentlich aufbereitet.', 'Unterricht'),
-('Die Aufgabenstellungen sind verständlich formuliert.', 'Leistungsbewertung'),
-('Die Beurteilung ist gerecht, weil alle Schüler gleich behandelt werden.', 'Leistungsbewertung'),
-('Die Beurteilungskriterien sind nachvollziehbar.', 'Leistungsbewertung'),
-('Die Interessen der Schüler werden bei der Unterrichtsplanung berücksichtigt.', 'Unterricht'),
-('Die Klassenarbeiten entsprechen dem behandelten Stoff.', 'Leistungsbewertung'),
-('Die Klassenarbeiten verlangen mehr als nur Auswendiglernen.', 'Leistungsbewertung'),
-('Die Klassenarbeiten werden fair benotet.', 'Leistungsbewertung'),
-('Die Schüler bearbeiten die Aufgaben im Unterricht konzentriert.', 'Arbeitsklima'),
-('Die Schüler beteiligen sich angemessen im Unterricht.', 'Arbeitsklima'),
-('Die Schüler entschuldigen ihre Fehlzelten rechtzeitig und angemessen.', 'Arbeitsklima'),
-('Die Schüler erhalten ausreichend Gelegenheit, sich im Rahmen der sonstigen Mitarbeit zu engagieren.', 'Leistungsbewertung'),
-('Die Schüler erledigen ihre Hausaufgaben zuverlässig.', 'Arbeitsklima'),
-('Die Schüler erscheinen pünktlich zum Unterricht.', 'Arbeitsklima'),
-('Die Schüler verhalten sich im Unterricht ruhig.', 'Arbeitsklima'),
-('Die sonstige Mitarbeit fließt angemessen in die Gesamtnote ein.', 'Leistungsbewertung'),
-('Die Unterrichtsinhalte sind praxisbezogen.', 'Unterricht'),
-('Die Zusammenarbeit bzw. Absprache zwischen Schule und Betrieben ist angemessen.', 'Unterricht'),
-('Einzelne Schüler wurden verbal oder mit anderen Mittel von ihren Mitschülern herabgesetzt.', 'Arbeitsklima'),
-('Er erklärt Unterrichtsinhalte anhand von Beispielen.', 'Lehrer'),
-('Er fördert selbstständiges Denken und Arbeiten.', 'Lehrer'),
-('Er ist freundlich und geduldig.', 'Lehrer'),
-('Er lobt Schüler und ermutigt sie.', 'Lehrer'),
-('Er lässt Kritik zu und geht darauf ein.', 'Lehrer'),
-('Er nimmt Ideen der Schüler auf und blockt diese nicht ab.', 'Lehrer'),
-('Es herrscht ein Arbeitsklima, in dem auch Fehler und abweichende Meinungen zugelassen werden.', 'Arbeitsklima'),
-('Gruppen- und Einzelarbeiten der Schüler werden abwechslungsreich eingesetzt.', 'Unterricht'),
-('Im Unterricht werden Bezüge zu aktuellen Themen hergestellt.', 'Unterricht'),
-('Man fühlt sich ernst genommen.', 'Arbeitsklima'),
-('Man traut sich, Fragen zu stellen.', 'Arbeitsklima'),
-('Praxisbezug wird durch Kontakte zu Betrieben und anderen außerschulichen Einrichtungen gewährleistet.', 'Unterricht'),
-('Tafelbilder und Folien sind gut lesbar.', 'Unterricht'),
-('Unter den Schülern herrschte Fairness.', 'Arbeitsklima');
+('Das Arbeitsklima ermuntert die Schüler zur aktiven Unterrichtsbeteiligung.', 1),
+('Der Umgang der Schüler untereinander ist ehrlich und aufrichtig.', 1),
+('Die Schüler bearbeiten die Aufgaben im Unterricht konzentriert.', 1),
+('Die Schüler beteiligen sich angemessen im Unterricht.', 1),
+('Die Schüler entschuldigen ihre Fehlzelten rechtzeitig und angemessen.', 1),
+('Die Schüler erledigen ihre Hausaufgaben zuverlässig.', 1),
+('Die Schüler erscheinen pünktlich zum Unterricht.', 1),
+('Die Schüler verhalten sich im Unterricht ruhig.', 1),
+('Einzelne Schüler wurden verbal oder mit anderen Mittel von ihren Mitschülern herabgesetzt.', 1),
+('Es herrscht ein Arbeitsklima, in dem auch Fehler und abweichende Meinungen zugelassen werden.', 1),
+('Man fühlt sich ernst genommen.', 1),
+('Man traut sich, Fragen zu stellen.', 1),
+('Unter den Schülern herrschte Fairness.', 1),
+('Er erklärt Unterrichtsinhalte anhand von Beispielen.', 2),
+('Er fördert selbstständiges Denken und Arbeiten.', 2),
+('Er ist freundlich und geduldig.', 2),
+('Er lobt Schüler und ermutigt sie.', 2),
+('Er lässt Kritik zu und geht darauf ein.', 2),
+('Er nimmt Ideen der Schüler auf und blockt diese nicht ab.', 2),
+('Die Aufgabenstellungen sind verständlich formuliert.', 3),
+('Die Beurteilung ist gerecht, weil alle Schüler gleich behandelt werden.', 3),
+('Die Beurteilungskriterien sind nachvollziehbar.', 3),
+('Die Klassenarbeiten entsprechen dem behandelten Stoff.', 3),
+('Die Klassenarbeiten verlangen mehr als nur Auswendiglernen.', 3),
+('Die Klassenarbeiten werden fair benotet.', 3),
+('Die Schüler erhalten ausreichend Gelegenheit, sich im Rahmen der sonstigen Mitarbeit zu engagieren.', 3),
+('Die sonstige Mitarbeit fließt angemessen in die Gesamtnote ein.', 3),
+('Der Unterricht enthalt ausreichend Übungsphasen Unterrichtsergebnisse werden schriftlich festgehalten.', 4),
+('Der Unterricht ist gut vorbereitet und sorgfaltig geplant.', 4),
+('Die Arbeitsanweisungen sind klar verständlich.', 4),
+('Die Arbeitsmaterialien sind übersichtlich und ordentlich aufbereitet.', 4),
+('Die Interessen der Schüler werden bei der Unterrichtsplanung berücksichtigt.', 4),
+('Die Unterrichtsinhalte sind praxisbezogen.', 4),
+('Die Zusammenarbeit bzw. Absprache zwischen Schule und Betrieben ist angemessen.', 4),
+('Gruppen- und Einzelarbeiten der Schüler werden abwechslungsreich eingesetzt.', 4),
+('Im Unterricht werden Bezüge zu aktuellen Themen hergestellt.', 4),
+('Praxisbezug wird durch Kontakte zu Betrieben und anderen außerschulichen Einrichtungen gewährleistet.', 4),
+('Tafelbilder und Folien sind gut lesbar.', 4);
+
+-- --------------------------------------------------------
+
+--
+-- Stellvertreter-Struktur des Views `getallcategories`
+-- (Siehe unten für die tatsächliche Ansicht)
+--
+CREATE TABLE `getallcategories` (
+`kategorie` text
+);
 
 -- --------------------------------------------------------
 
@@ -268,7 +185,6 @@ INSERT INTO `fragentemplate` (`frage`, `kategorie`) VALUES
 -- Stellvertreter-Struktur des Views `getallclasses`
 -- (Siehe unten für die tatsächliche Ansicht)
 --
-DROP VIEW IF EXISTS `getallclasses`;
 CREATE TABLE `getallclasses` (
 `name` varchar(32)
 ,`softdelete` tinyint(1)
@@ -280,7 +196,6 @@ CREATE TABLE `getallclasses` (
 -- Stellvertreter-Struktur des Views `getallsubjects`
 -- (Siehe unten für die tatsächliche Ansicht)
 --
-DROP VIEW IF EXISTS `getallsubjects`;
 CREATE TABLE `getallsubjects` (
 `name` varchar(32)
 ,`softdelete` tinyint(1)
@@ -292,7 +207,6 @@ CREATE TABLE `getallsubjects` (
 -- Stellvertreter-Struktur des Views `getalluser`
 -- (Siehe unten für die tatsächliche Ansicht)
 --
-DROP VIEW IF EXISTS `getalluser`;
 CREATE TABLE `getalluser` (
 `mail` varchar(255)
 ,`isroot` tinyint(1)
@@ -302,10 +216,23 @@ CREATE TABLE `getalluser` (
 -- --------------------------------------------------------
 
 --
+-- Stellvertreter-Struktur des Views `getaskallquestions`
+-- (Siehe unten für die tatsächliche Ansicht)
+--
+CREATE TABLE `getaskallquestions` (
+`id` bigint(20) unsigned
+,`username` varchar(255)
+,`frage` varchar(255)
+,`kategorie` text
+,`softdelete` tinyint(1)
+);
+
+-- --------------------------------------------------------
+
+--
 -- Stellvertreter-Struktur des Views `getbewertungen`
 -- (Siehe unten für die tatsächliche Ansicht)
 --
-DROP VIEW IF EXISTS `getbewertungen`;
 CREATE TABLE `getbewertungen` (
 `sum(bewertungen.bewertung)` decimal(27,0)
 ,`id` bigint(20) unsigned
@@ -315,10 +242,23 @@ CREATE TABLE `getbewertungen` (
 -- --------------------------------------------------------
 
 --
+-- Stellvertreter-Struktur des Views `getcodesinfo`
+-- (Siehe unten für die tatsächliche Ansicht)
+--
+CREATE TABLE `getcodesinfo` (
+`codehash` varchar(16)
+,`kritik` tinyint(1)
+,`bewertung` tinyint(1)
+,`fragebogenid` bigint(20) unsigned
+,`creationdate` timestamp
+);
+
+-- --------------------------------------------------------
+
+--
 -- Stellvertreter-Struktur des Views `getfbfragen`
 -- (Siehe unten für die tatsächliche Ansicht)
 --
-DROP VIEW IF EXISTS `getfbfragen`;
 CREATE TABLE `getfbfragen` (
 `zeitstempel` timestamp
 ,`bogenid` bigint(20) unsigned
@@ -326,7 +266,7 @@ CREATE TABLE `getfbfragen` (
 ,`klassename` varchar(32)
 ,`frageid` bigint(20) unsigned
 ,`frage` varchar(255)
-,`kategorie` varchar(255)
+,`kategorie` text
 ,`fachname` varchar(32)
 ,`bew110` decimal(22,0)
 ,`bew101` decimal(22,0)
@@ -342,7 +282,6 @@ CREATE TABLE `getfbfragen` (
 -- Stellvertreter-Struktur des Views `getfragebogen`
 -- (Siehe unten für die tatsächliche Ansicht)
 --
-DROP VIEW IF EXISTS `getfragebogen`;
 CREATE TABLE `getfragebogen` (
 `id` bigint(20) unsigned
 ,`zeitstempel` timestamp
@@ -359,7 +298,6 @@ CREATE TABLE `getfragebogen` (
 -- Stellvertreter-Struktur des Views `getfragenanzahl`
 -- (Siehe unten für die tatsächliche Ansicht)
 --
-DROP VIEW IF EXISTS `getfragenanzahl`;
 CREATE TABLE `getfragenanzahl` (
 `count(nm_frage_fragebogen.frageid)` bigint(21)
 ,`id` bigint(20) unsigned
@@ -369,13 +307,23 @@ CREATE TABLE `getfragenanzahl` (
 -- --------------------------------------------------------
 
 --
+-- Stellvertreter-Struktur des Views `getkritik`
+-- (Siehe unten für die tatsächliche Ansicht)
+--
+CREATE TABLE `getkritik` (
+`vorschlag` text
+,`bogenid` bigint(20) unsigned
+);
+
+-- --------------------------------------------------------
+
+--
 -- Stellvertreter-Struktur des Views `getquestions`
 -- (Siehe unten für die tatsächliche Ansicht)
 --
-DROP VIEW IF EXISTS `getquestions`;
 CREATE TABLE `getquestions` (
 `frage` varchar(255)
-,`kategorie` varchar(255)
+,`kategorie` text
 ,`mail` varchar(255)
 );
 
@@ -385,7 +333,6 @@ CREATE TABLE `getquestions` (
 -- Stellvertreter-Struktur des Views `getuserhistorie`
 -- (Siehe unten für die tatsächliche Ansicht)
 --
-DROP VIEW IF EXISTS `getuserhistorie`;
 CREATE TABLE `getuserhistorie` (
 `timestamp` timestamp
 ,`lastname` varchar(128)
@@ -401,23 +348,11 @@ CREATE TABLE `getuserhistorie` (
 -- Tabellenstruktur für Tabelle `klasse`
 --
 
-DROP TABLE IF EXISTS `klasse`;
 CREATE TABLE `klasse` (
   `name` varchar(32) NOT NULL COMMENT 'name of class',
   `schueleranzahl` smallint(6) NOT NULL COMMENT 'student count',
   `softdelete` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'Flag for deletation'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
---
--- Daten für Tabelle `klasse`
---
-
-INSERT INTO `klasse` (`name`, `schueleranzahl`, `softdelete`) VALUES
-('ITB1-17', 30, 0),
-('ITB1-18', 30, 0),
-('ITB1-19', 30, 0),
-('ITB1-20', 30, 0),
-('ITB1-21', 30, 0);
 
 -- --------------------------------------------------------
 
@@ -425,7 +360,6 @@ INSERT INTO `klasse` (`name`, `schueleranzahl`, `softdelete`) VALUES
 -- Tabellenstruktur für Tabelle `lehrer`
 --
 
-DROP TABLE IF EXISTS `lehrer`;
 CREATE TABLE `lehrer` (
   `id` bigint(20) UNSIGNED NOT NULL COMMENT 'User id',
   `mail` varchar(255) NOT NULL COMMENT 'User mail adress',
@@ -444,8 +378,7 @@ CREATE TABLE `lehrer` (
 --
 
 INSERT INTO `lehrer` (`id`, `mail`, `vorname`, `nachname`, `passwort`, `isroot`, `pepper`, `salt`, `creationdate`, `settings`) VALUES
-(1, 'temp.dump@hotmail.com', 'Admin', 'Admin', '8c961088a179e47df0ff9a1becedeed84feb4d51a79481a46391516a8425ddcaf7aa516331b76a23dde2b489c539823346ca5780bc16385d94128718bbc01fad', 1, 'ae45f0a9dffd2b3dd79c1624b8c36181', '8436d1dcd1e883cb417bafa96ffe9751', '2021-12-13 12:34:19', NULL),
-(2, 'l.eerer@schule.de', 'Lenny', 'Eerer', '8c961088a179e47df0ff9a1becedeed84feb4d51a79481a46391516a8425ddcaf7aa516331b76a23dde2b489c539823346ca5780bc16385d94128718bbc01fad', 0, 'ae45f0a9dffd2b3dd79c1624b8c36181', '8436d1dcd1e883cb417bafa96ffe9751', '2021-12-13 12:34:19', NULL);
+(1, 'temp.dump@hotmail.com', 'Admin', 'Admin', '8c961088a179e47df0ff9a1becedeed84feb4d51a79481a46391516a8425ddcaf7aa516331b76a23dde2b489c539823346ca5780bc16385d94128718bbc01fad', 1, 'ae45f0a9dffd2b3dd79c1624b8c36181', '8436d1dcd1e883cb417bafa96ffe9751', '2021-12-13 12:34:19', NULL);
 
 -- --------------------------------------------------------
 
@@ -453,122 +386,10 @@ INSERT INTO `lehrer` (`id`, `mail`, `vorname`, `nachname`, `passwort`, `isroot`,
 -- Tabellenstruktur für Tabelle `nm_frage_fragebogen`
 --
 
-DROP TABLE IF EXISTS `nm_frage_fragebogen`;
 CREATE TABLE `nm_frage_fragebogen` (
   `frageid` bigint(20) UNSIGNED NOT NULL,
   `bogenid` bigint(20) UNSIGNED NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
---
--- Daten für Tabelle `nm_frage_fragebogen`
---
-
-INSERT INTO `nm_frage_fragebogen` (`frageid`, `bogenid`) VALUES
-(1, 159),
-(1, 160),
-(1, 162),
-(2, 159),
-(2, 160),
-(2, 162),
-(3, 159),
-(3, 160),
-(3, 162),
-(4, 159),
-(4, 160),
-(4, 162),
-(5, 159),
-(5, 160),
-(6, 159),
-(6, 160),
-(7, 159),
-(7, 160),
-(7, 162),
-(8, 159),
-(8, 160),
-(9, 159),
-(9, 160),
-(10, 159),
-(10, 160),
-(10, 162),
-(11, 159),
-(11, 160),
-(11, 162),
-(12, 159),
-(12, 160),
-(12, 162),
-(13, 159),
-(13, 160),
-(13, 162),
-(14, 159),
-(14, 160),
-(15, 159),
-(15, 160),
-(15, 162),
-(16, 159),
-(16, 160),
-(17, 159),
-(17, 160),
-(17, 162),
-(18, 159),
-(18, 160),
-(19, 159),
-(19, 160),
-(19, 162),
-(20, 159),
-(20, 160),
-(20, 162),
-(21, 159),
-(21, 160),
-(21, 162),
-(22, 159),
-(22, 160),
-(22, 162),
-(23, 159),
-(23, 160),
-(23, 162),
-(24, 159),
-(24, 160),
-(24, 162),
-(25, 159),
-(25, 160),
-(25, 162),
-(26, 159),
-(26, 160),
-(27, 159),
-(27, 160),
-(27, 162),
-(28, 159),
-(28, 160),
-(29, 159),
-(29, 160),
-(30, 159),
-(30, 160),
-(30, 162),
-(31, 159),
-(31, 160),
-(31, 162),
-(32, 159),
-(32, 160),
-(32, 162),
-(33, 159),
-(33, 160),
-(33, 162),
-(34, 159),
-(34, 160),
-(34, 162),
-(35, 159),
-(35, 160),
-(35, 162),
-(36, 159),
-(36, 160),
-(36, 162),
-(37, 159),
-(37, 160),
-(37, 162),
-(38, 159),
-(38, 160),
-(38, 162),
-(130, 162);
 
 -- --------------------------------------------------------
 
@@ -576,7 +397,6 @@ INSERT INTO `nm_frage_fragebogen` (`frageid`, `bogenid`) VALUES
 -- Tabellenstruktur für Tabelle `nm_lehrer_klasse`
 --
 
-DROP TABLE IF EXISTS `nm_lehrer_klasse`;
 CREATE TABLE `nm_lehrer_klasse` (
   `lehrerid` bigint(20) UNSIGNED NOT NULL,
   `klassename` varchar(32) NOT NULL,
@@ -589,7 +409,6 @@ CREATE TABLE `nm_lehrer_klasse` (
 -- Tabellenstruktur für Tabelle `userhistorie`
 --
 
-DROP TABLE IF EXISTS `userhistorie`;
 CREATE TABLE `userhistorie` (
   `timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
   `userid` bigint(20) UNSIGNED NOT NULL,
@@ -602,11 +421,8 @@ CREATE TABLE `userhistorie` (
 --
 
 INSERT INTO `userhistorie` (`timestamp`, `userid`, `clientip`, `useraction`) VALUES
-('2021-11-29 15:28:15', 1, '192.168.0.1', 'Test'),
-('2022-01-13 11:16:48', 1, '127.0.0.1', 'Login'),
-('2022-01-13 11:20:33', 1, '127.0.0.1', 'Login'),
-('2022-01-13 11:24:28', 1, '127.0.0.1', 'Login'),
-('2022-01-13 11:25:15', 1, '127.0.0.1', 'Login');
+('2022-01-28 11:02:24', 1, '127.0.0.1', 'Login'),
+('2022-01-28 11:02:29', 1, '127.0.0.1', 'Login');
 
 -- --------------------------------------------------------
 
@@ -614,12 +430,20 @@ INSERT INTO `userhistorie` (`timestamp`, `userid`, `clientip`, `useraction`) VAL
 -- Tabellenstruktur für Tabelle `verbesserungen`
 --
 
-DROP TABLE IF EXISTS `verbesserungen`;
 CREATE TABLE `verbesserungen` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `bogenid` bigint(20) UNSIGNED NOT NULL,
   `vorschlag` text NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Struktur des Views `getallcategories`
+--
+DROP TABLE IF EXISTS `getallcategories`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getallcategories`  AS  select `categories`.`description` AS `kategorie` from `categories` order by `categories`.`description` ;
 
 -- --------------------------------------------------------
 
@@ -651,6 +475,15 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 -- --------------------------------------------------------
 
 --
+-- Struktur des Views `getaskallquestions`
+--
+DROP TABLE IF EXISTS `getaskallquestions`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getaskallquestions`  AS  select `fragen`.`id` AS `id`,`lehrer`.`mail` AS `username`,`fragen`.`frage` AS `frage`,`categories`.`description` AS `kategorie`,`fragen`.`softdelete` AS `softdelete` from ((`fragen` left join `categories` on(`fragen`.`kategorie` = `categories`.`id`)) left join `lehrer` on(`fragen`.`lehrerid` = `lehrer`.`id`)) order by `fragen`.`kategorie` ;
+
+-- --------------------------------------------------------
+
+--
 -- Struktur des Views `getbewertungen`
 --
 DROP TABLE IF EXISTS `getbewertungen`;
@@ -660,11 +493,20 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 -- --------------------------------------------------------
 
 --
+-- Struktur des Views `getcodesinfo`
+--
+DROP TABLE IF EXISTS `getcodesinfo`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getcodesinfo`  AS  select `codes`.`codehash` AS `codehash`,`codes`.`kritik` AS `kritik`,`codes`.`bewertung` AS `bewertung`,`codes`.`fragebogenid` AS `fragebogenid`,`codes`.`creationdate` AS `creationdate` from `codes` ;
+
+-- --------------------------------------------------------
+
+--
 -- Struktur des Views `getfbfragen`
 --
 DROP TABLE IF EXISTS `getfbfragen`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getfbfragen`  AS  select `fragebogen`.`zeitstempel` AS `zeitstempel`,`fragebogen`.`id` AS `bogenid`,`fragebogen`.`name` AS `thema`,`fragebogen`.`klassename` AS `klassename`,`fragen`.`id` AS `frageid`,`fragen`.`frage` AS `frage`,`fragen`.`kategorie` AS `kategorie`,`fach`.`name` AS `fachname`,sum(if(`bewertungen`.`bewertung` = -2,1,0)) AS `bew110`,sum(if(`bewertungen`.`bewertung` = -1,1,0)) AS `bew101`,sum(if(`bewertungen`.`bewertung` = 0,1,0)) AS `bew000`,sum(if(`bewertungen`.`bewertung` = 1,1,0)) AS `bew001`,sum(if(`bewertungen`.`bewertung` = 2,1,0)) AS `bew010`,sum(if(`bewertungen`.`bewertung` = -2,1,0)) * -2 + sum(if(`bewertungen`.`bewertung` = -1,1,0)) * -1 + sum(if(`bewertungen`.`bewertung` = 0,1,0)) * 0 + sum(if(`bewertungen`.`bewertung` = 1,1,0)) * 1 + sum(if(`bewertungen`.`bewertung` = 2,1,0)) * 2 AS `bewertung` from ((((`nm_frage_fragebogen` join `fragebogen` on(`fragebogen`.`id` = `nm_frage_fragebogen`.`bogenid`)) join `fragen` on(`nm_frage_fragebogen`.`frageid` = `fragen`.`id`)) join `fach` on(`fragebogen`.`fachid` = `fach`.`id`)) left join `bewertungen` on(`nm_frage_fragebogen`.`frageid` = `bewertungen`.`frageid` and `nm_frage_fragebogen`.`bogenid` = `bewertungen`.`bogenid`)) group by `fragen`.`id`,`fragebogen`.`id` ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getfbfragen`  AS  select `fragebogen`.`zeitstempel` AS `zeitstempel`,`fragebogen`.`id` AS `bogenid`,`fragebogen`.`name` AS `thema`,`fragebogen`.`klassename` AS `klassename`,`fragen`.`id` AS `frageid`,`fragen`.`frage` AS `frage`,`categories`.`description` AS `kategorie`,`fach`.`name` AS `fachname`,sum(if(`bewertungen`.`bewertung` = -2,1,0)) AS `bew110`,sum(if(`bewertungen`.`bewertung` = -1,1,0)) AS `bew101`,sum(if(`bewertungen`.`bewertung` = 0,1,0)) AS `bew000`,sum(if(`bewertungen`.`bewertung` = 1,1,0)) AS `bew001`,sum(if(`bewertungen`.`bewertung` = 2,1,0)) AS `bew010`,sum(if(`bewertungen`.`bewertung` = -2,1,0)) * -2 + sum(if(`bewertungen`.`bewertung` = -1,1,0)) * -1 + sum(if(`bewertungen`.`bewertung` = 0,1,0)) * 0 + sum(if(`bewertungen`.`bewertung` = 1,1,0)) * 1 + sum(if(`bewertungen`.`bewertung` = 2,1,0)) * 2 AS `bewertung` from (((((`nm_frage_fragebogen` join `fragebogen` on(`fragebogen`.`id` = `nm_frage_fragebogen`.`bogenid`)) join `fragen` on(`nm_frage_fragebogen`.`frageid` = `fragen`.`id`)) join `fach` on(`fragebogen`.`fachid` = `fach`.`id`)) left join `categories` on(`fragen`.`kategorie` = `categories`.`id`)) left join `bewertungen` on(`nm_frage_fragebogen`.`frageid` = `bewertungen`.`frageid` and `nm_frage_fragebogen`.`bogenid` = `bewertungen`.`bogenid`)) group by `fragen`.`id`,`fragebogen`.`id` ;
 
 -- --------------------------------------------------------
 
@@ -687,11 +529,20 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 -- --------------------------------------------------------
 
 --
+-- Struktur des Views `getkritik`
+--
+DROP TABLE IF EXISTS `getkritik`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getkritik`  AS  select `verbesserungen`.`vorschlag` AS `vorschlag`,`verbesserungen`.`bogenid` AS `bogenid` from `verbesserungen` ;
+
+-- --------------------------------------------------------
+
+--
 -- Struktur des Views `getquestions`
 --
 DROP TABLE IF EXISTS `getquestions`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getquestions`  AS  select `fragen`.`frage` AS `frage`,`fragen`.`kategorie` AS `kategorie`,`lehrer`.`mail` AS `mail` from (`fragen` join `lehrer` on(`fragen`.`lehrerid` = `lehrer`.`id`)) where `fragen`.`softdelete` is false ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getquestions`  AS  select `fragen`.`frage` AS `frage`,`categories`.`description` AS `kategorie`,`lehrer`.`mail` AS `mail` from ((`fragen` left join `categories` on(`fragen`.`kategorie` = `categories`.`id`)) join `lehrer` on(`fragen`.`lehrerid` = `lehrer`.`id`)) where `fragen`.`softdelete` is false ;
 
 -- --------------------------------------------------------
 
@@ -714,6 +565,14 @@ ALTER TABLE `bewertungen`
   ADD UNIQUE KEY `id` (`id`),
   ADD KEY `frageid` (`frageid`),
   ADD KEY `bogenid` (`bogenid`);
+
+--
+-- Indizes für die Tabelle `categories`
+--
+ALTER TABLE `categories`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `id` (`id`),
+  ADD UNIQUE KEY `description` (`description`) USING HASH;
 
 --
 -- Indizes für die Tabelle `codes`
@@ -745,13 +604,15 @@ ALTER TABLE `fragebogen`
 ALTER TABLE `fragen`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `id` (`id`),
-  ADD KEY `lehrerid` (`lehrerid`);
+  ADD KEY `lehrerid` (`lehrerid`),
+  ADD KEY `kategorie` (`kategorie`);
 
 --
 -- Indizes für die Tabelle `fragentemplate`
 --
 ALTER TABLE `fragentemplate`
-  ADD PRIMARY KEY (`frage`);
+  ADD PRIMARY KEY (`frage`),
+  ADD KEY `kategorie` (`kategorie`);
 
 --
 -- Indizes für die Tabelle `klasse`
@@ -803,7 +664,13 @@ ALTER TABLE `verbesserungen`
 -- AUTO_INCREMENT für Tabelle `bewertungen`
 --
 ALTER TABLE `bewertungen`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=101;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=159;
+
+--
+-- AUTO_INCREMENT für Tabelle `categories`
+--
+ALTER TABLE `categories`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT für Tabelle `fach`
@@ -815,7 +682,7 @@ ALTER TABLE `fach`
 -- AUTO_INCREMENT für Tabelle `fragebogen`
 --
 ALTER TABLE `fragebogen`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=165;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=167;
 
 --
 -- AUTO_INCREMENT für Tabelle `fragen`
@@ -833,7 +700,7 @@ ALTER TABLE `lehrer`
 -- AUTO_INCREMENT für Tabelle `verbesserungen`
 --
 ALTER TABLE `verbesserungen`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- Constraints der exportierten Tabellen
@@ -864,7 +731,14 @@ ALTER TABLE `fragebogen`
 -- Constraints der Tabelle `fragen`
 --
 ALTER TABLE `fragen`
-  ADD CONSTRAINT `fragen_ibfk_1` FOREIGN KEY (`lehrerid`) REFERENCES `lehrer` (`id`);
+  ADD CONSTRAINT `fragen_ibfk_1` FOREIGN KEY (`lehrerid`) REFERENCES `lehrer` (`id`),
+  ADD CONSTRAINT `fragen_ibfk_2` FOREIGN KEY (`kategorie`) REFERENCES `categories` (`id`);
+
+--
+-- Constraints der Tabelle `fragentemplate`
+--
+ALTER TABLE `fragentemplate`
+  ADD CONSTRAINT `fragentemplate_ibfk_1` FOREIGN KEY (`kategorie`) REFERENCES `categories` (`id`);
 
 --
 -- Constraints der Tabelle `nm_frage_fragebogen`

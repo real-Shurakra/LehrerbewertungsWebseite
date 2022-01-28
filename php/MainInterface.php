@@ -236,13 +236,27 @@ class FragenVerwaltung {
         try{
             $answer = array('returncode' =>1,'returnvalue'=>'<strong style="color:red;">Unknown Error</strong><br>/php/main.php -> FragenVerwaltung.addFrage()');
             global $link;
+            // Check if question is allready inside
             $sqlquary_SucheFrage = "SELECT * FROM fragen WHERE frage = '" . $frage . "' AND lehrerid = (SELECT id FROM lehrer WHERE mail = '".$_SESSION['usermail']."');";
+
             $sqlquary_SucheFrage_Result = mysqli_query($link, $sqlquary_SucheFrage);
             if ($sqlquary_SucheFrage_Result->num_rows == 0) {
+
                 $sqlquary_InsertFrage = "
-                    INSERT INTO fragen (frage, kategorie, lehrerid) VALUES 
-                    ('" . $frage . "', '" . $kategorie . "', (SELECT id FROM lehrer WHERE mail = '".$_SESSION['usermail']."'));";
+                    INSERT INTO fragen (
+                        frage, 
+                        kategorie, 
+                        lehrerid
+                    ) 
+                    VALUES 
+                    (
+                        '" . $frage . "', 
+                        '" . $kategorie . "', 
+                        (SELECT id FROM lehrer WHERE mail = '".$_SESSION['usermail']."')
+                    );
+                ";
                 $sqlquary_InsertFrage_Result = mysqli_query($link, $sqlquary_InsertFrage);
+
                 if ($sqlquary_InsertFrage_Result) {$answer = array('returncode' =>0,'returnvalue'=>'<strong style="color:green;">Die Frage wurde erfolgreich gespeichert.</strong>');}
             }
             else {$answer =  array('returncode' =>-1,'returnvalue'=>'<strong style="color:yellow;">Die Frage befand sich bereits in der Datenbank.</strong>');}
@@ -261,9 +275,7 @@ class FragenVerwaltung {
             $answer = array('returncode' =>1,'returnvalue'=>'<strong>Unknown Error</strong><br>/php/main.php -> FragenVerwaltung.askAlleFragen()');
             global $link;
             $sqlquary_AlleFragen_Result_Data = array();
-            $sqlquary_AlleFragen = "
-                SELECT id, frage, kategorie, softdelete FROM fragen 
-                WHERE lehrerid = (SELECT id FROM lehrer WHERE mail = '".$_SESSION['usermail']."') ORDER BY kategorie ASC;";
+            $sqlquary_AlleFragen = "SELECT id, frage, kategorie, softdelete FROM getaskallquestions WHERE username = '".$_SESSION['usermail']."';";
             $sqlquary_AlleFragen_Result = mysqli_query($link, $sqlquary_AlleFragen);
             if (!$sqlquary_AlleFragen_Result) {throw new ErrorException($link->error);}
             $answerArray = array();
@@ -296,7 +308,7 @@ class FragenVerwaltung {
         try {
             global $link;
             $sqlquary_AlleKategorien_Result_Data = array();
-            $sqlquary_AlleKategorien = "SELECT kategorie FROM fragen GROUP BY kategorie";
+            $sqlquary_AlleKategorien = "SELECT kategorie FROM getallcategories";
             $sqlquary_AlleKategorien_Result = mysqli_query($link, $sqlquary_AlleKategorien);
             if (!$sqlquary_AlleKategorien_Result) {throw new ErrorException($link->error);}
             for ($i = 0; $i < $sqlquary_AlleKategorien_Result->num_rows; $i++) {
@@ -454,7 +466,7 @@ class FragenVerwaltung {
 
     public static function getCodes($fbId) {
         global $link;
-        $sqlquery_GetCodes = "SELECT codehash FROM codes WHERE fragebogenid = '".$fbId."'";
+        $sqlquery_GetCodes = "SELECT codehash FROM getcodesinfo WHERE fragebogenid = '".$fbId."'";
         $sqlquery_GetCodes_Result = mysqli_query($link, $sqlquery_GetCodes);
         if($sqlquery_GetCodes_Result->num_rows == 0){
             return array(
@@ -541,7 +553,7 @@ class FragenVerwaltung {
         global $link;
         $rates = json_decode($rates, true);
         $rates = json_decode($rates, true);
-        $sqlquery_CheckValidation = "SELECT bewertung FROM codes WHERE codehash='" . $codehash . "'";
+        $sqlquery_CheckValidation = "SELECT bewertung FROM getcodesinfo WHERE codehash='" . $codehash . "'";
         if (mysqli_fetch_array(mysqli_query($link, $sqlquery_CheckValidation))['bewertung'] !== '0'){
             $antwort = array(
                 'returncode'=>-3,
@@ -595,7 +607,7 @@ class FragenVerwaltung {
     public static function insertkritik($fbId, $kritik, $codehash) {
         try{
             global $link;
-            $sqlquery_CheckValidation = "SELECT kritik FROM codes WHERE codehash='" . $codehash . "'";
+            $sqlquery_CheckValidation = "SELECT kritik FROM getcodesinfo WHERE codehash='" . $codehash . "'";
             $sqlquery_CheckValidation_Result = mysqli_fetch_array(mysqli_query($link, $sqlquery_CheckValidation))['kritik'];
             if ($sqlquery_CheckValidation_Result === '1'){
                 $answer = array(
@@ -642,7 +654,7 @@ class FragenVerwaltung {
 
     static function checkanddeleteCode($strCode){
         global $link;
-        $arrayCodeCheck = mysqli_fetch_array(mysqli_query($link, "SELECT kritik, bewertung FROM codes WHERE codehash='". $strCode . "'"));
+        $arrayCodeCheck = mysqli_fetch_array(mysqli_query($link, "SELECT kritik, bewertung FROM getcodesinfo WHERE codehash='". $strCode . "'"));
         if ($arrayCodeCheck['kritik'] === '1' && $arrayCodeCheck['bewertung'] === '1'){
             mysqli_query($link, "DELETE FROM codes WHERE codehash = '" . $strCode . "'");
         }
@@ -651,7 +663,7 @@ class FragenVerwaltung {
 
     public static function getkritik($fbId) {
         global $link;
-        $sqlquery_GetKritik = "SELECT vorschlag FROM verbesserungen WHERE bogenid = " . $fbId . "";
+        $sqlquery_GetKritik = "SELECT vorschlag FROM getkritik WHERE bogenid = " . $fbId . "";
         $sqlquery_GetKritik_Result = mysqli_query($link, $sqlquery_GetKritik);
         if ($sqlquery_GetKritik_Result->num_rows == 0) {
             return array(
@@ -673,7 +685,7 @@ class FragenVerwaltung {
 
     public static function getAlleSchulklassen() {
         global $link;
-        $sqlquery_getAlleSchulklassen = "SELECT name FROM klasse";
+        $sqlquery_getAlleSchulklassen = "SELECT name FROM getallclasses";
         $sqlquery_getAlleSchulklassen_Result = mysqli_query($link, $sqlquery_getAlleSchulklassen);
         if ($sqlquery_getAlleSchulklassen_Result->num_rows == 0) {
             return array(
@@ -708,7 +720,7 @@ class FragenVerwaltung {
 
     public static function getAllSubjects(){
         global $link;
-        $sqlquery_getAlleSchulklassen = "SELECT name FROM fach";
+        $sqlquery_getAlleSchulklassen = "SELECT name FROM getallsubjects";
         $sqlquery_getAlleSchulklassen_Result = mysqli_query($link, $sqlquery_getAlleSchulklassen);
         if ($sqlquery_getAlleSchulklassen_Result->num_rows == 0) {
             return array(
@@ -731,7 +743,9 @@ class FragenVerwaltung {
         try{
             $answer = array('rc' => false,'rv' => '<strong>Unknown-Error at main.php -> FragenVerwaltung.alterQuestion()</strong><br>Bitte wenden Sie sich an einen Administrator.');
             global $link;
+
             $sqlquery_deleteQuestions = "UPDATE fragen SET frage='".$neuFrage."' WHERE id = ".$frageId."";
+
             $sqlResult = mysqli_query($link, $sqlquery_deleteQuestions);
             if ($sqlResult == False) throw new ErrorException('<strong>SQL-Error</strong><br>Bitte wenden Sie sich an einen Administrator.');
             $answer = array('rc' => true,'rv' => NULL);
