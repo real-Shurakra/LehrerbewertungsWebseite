@@ -29,7 +29,7 @@ export default class FunctionManager
 		tempOption.innerHTML = "keine";
 		dropdownClasses.appendChild(tempOption);
 
-		if(response.returncode == 0)
+		if(responseClasses.returncode == 0)
 		{
 			for (let i = 0; i < responseClasses.returnvalue.length; i++)
 			{
@@ -42,11 +42,13 @@ export default class FunctionManager
 		else
 		{
 			console.log("Die Schulklassen konnten nicht geladen werden...");
-			console.log(response);
+			console.log(responseClasses);
 		}
 
 		
 		let responseSubjects = JSON.parse(this.Request("./php/main.php?mode=getAllSubjects"));
+		console.log('responseSubjects:');
+		console.log(responseSubjects);
 
 		// Dropdown für Schulfach füllen
 		let dropdownSubjects = document.getElementById("questionnaire_filter_subjects");
@@ -54,12 +56,20 @@ export default class FunctionManager
 		tempOption = document.createElement("option");
 		tempOption.innerHTML = "keins"
 		dropdownSubjects.appendChild(tempOption);
-		for (let i = 0; i < responseSubjects.returnvalue.length; i++)
+		if(responseSubjects.returncode == 0)
 		{
-			let tempOption = document.createElement("option");
-			tempOption.innerHTML = responseSubjects.returnvalue[i];
-			tempOption.value = responseSubjects.returnvalue[i];
-			dropdownSubjects.appendChild(tempOption);
+			for (let i = 0; i < responseSubjects.returnvalue.length; i++)
+			{
+				let tempOption = document.createElement("option");
+				tempOption.innerHTML = responseSubjects.returnvalue[i];
+				tempOption.value = responseSubjects.returnvalue[i];
+				dropdownSubjects.appendChild(tempOption);
+			}
+		}
+		else
+		{
+			console.log("Die Fächer konnten nicht geladen werden...");
+			console.log(response);
 		}
 
 
@@ -83,12 +93,17 @@ export default class FunctionManager
 		let tempOption = document.createElement("option");
 		tempOption.innerHTML = "keine";
 		dropdownClasses.appendChild(tempOption);
-		for (let i = 0; i < responseClasses.returnvalue.length; i++)
+
+		if(responseClasses.returncode == 0)
 		{
-			let tempOption = document.createElement("option");
-			tempOption.innerHTML = responseClasses.returnvalue[i];
-			document.getElementById("questionnaire_filter_classes").appendChild(tempOption);
+			for (let i = 0; i < responseClasses.returnvalue.length; i++)
+			{
+				let tempOption = document.createElement("option");
+				tempOption.innerHTML = responseClasses.returnvalue[i];
+				document.getElementById("questionnaire_filter_classes").appendChild(tempOption);
+			}
 		}
+
 		
 		// Dropdown für Schulfach füllen
 		let responseSubjects = JSON.parse(this.Request("./php/main.php?mode=getAllSubjects"));
@@ -102,12 +117,17 @@ export default class FunctionManager
 		tempOption = document.createElement("option");
 		tempOption.innerHTML = "keins";
 		dropdownSubjects.appendChild(tempOption);
-		for (let i = 0; i < responseSubjects.returnvalue.length; i++)
+
+		if(responseSubjects.returncode == 0)
 		{
-			let tempOption = document.createElement("option");
-			tempOption.innerHTML = responseSubjects.returnvalue[i];
-			document.getElementById("questionnaire_filter_subjects").appendChild(tempOption);
+			for (let i = 0; i < responseSubjects.returnvalue.length; i++)
+			{
+				let tempOption = document.createElement("option");
+				tempOption.innerHTML = responseSubjects.returnvalue[i];
+				document.getElementById("questionnaire_filter_subjects").appendChild(tempOption);
+			}
 		}
+
 
 		// Input-Feld für Themensuche
 		let searchInputQSubjects = document.getElementById("questionnaire_filter_qSubject");
@@ -690,17 +710,26 @@ export default class FunctionManager
 				if ( xhttp.readyState == 4 && xhttp.status == 200 )
 				{
 					response = JSON.parse(xhttp.responseText);
-				
-					console.log("allSubjects:");
-					console.log(response);
 
-					for ( let i = 0; i < response.returnvalue.length; i++ )
+					if (response.returncode == 0)
 					{
-						let selectElement = document.createElement( "option" );
-						selectElement.value = response.returnvalue[i];
-						selectElement.innerHTML = response.returnvalue[i];
-						selectFieldQuestionnaireSubject.appendChild( selectElement );
+						console.log("allSubjects:");
+						console.log(response);
+
+						for ( let i = 0; i < response.returnvalue.length; i++ )
+						{
+							let selectElement = document.createElement( "option" );
+							selectElement.value = response.returnvalue[i];
+							selectElement.innerHTML = response.returnvalue[i];
+							selectFieldQuestionnaireSubject.appendChild( selectElement );
+						
+						}
 					}
+					else
+					{
+						console.error("Die Fächer konnten nicht geladen werden...");
+						console.log(response);						
+					}	
 				}
 			};
 			xhttp.open("POST", path, true);

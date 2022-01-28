@@ -378,7 +378,7 @@ CREATE TABLE `lehrer` (
 --
 
 INSERT INTO `lehrer` (`id`, `mail`, `vorname`, `nachname`, `passwort`, `isroot`, `pepper`, `salt`, `creationdate`, `settings`) VALUES
-(1, 'temp.dump@hotmail.com', 'Admin', 'Admin', '8c961088a179e47df0ff9a1becedeed84feb4d51a79481a46391516a8425ddcaf7aa516331b76a23dde2b489c539823346ca5780bc16385d94128718bbc01fad', 1, 'ae45f0a9dffd2b3dd79c1624b8c36181', '8436d1dcd1e883cb417bafa96ffe9751', '2021-12-13 12:34:19', NULL);
+(1, 'Administrator', 'Admin', 'Admin', '8c961088a179e47df0ff9a1becedeed84feb4d51a79481a46391516a8425ddcaf7aa516331b76a23dde2b489c539823346ca5780bc16385d94128718bbc01fad', 1, 'ae45f0a9dffd2b3dd79c1624b8c36181', '8436d1dcd1e883cb417bafa96ffe9751', '2021-12-13 12:34:19', NULL);
 
 -- --------------------------------------------------------
 

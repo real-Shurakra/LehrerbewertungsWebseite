@@ -344,11 +344,19 @@ class FragenVerwaltung {
                 throw new ErrorException($link->error);
             }
             else{
-                $sqlquery_GetLastFbId = "SELECT MAX(id) FROM fragebogen WHERE `lehrerid` = (SELECT id FROM lehrer WHERE mail = '" . $_SESSION['usermail'] ."');";
+                $sqlquery_GetLastFbId = "
+                    SELECT 
+                        MAX(id) 
+                    FROM 
+                        fragebogen 
+                    WHERE 
+                        `lehrerid` = (SELECT id FROM lehrer WHERE mail = '" . $_SESSION['usermail'] ."');
+                ";
                 $sqlquery_GetLastFbId_Result = mysqli_query($link, $sqlquery_GetLastFbId);
                 $sqlquery_GetLastFbId_Result_Data = mysqli_fetch_array($sqlquery_GetLastFbId_Result);
                 $fbId = $sqlquery_GetLastFbId_Result_Data['MAX(id)'];
-                $row_sqlquery_InsertFbFragen = "INSERT INTO nm_frage_fragebogen (bogenid, frageid) VALUES ";
+                $row_sqlquery_InsertFbFragen = "
+                    INSERT INTO nm_frage_fragebogen (bogenid, frageid) VALUES ";
                 for ($i = 0; $i < count($fragen); $i++) {
                     $row_sqlquery_InsertFbFragen .= "(".$fbId.", ".$fragen[$i]."),";
                 }
@@ -748,7 +756,7 @@ class FragenVerwaltung {
 
             $sqlResult = mysqli_query($link, $sqlquery_deleteQuestions);
             if ($sqlResult == False) throw new ErrorException('<strong>SQL-Error</strong><br>Bitte wenden Sie sich an einen Administrator.');
-            $answer = array('rc' => true,'rv' => NULL);
+            $answer = array('rc' => true,'rv' => $sqlResult);
         }
         catch(ErrorException $error){$answer = array('rc' => false,'rv' => $error);}
         finally{return $answer;}
