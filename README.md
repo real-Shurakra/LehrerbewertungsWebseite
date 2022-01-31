@@ -1,6 +1,6 @@
 # LehrerbewertungsWebseite
 School project.<br>
-A Website for Students where they can rate there teacher.<br>
+A Website for Students to rate there teachers.<br>
 Language: 
 - German
 <br>
