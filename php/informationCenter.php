@@ -23,7 +23,7 @@ class informationCenter{
             if (!$gitFullHash['rc']){throw new ErrorException($gitFullHash['rv']);}
             else{$gitFullHash = $gitFullHash['rv'];}
             $gitShortHash = substr($gitFullHash, 0, 6);
-            $answer = array('rc'=>true, 'rv'=>'<a href = "https://github.com/real-Shurakra/LehrerbewertungsWebseite" target="_blank" tooltip="Git Hash: '.$gitFullHash.'" style="color:black; text-decoration: none;">'.$gitSymbol.' ver. '.$gitShortHash.'</a>');
+            $answer = array('rc'=>true, 'rv'=>'<a href = "https://github.com/real-Shurakra/Lehrerbeurteilung" target="_blank" tooltip="Git Hash: '.$gitFullHash.'" style="color:black; text-decoration: none;">'.$gitSymbol.' ver. '.$gitShortHash.'</a>');
         }
         catch(ErrorException $error){$answer = array('rc'=>false, 'rv'=>strval(debug_backtrace()[0]['line']).': '.debug_backtrace()[0]['class'].'.'.debug_backtrace()[0]['function'].debug_backtrace()[0]['type'].$error->getMessage());}
         finally{return $answer;}
