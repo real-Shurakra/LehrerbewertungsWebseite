@@ -30,7 +30,16 @@
 			<!-- horizontales Menü --->
 			<div id="container_horizontal_menu">
 				<div class="button" id="horizontal_menu_button_teachers" onClick="window.open('./index.php', '_self');">
-					<div>&#9650; Logout</div>
+					<table>
+						<tr>
+							<td>
+								<div>&#9650; Logout</div>
+							</td>
+							<td>
+
+							</td>
+						</tr>
+					</table>
 				</div>
 			</div>
 			
@@ -46,5 +55,17 @@
 			<div id="subMaskNotification_layer">
 			</div>
 		</div>
+		<footer>
+		<div id="git_address"><?php
+									include './php/informationCenter.php';
+									$informationCenter= new informationCenter();
+									$response = $informationCenter->getGitShortCut();
+									if($response["rc"])
+									{
+										echo $response["rv"];
+									}
+								?></div>
+
+		</footer>
 	</body>
 </html>

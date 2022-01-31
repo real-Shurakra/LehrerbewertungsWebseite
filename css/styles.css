@@ -34,6 +34,7 @@ body
 
 .title
 {
+	width: 94%;
 	background-color:#191f51;
 	color:white;
 	padding:2px;	
@@ -365,3 +366,11 @@ svg {
 .teacher_questionnaire{
 	margin-top: 20px;
 }
+
+#git_address {
+	display: block; /* Hidden by default */
+	position: fixed; /* Fixed/sticky position */
+	bottom: 25px; /* Place the button at the bottom of the page */
+	right: 23px; /* Place the button 30px from the right */
+	z-index: 99; /* Make sure it does not overlap */
+  }

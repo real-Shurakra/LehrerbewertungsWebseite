@@ -3,7 +3,7 @@
 use FFI\Exception;
 session_start();
 include 'phpjsinterface.php';
-include 'infomationCenter.php';
+include 'informationCenter.php';
 include '../conf/config.php';
 include './old_dbConnect.php';
 
@@ -13,7 +13,7 @@ class MainInterface {
         $_REQUEST = $this->checkSemicolon($_REQUEST);
         global $dbipv4, $dbname, $dbuser, $dbpass;
         $this->interface = new phpjsinterface($dbipv4, $dbname, $dbuser, $dbpass);
-        $this->infoCenter = new infomationCenter();
+        $this->infoCenter = new informationCenter();
     }
 
     function executeOrder($requestMode){
@@ -65,7 +65,7 @@ class MainInterface {
 
 
 
-            // infomationCenter.php
+            // informationCenter.php
             case  'getGitShortCut':
                 return json_encode($this->infoCenter->getGitShortCut());
                 break;

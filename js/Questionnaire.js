@@ -808,21 +808,32 @@ export default class Questionnaire
 							// Wenn ein Verbesserungsvorschlag eingetragen wurde, wird dieser hinzugefügt.
 							if (response.returnvalue[suggestion].length != 0)
 							{
-								let tempSuggestion = document.createElement("div");
-								tempSuggestion.style.paddingTop = "10px";
-								tempSuggestion.style.paddingBottom = "10px";
-								tempSuggestion.style.paddingLeft = "10px";
+
+								let tempSuggestionDiv = document.createElement("div");
+
+								let anonDiv = document.createElement("div");
+								anonDiv.style.paddingTop = "10px";
+								anonDiv.style.paddingBottom = "10px";
+								anonDiv.style.paddingLeft = "10px";
 		
 								let span1 = document.createElement("span");
 								span1.style.fontWeight = "bold";
 								span1.innerHTML = "Anon: ";
-								tempSuggestion.appendChild(span1);
+								anonDiv.appendChild(span1);
+								tempSuggestionDiv.appendChild(anonDiv);
+
+								let textAreaDiv = document.createElement("div");
 		
-								let span2 = document.createElement("span");
-								span2.innerHTML = response.returnvalue[suggestion];
-								tempSuggestion.appendChild(span2);
+								let textArea = document.createElement("textarea");
+								//textArea.rows = 6;
+								textArea.style.width = "96%";
+								//textArea.style.height = "300px";
+								textArea.readOnly = true;
+								textArea.innerHTML = response.returnvalue[suggestion];
+								textAreaDiv.appendChild(textArea);
+								tempSuggestionDiv.appendChild(textAreaDiv);
 		
-								tempSuggestionContainer.appendChild(tempSuggestion);
+								tempSuggestionContainer.appendChild(tempSuggestionDiv);
 							}
 						}
 			

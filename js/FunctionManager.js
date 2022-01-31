@@ -238,7 +238,7 @@ export default class FunctionManager
 							//tableRowElement.style.width = "100%";
 						
 							let subTable = document.createElement( "table" );
-							subTable.style.width = "100%";
+							subTable.style.width = "95%";
 						
 							let subTableRow = document.createElement( "tr" );
 							//subTableRow.style.width = "100%";
