@@ -56,16 +56,17 @@
 			</div>
 		</div>
 		<footer>
-		<div id="git_address"><?php
-									include './php/informationCenter.php';
-									$informationCenter= new informationCenter();
-									$response = $informationCenter->getGitShortCut();
-									if($response["rc"])
-									{
-										echo $response["rv"];
-									}
-								?></div>
-
+			<div id="git_address">
+				<?php
+				include './php/informationCenter.php';
+				$informationCenter= new informationCenter();
+				$response = $informationCenter->getGitShortCut();
+				if($response["rc"])
+				{
+					echo $response["rv"];
+				}
+				?>
+			</div>
 		</footer>
 	</body>
 </html>
